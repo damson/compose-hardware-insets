@@ -33,6 +33,10 @@
     <string name="plate_chamber_medium">Seeded tracks over a single glow</string>
     <string name="plate_chamber_description">Faint diagonal tracks scattered over a blue glow on near black, with three brighter ones crossing the whole plate.</string>
 
+    <string name="plate_crown_title">Crown, Crossed Out</string>
+    <string name="plate_crown_medium">Crown, ribs and words struck through</string>
+    <string name="plate_crown_description">A yellow three-point crown over a worked dark ground, with block words struck out, a ribcage drawn in white, and blocks of blue and yellow.</string>
+
     <string name="legend_rects">Cutout</string>
     <string name="legend_depths">Depths</string>
     <string name="no_cutout">None reported</string>

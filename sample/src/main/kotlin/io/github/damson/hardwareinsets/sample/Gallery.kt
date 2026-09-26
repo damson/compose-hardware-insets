@@ -14,12 +14,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
@@ -27,7 +34,8 @@ import kotlin.math.sin
 /**
  * One work in the gallery: the wall label, and how the work is painted.
  *
- * @param paint the composition, given the palette it is painted from. A lambda
+ * @param paint the composition, given the palette it is painted from and a
+ *   measurer for the one plate that writes words. A lambda
  *   over a [DrawScope] rather than an image, because the plate has to be the
  *   whole window: an asset would arrive at its own aspect ratio and the letter
  *   boxing would become the margin this library exists to do without.
@@ -45,7 +53,7 @@ internal class Plate(
     @StringRes val description: Int,
     val isPaleAtTheTop: Boolean,
     val isPaleAtTheBottom: Boolean,
-    val paint: DrawScope.(PlatePalette) -> Unit,
+    val paint: DrawScope.(PlatePalette, TextMeasurer) -> Unit,
 )
 
 /** The four colours a plate may use. */
@@ -64,6 +72,15 @@ internal data class PlatePalette(
  * its contrast from the colour scheme, because what is behind it is a painting
  * and not a surface, and a gallery of four pale plates would never show it.
  */
+/** The worked ground under the marks: ink that has been painted rather than filled. */
+private val Grounded = Color(0xFF0B1B2E)
+
+/**
+ * The one colour in the gallery that is not in the palette, and the only plate
+ * that uses it. Warm, and deliberately not the red the cutout markers own.
+ */
+private val Accent = Color(0xFFF2D06B)
+
 internal val Plates = listOf(
     Plate(
         title = R.string.plate_tide_title,
@@ -72,7 +89,7 @@ internal val Plates = listOf(
         description = R.string.plate_tide_description,
         isPaleAtTheTop = true,
         isPaleAtTheBottom = false,
-        paint = { palette -> paintLowTide(palette) },
+        paint = { palette, _ -> paintLowTide(palette) },
     ),
     Plate(
         title = R.string.plate_interference_title,
@@ -81,7 +98,7 @@ internal val Plates = listOf(
         description = R.string.plate_interference_description,
         isPaleAtTheTop = true,
         isPaleAtTheBottom = true,
-        paint = { palette -> paintInterference(palette) },
+        paint = { palette, _ -> paintInterference(palette) },
     ),
     Plate(
         title = R.string.plate_hard_edge_title,
@@ -90,7 +107,7 @@ internal val Plates = listOf(
         description = R.string.plate_hard_edge_description,
         isPaleAtTheTop = true,
         isPaleAtTheBottom = true,
-        paint = { palette -> paintHardEdge(palette) },
+        paint = { palette, _ -> paintHardEdge(palette) },
     ),
     Plate(
         title = R.string.plate_chamber_title,
@@ -99,7 +116,16 @@ internal val Plates = listOf(
         description = R.string.plate_chamber_description,
         isPaleAtTheTop = false,
         isPaleAtTheBottom = false,
-        paint = { palette -> paintCloudChamber(palette) },
+        paint = { palette, _ -> paintCloudChamber(palette) },
+    ),
+    Plate(
+        title = R.string.plate_crown_title,
+        maker = R.string.plate_maker,
+        medium = R.string.plate_crown_medium,
+        description = R.string.plate_crown_description,
+        isPaleAtTheTop = false,
+        isPaleAtTheBottom = false,
+        paint = { palette, text -> paintCrown(palette, text) },
     ),
 )
 
@@ -120,6 +146,7 @@ internal val Plates = listOf(
 internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val direction = LocalLayoutDirection.current
+    val measurer = rememberTextMeasurer()
     BoxWithConstraints(modifier.fillMaxSize()) {
         val width = constraints.maxWidth
         val height = constraints.maxHeight
@@ -136,7 +163,7 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
                     canvas = Canvas(image),
                     size = Size(width.toFloat(), height.toFloat()),
                 ) {
-                    plate.paint(this, GalleryPalette)
+                    plate.paint(this, GalleryPalette, measurer)
                 }
             }
         }
@@ -329,6 +356,155 @@ private fun DrawScope.paintCloudChamber(palette: PlatePalette) {
             strokeWidth = 1.5.dp.toPx(),
         )
     }
+}
+
+/**
+ * Neo-expressionist: a crown, a ribcage, words struck through, raw blocks of
+ * colour on a worked ground.
+ *
+ * An original composition in that idiom, not a copy of anyone's painting. The
+ * works it takes its language from are in copyright and cannot ship in a public
+ * repository; the language itself is not anyone's property.
+ *
+ * The one plate that leaves the palette, by a single warm accent. It stays well
+ * away from the red the cutout markers use, because a plate that competes with
+ * the markers argues against the thing this screen is for.
+ */
+private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
+    val unit = size.width / 12f
+    val next = seeded(0x8A51)
+
+    // A worked ground rather than a flat fill: three passes of near-ink, so the
+    // marks sit on something painted instead of on a background colour.
+    drawRect(palette.ink)
+    repeat(7) {
+        val top = next() * size.height
+        drawRect(
+            color = if (next() > 0.5f) Grounded else palette.ink.copy(alpha = 0.55f),
+            topLeft = Offset(-unit + next() * unit * 2f, top),
+            size = Size(size.width * (0.5f + next() * 0.7f), size.height * (0.08f + next() * 0.16f)),
+        )
+    }
+
+    drawRect(
+        palette.sea,
+        topLeft = Offset(unit * 6.6f, size.height * 0.52f),
+        size = Size(unit * 4.6f, size.height * 0.18f),
+    )
+    repeat(9) { index ->
+        val x = unit * 6.8f + index * unit * 0.48f
+        drawLine(
+            palette.paper.copy(alpha = 0.55f),
+            Offset(x, size.height * 0.53f),
+            Offset(x - unit * 0.6f, size.height * 0.69f),
+            strokeWidth = 2.dp.toPx(),
+        )
+    }
+    drawRect(
+        Accent,
+        topLeft = Offset(unit * 0.6f, size.height * 0.80f),
+        size = Size(unit * 3.4f, size.height * 0.10f),
+    )
+
+    // Everything that carries the picture sits below the top third, because the
+    // label is there and an 82% plaque is opaque enough to lose a crown behind
+    // it. What stays up there is the ground and one word, which is what a
+    // painting under a wall label looks like anyway.
+    crown(
+        at = Offset(unit * 0.8f, size.height * 0.345f),
+        width = unit * 4.2f,
+        height = size.height * 0.07f,
+    )
+    ribcage(
+        palette = palette,
+        spine = Offset(unit * 3.0f, size.height * 0.56f),
+        height = size.height * 0.22f,
+    )
+
+    struckThrough(text, "SALT", Offset(unit * 0.7f, size.height * 0.445f), unit * 1.05f, palette)
+    struckThrough(text, "NORTH", Offset(unit * 6.2f, size.height * 0.20f), unit * 0.72f, palette)
+    struckThrough(text, "IRON", Offset(unit * 4.6f, size.height * 0.915f), unit * 0.86f, palette)
+
+    // Scratches last, over everything, because that is the order they were made
+    // in and the only thing that keeps the blocks from looking printed.
+    repeat(40) {
+        val start = Offset(next() * size.width, next() * size.height)
+        val length = unit * (0.3f + next() * 1.4f)
+        val lean = -1.9f + next() * 0.6f
+        drawLine(
+            palette.mist.copy(alpha = 0.10f + next() * 0.22f),
+            start,
+            Offset(start.x + cos(lean) * length, start.y + sin(lean) * length),
+            strokeWidth = 1.5.dp.toPx(),
+        )
+    }
+}
+
+/** Three points, drawn in one stroke, which is how it is always drawn. */
+private fun DrawScope.crown(at: Offset, width: Float, height: Float) {
+    val step = width / 6f
+    val path = Path().apply {
+        moveTo(at.x, at.y + height)
+        lineTo(at.x + step * 0.7f, at.y)
+        lineTo(at.x + step * 1.9f, at.y + height * 0.62f)
+        lineTo(at.x + step * 3.0f, at.y - height * 0.16f)
+        lineTo(at.x + step * 4.1f, at.y + height * 0.62f)
+        lineTo(at.x + step * 5.3f, at.y)
+        lineTo(at.x + width, at.y + height)
+    }
+    drawPath(path, Accent, style = Stroke(width = 5.dp.toPx(), join = StrokeJoin.Round))
+}
+
+/** A spine and six pairs of ribs, drawn as an anatomy plate would have them. */
+private fun DrawScope.ribcage(palette: PlatePalette, spine: Offset, height: Float) {
+    drawLine(
+        palette.paper,
+        spine,
+        Offset(spine.x, spine.y + height),
+        strokeWidth = 3.dp.toPx(),
+    )
+    repeat(6) { index ->
+        val y = spine.y + height * (0.10f + index * 0.16f)
+        val reach = height * (0.42f - index * 0.035f)
+        listOf(-1f, 1f).forEach { side ->
+            drawLine(
+                palette.paper.copy(alpha = 0.85f),
+                Offset(spine.x, y),
+                Offset(spine.x + reach * side, y + height * 0.07f),
+                strokeWidth = 2.5.dp.toPx(),
+            )
+        }
+    }
+}
+
+/**
+ * A word written and then struck out, which is the point: the strike is what
+ * makes you read it.
+ */
+private fun DrawScope.struckThrough(
+    measurer: TextMeasurer,
+    word: String,
+    at: Offset,
+    size: Float,
+    palette: PlatePalette,
+) {
+    val laid = measurer.measure(
+        text = word,
+        style = TextStyle(
+            color = palette.paper,
+            fontSize = size.toSp(),
+            fontWeight = FontWeight.Black,
+            letterSpacing = (size * 0.06f).toSp(),
+        ),
+    )
+    drawText(laid, topLeft = at)
+    val middle = at.y + laid.size.height * 0.52f
+    drawLine(
+        Accent,
+        Offset(at.x - size * 0.15f, middle + size * 0.06f),
+        Offset(at.x + laid.size.width + size * 0.15f, middle - size * 0.04f),
+        strokeWidth = 4.dp.toPx(),
+    )
 }
 
 /**
