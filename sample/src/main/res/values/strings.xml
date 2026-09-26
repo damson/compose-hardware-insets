@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Hardware insets</string>
-    <string name="close">Close</string>
+    <string name="add_to_favourites">Add to favourites</string>
+    <string name="remove_from_favourites">Remove from favourites</string>
+    <string name="share">Share</string>
+    <string name="share_plate">%1$s, %2$s</string>
     <string name="controls">Controls</string>
     <string name="open_controls">Open the controls</string>
     <string name="hide_the_label">Hide the label</string>
@@ -9,7 +12,7 @@
 
     <!-- The wall label. Every work in the gallery is painted by the sample
          itself, so one maker line serves all of them. -->
-    <string name="plate_of">Plate %1$d of %2$d</string>
+    <string name="plate_rail">Plate %1$d of %2$d, swipe to change</string>
     <string name="plate_maker">Hardware Insets sample, 2026</string>
     <string name="anchored_to">Anchored to %1$s</string>
     <string name="anchored_to_now">Anchored to %1$s, now %2$s</string>

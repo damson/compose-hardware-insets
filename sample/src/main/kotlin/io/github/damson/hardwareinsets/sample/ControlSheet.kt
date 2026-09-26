@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,7 +59,11 @@ fun ControlSheetContent(
         modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp)
+            // The sheet's own container stops at the navigation bar; its
+            // contents do not, so the last row of a scrolled sheet sits under
+            // the gesture pill and is struck through by it.
+            .navigationBarsPadding()
+            .padding(bottom = 16.dp)
     ) {
         Text(
             stringResource(R.string.controls),

@@ -6,13 +6,15 @@ import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,18 +24,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -47,11 +55,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.damson.hardwareinsets.CutoutShape
 import io.github.damson.hardwareinsets.HardwarePolicy
@@ -73,6 +85,9 @@ import io.github.damson.hardwareinsets.onScreenAt
  * @param onBarsOver called with how pale the plate now showing is at the top
  *   and at the bottom. The system bars draw their icons over it, and with a
  *   transparent bar the platform has no idea what is underneath.
+ * @param onShare called with the line describing the plate on show. Sending it
+ *   anywhere is an `Intent`, which is the activity's business and not this
+ *   function's.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,10 +96,11 @@ fun ViewerScreen(
     options: ViewerOptions,
     onOptions: (ViewerOptions) -> Unit,
     onBarsOver: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
-    onClose: () -> Unit,
+    onShare: (String) -> Unit,
 ) {
     var areControlsOpen by remember { mutableStateOf(false) }
     var isChromeShown by remember { mutableStateOf(true) }
+    var favourites by remember { mutableStateOf(emptySet<Int>()) }
     // LEFT and RIGHT are edges of the device, not of the screen, so a layout
     // cannot use one directly: it has to ask which screen edge the device has
     // turned that one into. Skipping this is what makes a side-anchored control
@@ -93,6 +109,7 @@ fun ViewerScreen(
     val edge = options.anchor.onScreenAt(rotation)
     val pager = rememberPagerState(pageCount = { Plates.size })
     val plate = Plates[pager.currentPage]
+    val plateLine = shareLine(plate)
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
     LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
@@ -132,10 +149,24 @@ fun ViewerScreen(
                 .align(edge.cornerAlignment(options.isCornerAtTheEnd))
                 .clearOfTheBars(),
         ) {
-            CloseButton(cutout, edge, options, onClose)
+            CornerActions(
+                cutout = cutout,
+                edge = edge,
+                options = options,
+                isFavourite = pager.currentPage in favourites,
+                onFavourite = { isOn ->
+                    favourites =
+                        if (isOn) favourites + pager.currentPage
+                        else favourites - pager.currentPage
+                },
+                onShare = { onShare(plateLine) },
+            )
         }
         AnimatedVisibility(
-            visible = isChromeShown,
+            // Gone while the sheet is open: it is the thing that opened it, and
+            // a sheet you can see through shows whatever is behind it, so a
+            // button left there reads as a rendering fault rather than a button.
+            visible = isChromeShown && !areControlsOpen,
             enter = fadeIn(),
             exit = fadeOut(),
             // The trigger gets out of the way of the thing being demonstrated.
@@ -159,6 +190,18 @@ fun ViewerScreen(
             // Half height first, so a change to a top-anchored control is visible
             // while it is being made. Drag up for the rest.
             sheetState = rememberModalBottomSheetState(),
+            // No scrim and a sheet you can see through, because every control on
+            // it changes the screen behind it: dimming the plate to ask about
+            // the plate hides the answer. The alpha is the floor that keeps the
+            // supporting text at 4.5:1 in both schemes over both the palest
+            // plate and the deepest.
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
+            // Spelled out, because `contentColorFor` has no answer for a colour
+            // that is not a scheme role, and its non-answer is `Unspecified`:
+            // the text would then inherit whatever the ambient content colour
+            // happens to be.
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            scrimColor = Color.Transparent,
         ) {
             ControlSheetContent(cutout, options, onOptions)
         }
@@ -205,12 +248,31 @@ private fun Modifier.togglingTheChrome(isChromeShown: Boolean, onToggle: () -> U
     )
 }
 
-/** The only thing on the plate that is not part of the demonstration. */
+/**
+ * The only thing on the plate that is not part of the demonstration.
+ *
+ * On the plaque like every other floating control, and flat. A translucent
+ * surface with an elevation draws its own ambient shadow behind itself, which
+ * shows through the edges as a dark frame and reads as a rendering fault.
+ */
 @Composable
 private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
         onClick = onOpen,
-        modifier = modifier.padding(16.dp),
+        containerColor = MaterialTheme.plaque,
+        contentColor = MaterialTheme.onPlaque,
+        elevation = FloatingActionButtonDefaults.elevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+        ),
+        // The hairline every plaque on this screen carries. Without it a dark
+        // control on a dark plate has no edge at all, and two of the five
+        // plates are dark.
+        modifier = modifier
+            .padding(16.dp)
+            .border(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f), CircleShape),
     ) {
         Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.open_controls))
     }
@@ -284,10 +346,47 @@ private fun WallLabel(
                 Modifier.padding(vertical = 12.dp),
                 color = MaterialTheme.onPlaque.copy(alpha = 0.22f),
             )
-            Text(
-                stringResource(R.string.plate_of, number, total) + "   " + anchorReadout(options, edge),
-                color = MaterialTheme.onPlaqueVariant,
-                style = MaterialTheme.typography.labelMedium,
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                PlateRail(number = number, total = total)
+                Text(
+                    anchorReadout(options, edge),
+                    color = MaterialTheme.onPlaqueVariant,
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1f).padding(start = 16.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Where you are in the gallery, and that there is somewhere else to be.
+ *
+ * An indicator and not a control: a dot small enough to read as one is far
+ * under the 48dp a touch target owes, and the gesture it would duplicate is the
+ * swipe the whole screen already takes. The row carries the count for a screen
+ * reader, because four shapes do not.
+ */
+@Composable
+private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.plate_rail, number, total)
+    Row(
+        modifier.clearAndSetSemantics { contentDescription = description },
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(total) { index ->
+            val isCurrent = index == number - 1
+            Box(
+                Modifier
+                    .size(width = if (isCurrent) 20.dp else 8.dp, height = 8.dp)
+                    .background(
+                        color =
+                            if (isCurrent) MaterialTheme.onPlaque
+                            else MaterialTheme.onPlaqueVariant.copy(alpha = 0.45f),
+                        shape = CircleShape,
+                    )
             )
         }
     }
@@ -305,19 +404,30 @@ private fun anchorReadout(options: ViewerOptions, edge: ScreenEdge): String =
     if (options.anchor == edge) stringResource(R.string.anchored_to, options.anchor.name)
     else stringResource(R.string.anchored_to_now, options.anchor.name, edge.name)
 
+/** What is shared: the plate's title and who made it, in one line. */
+@Composable
+private fun shareLine(plate: Plate): String =
+    stringResource(R.string.share_plate, stringResource(plate.title), stringResource(plate.maker))
+
 /**
- * A control in the corner of the anchored edge, moved by only the cutout
- * rectangles it actually overlaps.
+ * The corner control: favourite this plate, or send it on.
  *
- * Padding it by the full-width inset instead would drop it clear of a centred
- * punch-hole it is nowhere near, which is the whole reason this library exists.
+ * The two things a gallery puts next to a picture, and the reason the corner is
+ * worth defending at all. A control that only closed the screen could be moved
+ * anywhere, or dropped for the back gesture, which is what closes this one.
+ *
+ * Moved by only the cutout rectangles it actually overlaps. Padding it by the
+ * full-width inset instead would drop it clear of a centred punch-hole it is
+ * nowhere near, which is the whole reason this library exists.
  */
 @Composable
-private fun CloseButton(
+private fun CornerActions(
     cutout: CutoutShape,
     edge: ScreenEdge,
     options: ViewerOptions,
-    onClose: () -> Unit,
+    isFavourite: Boolean,
+    onFavourite: (Boolean) -> Unit,
+    onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // The corner asked about and the corner placed in come from one value.
@@ -327,7 +437,7 @@ private fun CloseButton(
     val clearance = cornerClearance(cutout.bounds, position = edge, isAtTheEnd = options.isCornerAtTheEnd)
     // The clearance is asked in pixels, because the rectangles the platform
     // reports are in pixels and in window coordinates.
-    val widthPx = with(LocalDensity.current) { CLOSE_WIDTH.roundToPx() }
+    val widthPx = with(LocalDensity.current) { ACTIONS_WIDTH.roundToPx() }
     // The one authored movement: the control slides clear rather than
     // teleporting, so it is legible that the hardware is what moved it.
     val offset by animateIntOffsetAsState(
@@ -336,25 +446,40 @@ private fun CloseButton(
         label = "clearance",
     )
 
-    FilledTonalButton(
-        onClick = onClose,
+    // The plaque, not a scheme container: this sits on a painting, and the
+    // gallery runs from near white to near black. A tonal container picked by
+    // the scheme is invisible on half the plates, and which half changes with
+    // the system theme.
+    Surface(
         shape = MaterialTheme.shapes.extraLarge,
-        contentPadding = PaddingValues(horizontal = 24.dp),
+        color = MaterialTheme.plaque,
+        contentColor = MaterialTheme.onPlaque,
+        border = BorderStroke(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f)),
         modifier = modifier
             .padding(16.dp)
             .offset { offset }
-            .sizeIn(minWidth = CLOSE_WIDTH, minHeight = 48.dp),
+            .sizeIn(minWidth = ACTIONS_WIDTH, minHeight = 48.dp),
     ) {
-        Icon(
-            Icons.Filled.Close,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-        )
-        Text(
-            stringResource(R.string.close),
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(start = 8.dp),
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconToggleButton(checked = isFavourite, onCheckedChange = onFavourite) {
+                Icon(
+                    imageVector =
+                        if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = stringResource(
+                        if (isFavourite) R.string.remove_from_favourites
+                        else R.string.add_to_favourites
+                    ),
+                    // Filled against outlined carries the state. A tint would
+                    // have to come from the palette, and every colour in it is
+                    // either the plaque itself or one of the two marker colours,
+                    // which mean something else on this screen.
+                    tint = MaterialTheme.onPlaque.copy(alpha = if (isFavourite) 1f else 0.78f),
+                )
+            }
+            IconButton(onClick = onShare) {
+                Icon(Icons.Filled.Share, contentDescription = stringResource(R.string.share))
+            }
+        }
     }
 }
 
@@ -413,7 +538,14 @@ internal fun ScreenEdge.cornerAlignment(isAtTheEnd: Boolean): Alignment = when (
         if (isAtTheEnd) Alignment.BottomEnd else Alignment.BottomStart
 }
 
-private val CLOSE_WIDTH = 112.dp
+private val ACTIONS_WIDTH = 112.dp
+
+/**
+ * How solid the control sheet is. Below this the supporting text drops under
+ * 4.5:1 in the dark scheme over the palest plate, which is the worst of the
+ * four corners this has to hold.
+ */
+private const val SHEET_ALPHA = 0.82f
 
 /** The height a corner control plus its padding occupies along its edge. */
 private val CORNER_ROW = 80.dp

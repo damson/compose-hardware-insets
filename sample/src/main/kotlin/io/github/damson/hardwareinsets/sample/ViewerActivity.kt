@@ -1,5 +1,6 @@
 package io.github.damson.hardwareinsets.sample
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -20,6 +21,11 @@ import io.github.damson.hardwareinsets.stopReportingCutoutShape
 /**
  * A full-bleed gallery, which wants the opposite of what a form wants: the
  * plate under the camera, and the wall label kept off it.
+ *
+ * It closes on the system Back gesture and offers no button for it. The corner
+ * is spent on favouriting and sharing, which is what a viewer actually needs
+ * there, and a screen whose only corner control closed it would not be
+ * demonstrating a corner worth defending.
  *
  * The window-level options live here because they are window-level: the cutout
  * mode is an attribute, hiding a bar is a controller call, and so is deciding
@@ -51,6 +57,19 @@ class ViewerActivity : ComponentActivity() {
     override fun onDestroy() {
         insetHost.stopReportingCutoutShape()
         super.onDestroy()
+    }
+
+    /**
+     * Sending a plate on is an `Intent`, so it lives here rather than in the
+     * composable that asked for it. Text, because what is on screen is painted
+     * at the window's size and there is no file to attach.
+     */
+    private fun onShare(line: String) {
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, line)
+        }
+        startActivity(Intent.createChooser(send, getString(R.string.share)))
     }
 
     private fun onOptions(next: ViewerOptions) {
@@ -118,7 +137,7 @@ class ViewerActivity : ComponentActivity() {
                             options = options,
                             onOptions = ::onOptions,
                             onBarsOver = ::onBarsOver,
-                            onClose = { finish() },
+                            onShare = ::onShare,
                         )
                     }
                 }
