@@ -18,18 +18,20 @@ import io.github.damson.hardwareinsets.hideTheSystemBars
 import io.github.damson.hardwareinsets.stopReportingCutoutShape
 
 /**
- * A full-bleed media viewer, which wants the opposite of what a form wants: the
- * picture under the camera, and the controls kept off it.
+ * A full-bleed gallery, which wants the opposite of what a form wants: the
+ * plate under the camera, and the wall label kept off it.
  *
  * The window-level options live here because they are window-level: the cutout
- * mode is an attribute and hiding a bar is a controller call, neither of which
- * a composable owns.
+ * mode is an attribute, hiding a bar is a controller call, and so is deciding
+ * whether the bar's icons are dark. None of the three is a composable's.
  */
 class ViewerActivity : ComponentActivity() {
 
     private lateinit var insetHost: View
     private lateinit var cutout: State<CutoutShape>
     private var options by mutableStateOf(ViewerOptions())
+    private var isPlatePaleAtTheTop = true
+    private var isPlatePaleAtTheBottom = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +59,32 @@ class ViewerActivity : ComponentActivity() {
     }
 
     /**
+     * A transparent bar has the plate behind it, and the platform cannot see
+     * what colour that is: with no theme attribute and no listener for it, the
+     * icons stay whatever they were until something says otherwise.
+     */
+    private fun onBarsOver(isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) {
+        isPlatePaleAtTheTop = isPaleAtTheTop
+        isPlatePaleAtTheBottom = isPaleAtTheBottom
+        applyBarIcons()
+    }
+
+    /**
+     * Applied after every window call and not only when the plate changes.
+     *
+     * `drawBehindTheHardware` goes through `enableEdgeToEdge`, which sets the
+     * icon appearance itself from the night resources, so it undoes this every
+     * time it runs. In a dark theme that means light icons over a pale plate,
+     * and the only symptom is a clock that has disappeared.
+     */
+    private fun applyBarIcons() {
+        with(WindowCompat.getInsetsController(window, window.decorView)) {
+            isAppearanceLightStatusBars = isPlatePaleAtTheTop
+            isAppearanceLightNavigationBars = isPlatePaleAtTheBottom
+        }
+    }
+
+    /**
      * The library hides bars but has no way to show them again, so the sample
      * reaches past it for that half. Worth knowing before you build an app that
      * toggles them.
@@ -69,6 +97,7 @@ class ViewerActivity : ComponentActivity() {
         } else {
             WindowCompat.getInsetsController(window, window.decorView).show(bars)
         }
+        applyBarIcons()
     }
 
     /**
@@ -88,6 +117,7 @@ class ViewerActivity : ComponentActivity() {
                             cutout = cutout.value,
                             options = options,
                             onOptions = ::onOptions,
+                            onBarsOver = ::onBarsOver,
                             onClose = { finish() },
                         )
                     }

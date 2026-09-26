@@ -7,7 +7,6 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -23,6 +22,15 @@ private val Paper = Color(0xFFF9F7F7)
 private val Mist = Color(0xFFDBE2EF)
 private val Sea = Color(0xFF3F72AF)
 private val Ink = Color(0xFF112D4E)
+
+/**
+ * What the plates are painted from, and it does not follow the system theme.
+ *
+ * A painting is not a surface: the works hang as they were painted whether the
+ * device is in light mode or dark, exactly as they would in a photo viewer,
+ * and the chrome over them is what changes.
+ */
+internal val GalleryPalette = PlatePalette(paper = Paper, mist = Mist, sea = Sea, ink = Ink)
 
 private val LightScheme = lightColorScheme(
     primary = Sea,
@@ -76,29 +84,24 @@ private val DarkScheme = darkColorScheme(
 )
 
 /**
- * The surface being viewed. A gradient rather than a photograph, because a
- * photograph would carry its own subject and the subject here is where the
- * hardware is.
- */
-val MaterialTheme.picture: Brush
-    @Composable get() = if (isSystemInDarkTheme()) {
-        Brush.linearGradient(listOf(Ink, Color(0xFF1C3F68), Sea))
-    } else {
-        Brush.linearGradient(listOf(Paper, Mist, Sea))
-    }
-
-/**
- * The controls float over the picture, so they are translucent: the markers
- * underneath have to stay visible through them, which is the one thing this
- * screen is for.
+ * The ground a wall label sits on, and the one colour on this screen that is
+ * not a scheme role.
  *
- * Light tints with paper, dark tints with ink. Not symmetry: the picture runs
- * toward [Sea] at the bottom, which is where the sheet sits, so a pane tinted
- * light on a dark scheme would land on the brightest part and lose its text.
+ * It has to be, because what is behind it is a plate and not a surface. Ink at
+ * this alpha clears 5.5:1 for [onPlaque] over the palest plate and 9.9:1 over
+ * the deepest, where a role tinted from the scheme would take its contrast from
+ * the wrong thing entirely and lose the text on half the gallery.
+ *
+ * Translucent rather than solid so the inset markers underneath stay readable
+ * through it, which is the one thing this screen exists to show.
  */
-val MaterialTheme.scrim: Color
-    @Composable get() = if (isSystemInDarkTheme()) Ink.copy(alpha = 0.82f)
-    else Paper.copy(alpha = 0.86f)
+val MaterialTheme.plaque: Color get() = Ink.copy(alpha = 0.72f)
+
+/** The label's own text, over [plaque] in either scheme. */
+val MaterialTheme.onPlaque: Color get() = Paper
+
+/** The label's second voice: the plate number, the medium, the anchor readout. */
+val MaterialTheme.onPlaqueVariant: Color get() = Mist
 
 /** The markers, which must not belong: in the palette they would read as decoration. */
 val CutoutMarker = Color(0xFFE5484D)

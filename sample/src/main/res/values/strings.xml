@@ -3,8 +3,33 @@
     <string name="app_name">Hardware insets</string>
     <string name="close">Close</string>
     <string name="controls">Controls</string>
-    <string name="show_controls">Show the controls</string>
-    <string name="hide_controls">Hide the controls</string>
+    <string name="open_controls">Open the controls</string>
+    <string name="hide_the_label">Hide the label</string>
+    <string name="show_the_label">Show the label</string>
+
+    <!-- The wall label. Every work in the gallery is painted by the sample
+         itself, so one maker line serves all of them. -->
+    <string name="plate_of">Plate %1$d of %2$d</string>
+    <string name="plate_maker">Hardware Insets sample, 2026</string>
+    <string name="anchored_to">Anchored to %1$s</string>
+    <string name="anchored_to_now">Anchored to %1$s, now %2$s</string>
+
+    <string name="plate_tide_title">Low Tide</string>
+    <string name="plate_tide_medium">Vertical ramp, cut once at the horizon</string>
+    <string name="plate_tide_description">A pale sky and a low sun over deep water, cut by a bright horizon with tide lines crowding beneath it.</string>
+
+    <string name="plate_interference_title">Interference</string>
+    <string name="plate_interference_medium">Two ring families, unequal periods</string>
+    <string name="plate_interference_description">Two sets of concentric rings on white, one dark and one blue, beating against each other where they cross.</string>
+
+    <string name="plate_hard_edge_title">Hard Edge</string>
+    <string name="plate_hard_edge_medium">Four shapes on a twelfth of the width</string>
+    <string name="plate_hard_edge_description">A dark block running off the left edge, a blue quarter disc in the bottom corner, a pale vertical line between them.</string>
+
+    <string name="plate_chamber_title">Cloud Chamber</string>
+    <string name="plate_chamber_medium">Seeded tracks over a single glow</string>
+    <string name="plate_chamber_description">Faint diagonal tracks scattered over a blue glow on near black, with three brighter ones crossing the whole plate.</string>
+
     <string name="legend_rects">Cutout</string>
     <string name="legend_depths">Depths</string>
     <string name="no_cutout">None reported</string>
@@ -26,6 +51,5 @@
     <string name="system_bars_detail">Include them even though they are software</string>
     <string name="far_edge_detail">For a wrap_content ComposeView, where padding the far edge steals touches</string>
     <string name="hide_bars_detail">Leaves them off until a swipe from the edge</string>
-    <string name="markers_detail">Draws what the platform reported over the picture</string>
-    <string name="open_controls">Open the controls</string>
+    <string name="markers_detail">Draws what the platform reported over the plate</string>
 </resources>

@@ -89,15 +89,20 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 
 ## The sample is a second caller, not a screenshot
 
-`:sample` is a full-bleed media viewer, and it deliberately makes different choices from the app
-this was extracted from: it hides only the navigation bar so the clock stays, it pads the caption
-for the system bars because they are still on screen, and it moves the caption between all four
-edges. It depends on the library as a Gradle project rather than by version, so an API change breaks
-it in the same build.
+`:sample` is a gallery: four plates, one at a time, each running to every edge, swipe for the next
+and tap to put the label away. That is the case this library is for. Full bleed is the point of a
+viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
+is meant not to be.
+
+It deliberately makes different choices from the app this was extracted from: it keeps the system
+bars on screen, it moves the label between all four edges, and it clears its corner control of the
+bars by padding while clearing it of the camera by offset, which are two different questions. It
+depends on the library as a Gradle project rather than by version, so an API change breaks it in the
+same build.
 
 ![The sample cycling through all four edges, then turning the cutout overlay off and on. Anchoring to LEFT reads "which is BOTTOM right now", because LEFT is an edge of the device and the screen has turned it into a horizontal one.](docs/media/sample.gif)
 
-Two things writing it proved, both now on the roadmap rather than in the API:
+Three things writing it proved:
 
 - **Reading the cutout in a Compose-only app costs twelve lines of `View` code.** You need a sibling
   view for the listener, which means a `FrameLayout`, which means building the content view by hand.
@@ -105,6 +110,14 @@ Two things writing it proved, both now on the roadmap rather than in the API:
   and the sample is why it is the first roadmap item rather than a nice-to-have.
 - **`ScreenEdge` will not lay anything out for you.** The sample writes its own four-case mapping to
   an `Alignment`. Every caller would write the same one.
+- **`drawBehindTheHardware` sets the bar icons, every time it is called.** It goes through
+  `enableEdgeToEdge`, which picks light or dark icons from the night resources, so anything the app
+  chose for itself is undone on the next call. A viewer that decides per picture has to set the
+  appearance again afterwards, and the only symptom of getting it wrong is a clock nobody can read.
+  The sample does it in one place with the reason written down; taking a style parameter for this
+  is a `0.2` question rather than a roadmap one.
+
+The first two are on the roadmap. The third is a documented order of calls.
 
 ## Supported
 
