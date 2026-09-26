@@ -14,11 +14,11 @@ dependencies {
 }
 ```
 
-<img src="docs/media/sample.png" width="320" alt="The sample on a device with a punch hole: the close button sits below the camera, the caption is inset from the top edge, and the cutout rectangle the platform reported is drawn in red." />
-
-The red rectangle is where the platform says the camera is. The close button is placed clear of it
-by `cornerClearance`, which counts only the rectangles the button actually overlaps. The caption is
-inset by `clearOfTheHardware`.
+The red rectangle in the sample is where the platform says the camera is. The corner control is
+placed clear of it by `cornerClearance`, which counts only the rectangles the control actually
+overlaps, and off the system bars by `clearOfTheHardware` with a bars-only policy. Those are two
+different questions and the sample keeps them apart. The wall label is inset by
+`clearOfTheHardware`.
 
 ## Pad content clear of the hardware
 
@@ -89,18 +89,17 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 
 ## The sample is a second caller, not a screenshot
 
-`:sample` is a gallery: four plates, one at a time, each running to every edge, swipe for the next
+`:sample` is a gallery: five plates, one at a time, each running to every edge, swipe for the next
 and tap to put the label away. That is the case this library is for. Full bleed is the point of a
 viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
 is meant not to be.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
-bars on screen, it moves the label between all four edges, and it clears its corner control of the
-bars by padding while clearing it of the camera by offset, which are two different questions. It
+bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
+sharing rather than on a way out, and it clears that corner control of the bars by padding while
+clearing it of the camera by offset, which are two different questions. It
 depends on the library as a Gradle project rather than by version, so an API change breaks it in the
 same build.
-
-![The sample cycling through all four edges, then turning the cutout overlay off and on. Anchoring to LEFT reads "which is BOTTOM right now", because LEFT is an edge of the device and the screen has turned it into a horizontal one.](docs/media/sample.gif)
 
 Three things writing it proved:
 
