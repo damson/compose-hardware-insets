@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Hardware insets</string>
-    <string name="caption_edge">Caption edge</string>
-    <string name="close">Close</string>
-    <string name="pad_for_bars">Pad for the system bars too</string>
-    <string name="show_cutout">Show the cutout rectangles</string>
-    <style name="Theme.Sample" parent="android:Theme.Material.NoActionBar"/>
-</resources>
