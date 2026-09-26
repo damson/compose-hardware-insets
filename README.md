@@ -81,6 +81,23 @@ covered on hardware nobody in this project owns.
 `cornerClearanceFor` is public for the same reason it is pure: so you can ask it about a punch-hole,
 a chin, a notch and three overlapping rectangles without owning any of them.
 
+## The sample is a second caller, not a screenshot
+
+`:sample` is a full-bleed media viewer, and it deliberately makes different choices from the app
+this was extracted from: it hides only the navigation bar so the clock stays, it pads the caption
+for the system bars because they are still on screen, and it moves the caption between all four
+edges. It depends on the library as a Gradle project rather than by version, so an API change breaks
+it in the same build.
+
+Two things writing it proved, both now on the roadmap rather than in the API:
+
+- **Reading the cutout in a Compose-only app costs twelve lines of `View` code.** You need a sibling
+  view for the listener, which means a `FrameLayout`, which means building the content view by hand.
+  `ViewerActivity` does it with the reason written down. That is what `rememberCutoutShape()` is for,
+  and the sample is why it is the first roadmap item rather than a nice-to-have.
+- **`ScreenEdge` will not lay anything out for you.** The sample writes its own four-case mapping to
+  an `Alignment`. Every caller would write the same one.
+
 ## Supported
 
 - `minSdk 23`, which is Compose's floor rather than this library's. The cutout API arrives at API
@@ -95,6 +112,8 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 ## Roadmap
 
 - `rememberCutoutShape()` and a `LocalCutoutShape`, so a Compose-only app never touches a `View`.
+  The sample shows what this costs today.
+- An edge to `Alignment` mapping, so `ScreenEdge` can place something and not only name it.
 - Rounded-corner insets. The platform reports corners as a radius from API 31 rather than as an
   inset, and Compose does not expose them either.
 - A safest-edge chooser: given the shape, which edge has the least hardware in it.

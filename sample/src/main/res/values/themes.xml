@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- No action bar, because the content runs to every edge and the library is
+         what keeps it off the hardware. -->
+    <style name="Theme.Sample" parent="android:Theme.Material.NoActionBar" />
+</resources>

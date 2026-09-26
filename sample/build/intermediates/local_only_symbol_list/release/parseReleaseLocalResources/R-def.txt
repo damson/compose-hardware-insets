@@ -1,0 +1,8 @@
+R_DEF: Internal format may change without notice
+local
+string app_name
+string caption_edge
+string close
+string pad_for_bars
+string show_cutout
+style Theme.Sample
