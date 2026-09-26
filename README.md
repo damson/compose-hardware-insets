@@ -89,15 +89,17 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 
 ## The sample is a second caller, not a screenshot
 
-`:sample` is a gallery: five plates, one at a time, each running to every edge, swipe for the next
-and tap to put the label away. That is the case this library is for. Full bleed is the point of a
+`:sample` is a gallery: five plates, one at a time, each running to every edge, swipe or step for
+the next, tap to put the label away. That is the case this library is for. Full bleed is the point of a
 viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
 is meant not to be.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
 bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
-sharing rather than on a way out, and it clears that corner control of the bars by padding while
-clearing it of the camera by offset, which are two different questions. It
+sharing rather than on a way out, and it puts two controls on two policies. The corner one clears
+the bars by padding and the camera by offset, because `cornerClearance` can say which rectangles
+are actually in its way. The previous and next buttons on the sides have no corner to be measured
+from, so they clear everything the window reports on that edge. It
 depends on the library as a Gradle project rather than by version, so an API change breaks it in the
 same build.
 
