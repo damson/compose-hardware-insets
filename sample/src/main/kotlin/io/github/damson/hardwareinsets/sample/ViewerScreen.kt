@@ -304,16 +304,25 @@ private fun Modifier.togglingTheChrome(isChromeShown: Boolean, onToggle: () -> U
 /**
  * The only thing on the plate that is not part of the demonstration.
  *
- * On the plaque like every other floating control, and flat. A translucent
- * surface with an elevation draws its own ambient shadow behind itself, which
- * shows through the edges as a dark frame and reads as a rendering fault.
+ * The one control in the accent rather than on the plaque, because it is the
+ * primary action and a gallery has exactly one. Flat, like the rest: a surface
+ * with an elevation draws its own ambient shadow behind itself, and [lifted] is
+ * what every control here is raised by instead.
  */
 @Composable
 private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
         onClick = onOpen,
-        containerColor = MaterialTheme.plaque,
-        contentColor = MaterialTheme.onPlaque,
+        // Material's FAB is a 16dp rounded square by default, so the circle the
+        // border and the lift were drawn as disagreed with the thing they were
+        // drawn around. Both read the shape from here now.
+        //
+        // The hairline is not decoration either. The accent is 8.4:1 against the
+        // darkest plate and 1.55:1 against the palest, so on paper it is the
+        // border and the lift that give the control an edge, not the fill.
+        shape = FAB_SHAPE,
+        containerColor = MaterialTheme.accent,
+        contentColor = MaterialTheme.onAccent,
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = 0.dp,
             pressedElevation = 0.dp,
@@ -325,8 +334,8 @@ private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
         // plates are dark.
         modifier = modifier
             .padding(16.dp)
-            .lifted(CircleShape)
-            .border(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f), CircleShape),
+            .lifted(FAB_SHAPE)
+            .border(1.dp, MaterialTheme.onAccent.copy(alpha = 0.18f), FAB_SHAPE),
     ) {
         Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.open_controls))
     }
@@ -360,8 +369,8 @@ private fun Modifier.lifted(shape: Shape): Modifier {
                 repeat(LIFT_STEPS) { step ->
                     drawPath(
                         path = path,
-                        color = ink.copy(alpha = 0.026f),
-                        style = Stroke(width = (step + 1) * 2.dp.toPx()),
+                        color = ink.copy(alpha = LIFT_ALPHA),
+                        style = Stroke(width = (step + 1) * 1.dp.toPx()),
                     )
                 }
             }
@@ -399,7 +408,16 @@ private fun StepButton(
             .lifted(CircleShape),
     ) {
         IconButton(onClick = onStep, enabled = isEnabled) {
-            Icon(icon, contentDescription = stringResource(label))
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(label),
+                // Spelled out for both states, because an explicit tint replaces
+                // the dimming a disabled `IconButton` would have done, and a
+                // disabled arrow that still looks live is worse than no arrow.
+                tint =
+                    if (isEnabled) MaterialTheme.accent
+                    else MaterialTheme.onPlaque.copy(alpha = 0.34f),
+            )
         }
     }
 }
@@ -510,7 +528,7 @@ private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
                     .size(width = if (isCurrent) 20.dp else 8.dp, height = 8.dp)
                     .background(
                         color =
-                            if (isCurrent) MaterialTheme.onPlaque
+                            if (isCurrent) MaterialTheme.accent
                             else MaterialTheme.onPlaqueVariant.copy(alpha = 0.45f),
                         shape = CircleShape,
                     )
@@ -597,11 +615,12 @@ private fun CornerActions(
                         if (isFavourite) R.string.remove_from_favourites
                         else R.string.add_to_favourites
                     ),
-                    // Filled against outlined carries the state. A tint would
-                    // have to come from the palette, and every colour in it is
-                    // either the plaque itself or one of the two marker colours,
-                    // which mean something else on this screen.
-                    tint = MaterialTheme.onPlaque.copy(alpha = if (isFavourite) 1f else 0.78f),
+                    // Filled against outlined carries the state; the accent
+                    // says which state is the active one. Share stays on the
+                    // plaque's own colour, because it is the second action.
+                    tint =
+                        if (isFavourite) MaterialTheme.accent
+                        else MaterialTheme.onPlaque.copy(alpha = 0.78f),
                 )
             }
             IconButton(onClick = onShare) {
@@ -668,6 +687,9 @@ internal fun ScreenEdge.cornerAlignment(isAtTheEnd: Boolean): Alignment = when (
 
 private val ACTIONS_WIDTH = 112.dp
 
+/** The trigger is a circle, at every size and in every state. */
+private val FAB_SHAPE = CircleShape
+
 /**
  * How solid the control sheet is. Below this the supporting text drops under
  * 4.5:1 in the dark scheme over the palest plate, which is the worst of the
@@ -676,10 +698,19 @@ private val ACTIONS_WIDTH = 112.dp
 private const val SHEET_ALPHA = 0.82f
 
 /** How far the lift falls below what it lifts. */
-private val LIFT_DROP = 4.dp
+private val LIFT_DROP = 2.dp
 
-/** How far it reaches, in 1dp bands. */
-private const val LIFT_STEPS = 18
+/**
+ * How far it reaches, in half-dp bands: a 7dp shadow, not a 18dp one.
+ *
+ * The bands are narrow because the falloff is only as smooth as they are thin,
+ * and there are this many because the darkest point is their sum. Change one
+ * without the other and it goes back to rings.
+ */
+private const val LIFT_STEPS = 14
+
+/** Each band's share of the shadow. Fourteen of these is 0.18 at the contact. */
+private const val LIFT_ALPHA = 0.013f
 
 /** The height a corner control plus its padding occupies along its edge. */
 private val CORNER_ROW = 80.dp

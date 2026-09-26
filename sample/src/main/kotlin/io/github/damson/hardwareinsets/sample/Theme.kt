@@ -104,6 +104,20 @@ val MaterialTheme.onPlaque: Color get() = Paper
 val MaterialTheme.onPlaqueVariant: Color get() = Mist
 
 /**
+ * The interface's own colour, and no plate is painted with it.
+ *
+ * The chrome had been the plaque and nothing else, which is legible but silent:
+ * on a busy plate a paper icon on ink is another mark among marks. This says
+ * "this is a control" at a glance, and it says it in a hue the gallery never
+ * uses, so it cannot be mistaken for paint. It is also well clear of the two
+ * marker colours, which mean the camera and the inset and must stay unique.
+ */
+val MaterialTheme.accent: Color get() = Color(0xFF3DE1C0)
+
+/** What sits on [accent]: 8.8:1, which is the reason the accent is this bright. */
+val MaterialTheme.onAccent: Color get() = Ink
+
+/**
  * What every floating control is lifted off the plate by.
  *
  * Ink rather than black, so the shadow belongs to the palette instead of
