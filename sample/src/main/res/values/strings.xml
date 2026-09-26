@@ -21,13 +21,13 @@
     <string name="plate_tide_medium">Vertical ramp, cut once at the horizon</string>
     <string name="plate_tide_description">A pale sky and a low sun over deep water, cut by a bright horizon with tide lines crowding beneath it.</string>
 
-    <string name="plate_interference_title">Interference</string>
-    <string name="plate_interference_medium">Two ring families, unequal periods</string>
-    <string name="plate_interference_description">Two sets of concentric rings on white, one dark and one blue, beating against each other where they cross.</string>
+    <string name="plate_head_title">Head, Counted</string>
+    <string name="plate_head_medium">Mask, teeth and a halo of marks</string>
+    <string name="plate_head_description">A skull drawn in one white line over a dark ground, both eyes crossed through, seven teeth counted in a box, and a halo of yellow strokes above it.</string>
 
-    <string name="plate_hard_edge_title">Hard Edge</string>
-    <string name="plate_hard_edge_medium">Four shapes on a twelfth of the width</string>
-    <string name="plate_hard_edge_description">A dark block running off the left edge, a blue quarter disc in the bottom corner, a pale vertical line between them.</string>
+    <string name="plate_ledger_title">Ledger of Metals</string>
+    <string name="plate_ledger_medium">A list, every entry struck out</string>
+    <string name="plate_ledger_description">A boxed list of metals on pale paper, each one struck through, a tally counted beside it, two arrows and a crown drawn in ink.</string>
 
     <string name="plate_chamber_title">Cloud Chamber</string>
     <string name="plate_chamber_medium">Seeded tracks over a single glow</string>

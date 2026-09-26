@@ -28,6 +28,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -92,22 +93,22 @@ internal val Plates = listOf(
         paint = { palette, _ -> paintLowTide(palette) },
     ),
     Plate(
-        title = R.string.plate_interference_title,
+        title = R.string.plate_head_title,
         maker = R.string.plate_maker,
-        medium = R.string.plate_interference_medium,
-        description = R.string.plate_interference_description,
-        isPaleAtTheTop = true,
-        isPaleAtTheBottom = true,
-        paint = { palette, _ -> paintInterference(palette) },
+        medium = R.string.plate_head_medium,
+        description = R.string.plate_head_description,
+        isPaleAtTheTop = false,
+        isPaleAtTheBottom = false,
+        paint = { palette, text -> paintHead(palette, text) },
     ),
     Plate(
-        title = R.string.plate_hard_edge_title,
+        title = R.string.plate_ledger_title,
         maker = R.string.plate_maker,
-        medium = R.string.plate_hard_edge_medium,
-        description = R.string.plate_hard_edge_description,
+        medium = R.string.plate_ledger_medium,
+        description = R.string.plate_ledger_description,
         isPaleAtTheTop = true,
         isPaleAtTheBottom = true,
-        paint = { palette, _ -> paintHardEdge(palette) },
+        paint = { palette, text -> paintLedger(palette, text) },
     ),
     Plate(
         title = R.string.plate_chamber_title,
@@ -241,80 +242,6 @@ private fun DrawScope.paintLowTide(palette: PlatePalette) {
 }
 
 /**
- * Two families of concentric rings, drawn at unequal periods so where they
- * cross the strokes beat against each other. Equal periods make two targets;
- * the difference between the periods is the whole image.
- */
-private fun DrawScope.paintInterference(palette: PlatePalette) {
-    drawRect(palette.paper)
-
-    val unit = size.minDimension / 22f
-    val far = size.maxDimension * 1.3f
-    val families = listOf(
-        Triple(Offset(size.width * 0.30f, size.height * 0.31f), palette.ink, unit),
-        Triple(Offset(size.width * 0.76f, size.height * 0.67f), palette.sea, unit * 1.17f),
-    )
-    families.forEach { (centre, color, step) ->
-        var radius = step
-        while (radius < far) {
-            drawCircle(
-                color = color,
-                radius = radius,
-                center = centre,
-                alpha = 0.52f,
-                style = Stroke(width = step * 0.30f),
-            )
-            radius += step
-        }
-    }
-}
-
-/**
- * Hard-edge geometric abstraction. Every measure is a multiple of a twelfth of
- * the width, so the shapes hold their relationship at any size, and the block
- * runs off the left edge rather than sitting inside a margin.
- *
- * The division is at seven twelfths and not at six. A line down the middle is
- * the one place it says nothing, and it would land on the block's own edge.
- *
- * The mass starts below the top third. Not to make room for the label, which a
- * real gallery cannot do, but because the weight is low and off to one side in
- * every hard-edge composition worth the name, and the quarter disc it answers
- * is in the opposite corner.
- */
-private fun DrawScope.paintHardEdge(palette: PlatePalette) {
-    drawRect(palette.mist)
-
-    val unit = size.width / 12f
-    drawLine(
-        palette.paper,
-        Offset(unit * 7f, 0f),
-        Offset(unit * 7f, size.height),
-        strokeWidth = 2.dp.toPx(),
-    )
-    drawRect(
-        palette.ink,
-        topLeft = Offset(-unit, size.height * 0.34f),
-        size = Size(unit * 6f, size.height * 0.42f),
-    )
-    drawRect(
-        palette.sea,
-        topLeft = Offset(unit * 8f, size.height * 0.36f),
-        size = Size(unit * 2f, unit * 2f),
-    )
-
-    val radius = unit * 6.5f
-    drawArc(
-        color = palette.sea,
-        startAngle = 180f,
-        sweepAngle = 90f,
-        useCenter = true,
-        topLeft = Offset(size.width - radius, size.height - radius),
-        size = Size(radius * 2f, radius * 2f),
-    )
-}
-
-/**
  * A line field: particle tracks over a single glow. The dark plate, and the
  * one that proves a label reads over ink as well as over paper.
  */
@@ -421,9 +348,9 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
         height = size.height * 0.22f,
     )
 
-    struckThrough(text, "SALT", Offset(unit * 0.7f, size.height * 0.445f), unit * 1.05f, palette)
-    struckThrough(text, "NORTH", Offset(unit * 6.2f, size.height * 0.20f), unit * 0.72f, palette)
-    struckThrough(text, "IRON", Offset(unit * 4.6f, size.height * 0.915f), unit * 0.86f, palette)
+    struckThrough(text, "SALT", Offset(unit * 0.7f, size.height * 0.445f), unit * 1.05f, palette.paper)
+    struckThrough(text, "NORTH", Offset(unit * 6.2f, size.height * 0.20f), unit * 0.72f, palette.paper)
+    struckThrough(text, "IRON", Offset(unit * 4.6f, size.height * 0.915f), unit * 0.86f, palette.paper)
 
     // Scratches last, over everything, because that is the order they were made
     // in and the only thing that keeps the blocks from looking printed.
@@ -440,8 +367,227 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
     }
 }
 
+/**
+ * A head: mask, teeth, a halo of marks, one eye crossed out.
+ *
+ * The figure the idiom keeps returning to. Original, like the other two in this
+ * language, and for the same reason: the paintings it learns from are in
+ * copyright and a public repository cannot carry them.
+ */
+private fun DrawScope.paintHead(palette: PlatePalette, text: TextMeasurer) {
+    val unit = size.width / 12f
+    val next = seeded(0x4EAD)
+
+    drawRect(palette.ink)
+    repeat(6) {
+        drawRect(
+            color = if (next() > 0.45f) Grounded else palette.ink.copy(alpha = 0.5f),
+            topLeft = Offset(-unit + next() * unit * 2f, next() * size.height),
+            size = Size(size.width * (0.45f + next() * 0.7f), size.height * (0.07f + next() * 0.15f)),
+        )
+    }
+    drawRect(
+        palette.sea,
+        topLeft = Offset(unit * 5.4f, size.height * 0.33f),
+        size = Size(unit * 5.2f, size.height * 0.22f),
+    )
+
+    // The skull, drawn as one closed line with none of its corners agreeing.
+    val head = Path().apply {
+        moveTo(unit * 1.6f, size.height * 0.45f)
+        lineTo(unit * 4.2f, size.height * 0.395f)
+        lineTo(unit * 7.6f, size.height * 0.425f)
+        lineTo(unit * 8.4f, size.height * 0.55f)
+        lineTo(unit * 7.9f, size.height * 0.685f)
+        lineTo(unit * 4.6f, size.height * 0.735f)
+        lineTo(unit * 1.9f, size.height * 0.665f)
+        close()
+    }
+    drawPath(head, palette.paper, style = Stroke(width = 6.dp.toPx(), join = StrokeJoin.Round))
+
+    // The halo: struck, not drawn as a ring, so it reads as marks and not as a
+    // plate. It stops short of the top third, because that is where the wall
+    // label hangs and a halo behind a plaque is a smudge.
+    repeat(13) { index ->
+        val lean = -2.55f + index * 0.115f
+        val from = Offset(unit * 4.9f, size.height * 0.415f)
+        val near = unit * 1.6f
+        val far = near + unit * (0.5f + next() * 0.4f)
+        drawLine(
+            Accent,
+            Offset(from.x + cos(lean) * near, from.y + sin(lean) * near),
+            Offset(from.x + cos(lean) * far, from.y + sin(lean) * far),
+            strokeWidth = 3.dp.toPx(),
+        )
+    }
+
+    crossedEye(palette, Offset(unit * 3.3f, size.height * 0.505f), unit * 0.62f)
+    crossedEye(palette, Offset(unit * 6.4f, size.height * 0.505f), unit * 0.62f)
+
+    // Teeth, counted. Bars in a bar is the whole of the mouth.
+    val mouth = Offset(unit * 2.9f, size.height * 0.595f)
+    val mouthWidth = unit * 4.4f
+    val mouthHeight = size.height * 0.055f
+    drawRect(Grounded, topLeft = mouth, size = Size(mouthWidth, mouthHeight))
+    drawRect(
+        palette.paper,
+        topLeft = mouth,
+        size = Size(mouthWidth, mouthHeight),
+        style = Stroke(width = 3.dp.toPx()),
+    )
+    repeat(7) { index ->
+        val x = mouth.x + mouthWidth * (index + 1) / 8f
+        drawLine(
+            palette.paper,
+            Offset(x, mouth.y),
+            Offset(x, mouth.y + mouthHeight),
+            strokeWidth = 3.dp.toPx(),
+        )
+    }
+
+    struckThrough(text, "HEAD", Offset(unit * 1.4f, size.height * 0.795f), unit * 1.1f, palette.paper)
+    struckThrough(text, "BONE", Offset(unit * 6.4f, size.height * 0.885f), unit * 0.8f, palette.paper)
+
+    repeat(34) {
+        val start = Offset(next() * size.width, next() * size.height)
+        val length = unit * (0.25f + next() * 1.2f)
+        val lean = -1.9f + next() * 0.6f
+        drawLine(
+            palette.mist.copy(alpha = 0.10f + next() * 0.20f),
+            start,
+            Offset(start.x + cos(lean) * length, start.y + sin(lean) * length),
+            strokeWidth = 1.5.dp.toPx(),
+        )
+    }
+}
+
+/** An eye that has been looked at twice: a ring, then an X over it. */
+private fun DrawScope.crossedEye(palette: PlatePalette, at: Offset, radius: Float) {
+    drawCircle(palette.paper, radius = radius, center = at, style = Stroke(width = 4.dp.toPx()))
+    drawCircle(Accent, radius = radius * 0.34f, center = at)
+    val reach = radius * 1.25f
+    drawLine(
+        palette.paper,
+        Offset(at.x - reach, at.y - reach),
+        Offset(at.x + reach, at.y + reach),
+        strokeWidth = 3.dp.toPx(),
+    )
+    drawLine(
+        palette.paper,
+        Offset(at.x + reach, at.y - reach),
+        Offset(at.x - reach, at.y + reach),
+        strokeWidth = 3.dp.toPx(),
+    )
+}
+
+/**
+ * The same hand working on paper: a list of metals, every entry struck out, a
+ * tally beside it and an arrow going nowhere.
+ *
+ * The pale plate of the three, and the gallery needs one: a label that cannot
+ * take its contrast from the colour scheme has to be shown failing to, which
+ * needs something bright under it.
+ */
+private fun DrawScope.paintLedger(palette: PlatePalette, text: TextMeasurer) {
+    val unit = size.width / 12f
+    val next = seeded(0x1ED6)
+
+    drawRect(palette.paper)
+    repeat(6) {
+        drawRect(
+            color = palette.mist.copy(alpha = 0.35f + next() * 0.4f),
+            topLeft = Offset(-unit + next() * unit * 2.5f, next() * size.height),
+            size = Size(size.width * (0.4f + next() * 0.7f), size.height * (0.05f + next() * 0.14f)),
+        )
+    }
+
+    drawRect(
+        palette.ink,
+        topLeft = Offset(unit * 0.5f, size.height * 0.335f),
+        size = Size(unit * 5.6f, size.height * 0.30f),
+        style = Stroke(width = 4.dp.toPx()),
+    )
+    listOf("SALT", "IRON", "TIN", "LEAD").forEachIndexed { index, word ->
+        struckThrough(
+            measurer = text,
+            word = word,
+            at = Offset(unit * 0.9f, size.height * (0.355f + index * 0.072f)),
+            size = unit * 0.78f,
+            written = palette.ink,
+            strike = palette.sea,
+        )
+    }
+
+    // A tally, because a ledger counts. Four and a stroke across, five times.
+    repeat(5) { group ->
+        val left = unit * 6.5f
+        val top = size.height * (0.36f + group * 0.052f)
+        repeat(4) { mark ->
+            val x = left + mark * unit * 0.32f
+            drawLine(
+                palette.ink,
+                Offset(x, top),
+                Offset(x + unit * 0.08f, top + size.height * 0.032f),
+                strokeWidth = 3.dp.toPx(),
+            )
+        }
+        drawLine(
+            palette.sea,
+            Offset(left - unit * 0.12f, top + size.height * 0.026f),
+            Offset(left + unit * 1.16f, top + size.height * 0.008f),
+            strokeWidth = 3.dp.toPx(),
+        )
+    }
+
+    crownIn(palette.ink, at = Offset(unit * 7.6f, size.height * 0.20f), width = unit * 3.2f,
+        height = size.height * 0.05f)
+
+    arrow(palette.sea, from = Offset(unit * 1.2f, size.height * 0.71f),
+        to = Offset(unit * 6.4f, size.height * 0.755f), head = unit * 0.55f)
+    arrow(palette.ink, from = Offset(unit * 9.4f, size.height * 0.62f),
+        to = Offset(unit * 9.4f, size.height * 0.80f), head = unit * 0.5f)
+
+    drawRect(
+        Accent,
+        topLeft = Offset(unit * 2.2f, size.height * 0.82f),
+        size = Size(unit * 3.0f, size.height * 0.085f),
+    )
+    struckThrough(text, "PAID", Offset(unit * 6.6f, size.height * 0.845f), unit * 0.9f,
+        palette.ink, palette.sea)
+
+    repeat(30) {
+        val start = Offset(next() * size.width, next() * size.height)
+        val length = unit * (0.2f + next() * 1.0f)
+        val lean = -1.9f + next() * 0.6f
+        drawLine(
+            palette.ink.copy(alpha = 0.08f + next() * 0.14f),
+            start,
+            Offset(start.x + cos(lean) * length, start.y + sin(lean) * length),
+            strokeWidth = 1.5.dp.toPx(),
+        )
+    }
+}
+
+/** An arrow, drawn the way a note takes one: one line and two strokes. */
+private fun DrawScope.arrow(color: Color, from: Offset, to: Offset, head: Float) {
+    drawLine(color, from, to, strokeWidth = 4.dp.toPx())
+    val lean = atan2(to.y - from.y, to.x - from.x)
+    listOf(lean + 2.5f, lean - 2.5f).forEach { side ->
+        drawLine(
+            color,
+            to,
+            Offset(to.x + cos(side) * head, to.y + sin(side) * head),
+            strokeWidth = 4.dp.toPx(),
+        )
+    }
+}
+
 /** Three points, drawn in one stroke, which is how it is always drawn. */
-private fun DrawScope.crown(at: Offset, width: Float, height: Float) {
+private fun DrawScope.crown(at: Offset, width: Float, height: Float) =
+    crownIn(Accent, at, width, height)
+
+/** The same crown in whatever colour the plate is working in. */
+private fun DrawScope.crownIn(color: Color, at: Offset, width: Float, height: Float) {
     val step = width / 6f
     val path = Path().apply {
         moveTo(at.x, at.y + height)
@@ -452,7 +598,7 @@ private fun DrawScope.crown(at: Offset, width: Float, height: Float) {
         lineTo(at.x + step * 5.3f, at.y)
         lineTo(at.x + width, at.y + height)
     }
-    drawPath(path, Accent, style = Stroke(width = 5.dp.toPx(), join = StrokeJoin.Round))
+    drawPath(path, color, style = Stroke(width = 5.dp.toPx(), join = StrokeJoin.Round))
 }
 
 /** A spine and six pairs of ribs, drawn as an anatomy plate would have them. */
@@ -486,12 +632,13 @@ private fun DrawScope.struckThrough(
     word: String,
     at: Offset,
     size: Float,
-    palette: PlatePalette,
+    written: Color,
+    strike: Color = Accent,
 ) {
     val laid = measurer.measure(
         text = word,
         style = TextStyle(
-            color = palette.paper,
+            color = written,
             fontSize = size.toSp(),
             fontWeight = FontWeight.Black,
             letterSpacing = (size * 0.06f).toSp(),
@@ -500,7 +647,7 @@ private fun DrawScope.struckThrough(
     drawText(laid, topLeft = at)
     val middle = at.y + laid.size.height * 0.52f
     drawLine(
-        Accent,
+        strike,
         Offset(at.x - size * 0.15f, middle + size * 0.06f),
         Offset(at.x + laid.size.width + size * 0.15f, middle - size * 0.04f),
         strokeWidth = 4.dp.toPx(),
