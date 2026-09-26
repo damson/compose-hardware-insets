@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- No action bar, because the content runs to every edge and the library is
-         what keeps it off the hardware. -->
-    <style name="Theme.Sample" parent="android:Theme.Material.NoActionBar" />
+         what keeps it off the hardware. Light status bar icons, because the
+         picture behind them is pale: the platform will not work that out. -->
+    <style name="Theme.Sample" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>

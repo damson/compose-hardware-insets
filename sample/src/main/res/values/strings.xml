@@ -2,7 +2,30 @@
 <resources>
     <string name="app_name">Hardware insets</string>
     <string name="close">Close</string>
-    <string name="caption_edge">Caption edge</string>
-    <string name="show_cutout">Show the cutout rectangles</string>
-    <string name="pad_for_bars">Pad for the system bars too</string>
+    <string name="controls">Controls</string>
+    <string name="show_controls">Show the controls</string>
+    <string name="hide_controls">Hide the controls</string>
+    <string name="legend_rects">Cutout</string>
+    <string name="legend_depths">Depths</string>
+    <string name="no_cutout">None reported</string>
+    <string name="anchor">Anchor</string>
+    <string name="corner">Corner</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="cutout_mode">Window may extend into the cutout</string>
+    <string name="counts_as_hardware">Counts as hardware</string>
+    <string name="cutout">Display cutout</string>
+    <string name="waterfall">Waterfall curve</string>
+    <string name="system_bars">System bars</string>
+    <string name="far_edge_ignored">Leave the far edge at zero</string>
+    <string name="window">Window</string>
+    <string name="hide_bars">Hide the system bars</string>
+    <string name="markers">Show the markers</string>
+    <string name="cutout_detail">The rectangles the camera occupies</string>
+    <string name="waterfall_detail">The curved edge, reported from API 30</string>
+    <string name="system_bars_detail">Include them even though they are software</string>
+    <string name="far_edge_detail">For a wrap_content ComposeView, where padding the far edge steals touches</string>
+    <string name="hide_bars_detail">Leaves them off until a swipe from the edge</string>
+    <string name="markers_detail">Draws what the platform reported over the picture</string>
+    <string name="open_controls">Open the controls</string>
 </resources>
