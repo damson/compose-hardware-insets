@@ -103,6 +103,14 @@ val MaterialTheme.onPlaque: Color get() = Paper
 /** The label's second voice: the plate number, the medium, the anchor readout. */
 val MaterialTheme.onPlaqueVariant: Color get() = Mist
 
+/**
+ * What every floating control is lifted off the plate by.
+ *
+ * Ink rather than black, so the shadow belongs to the palette instead of
+ * greying whatever it falls on.
+ */
+val MaterialTheme.plaqueShadow: Color get() = Ink
+
 /** The markers, which must not belong: in the palette they would read as decoration. */
 val CutoutMarker = Color(0xFFE5484D)
 

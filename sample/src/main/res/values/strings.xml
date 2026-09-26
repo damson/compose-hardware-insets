@@ -4,6 +4,8 @@
     <string name="add_to_favourites">Add to favourites</string>
     <string name="remove_from_favourites">Remove from favourites</string>
     <string name="share">Share</string>
+    <string name="previous_plate">Previous plate</string>
+    <string name="next_plate">Next plate</string>
     <string name="share_plate">%1$s, %2$s</string>
     <string name="controls">Controls</string>
     <string name="open_controls">Open the controls</string>

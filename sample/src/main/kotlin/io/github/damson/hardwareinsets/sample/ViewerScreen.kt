@@ -30,6 +30,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,15 +51,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -65,6 +75,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import io.github.damson.hardwareinsets.CutoutShape
 import io.github.damson.hardwareinsets.HardwarePolicy
 import io.github.damson.hardwareinsets.ScreenEdge
@@ -110,6 +121,7 @@ fun ViewerScreen(
     val pager = rememberPagerState(pageCount = { Plates.size })
     val plate = Plates[pager.currentPage]
     val plateLine = shareLine(plate)
+    val steps = rememberCoroutineScope()
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
     LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
@@ -139,6 +151,32 @@ fun ViewerScreen(
                 total = Plates.size,
                 edge = edge,
                 options = options,
+            )
+        }
+        AnimatedVisibility(
+            visible = isChromeShown,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.CenterStart).clearOfEverything(),
+        ) {
+            StepButton(
+                icon = Icons.Filled.KeyboardArrowLeft,
+                label = R.string.previous_plate,
+                isEnabled = pager.currentPage > 0,
+                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
+            )
+        }
+        AnimatedVisibility(
+            visible = isChromeShown,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.CenterEnd).clearOfEverything(),
+        ) {
+            StepButton(
+                icon = Icons.Filled.KeyboardArrowRight,
+                label = R.string.next_plate,
+                isEnabled = pager.currentPage < Plates.size - 1,
+                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
             )
         }
         AnimatedVisibility(
@@ -230,6 +268,21 @@ private fun Modifier.clearOfTheBars(): Modifier = clearOfTheHardware(
 )
 
 /**
+ * Everything the window reports on the edge, for a control that has no corner.
+ *
+ * See [StepButton] for why this is the blunt instrument and the corner control
+ * gets the precise one.
+ */
+@Composable
+private fun Modifier.clearOfEverything(): Modifier = clearOfTheHardware(
+    policy = HardwarePolicy(
+        isCutoutIncluded = true,
+        isWaterfallIncluded = true,
+        areSystemBarsIncluded = true,
+    ),
+)
+
+/**
  * Tap the plate to put the chrome away: the gesture every full-screen viewer
  * has, and the one that leaves the plate alone under the camera.
  *
@@ -272,15 +325,89 @@ private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
         // plates are dark.
         modifier = modifier
             .padding(16.dp)
+            .lifted(CircleShape)
             .border(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f), CircleShape),
     ) {
         Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.open_controls))
     }
 }
 
+/**
+ * A shadow that cannot show through the thing it is behind.
+ *
+ * Both shadows Compose ships paint the whole silhouette and let the element
+ * draw over it, which works only while the element is opaque. Every plaque here
+ * is translucent, so either of them would show through its own surface: a dark
+ * centre with a hard frame at the edges, which reads as a rendering fault and
+ * gets blamed on the gradient.
+ *
+ * So the shape is clipped out first and only what falls outside is painted.
+ * Concentric strokes rather than a blur, because a mask filter is silently
+ * ignored on a hardware canvas and the failure looks like a shadow that was
+ * never asked for.
+ */
+@Composable
+private fun Modifier.lifted(shape: Shape): Modifier {
+    val ink = MaterialTheme.plaqueShadow
+    return drawBehind {
+        val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
+        clipPath(path, ClipOp.Difference) {
+            translate(top = LIFT_DROP.toPx()) {
+                // Many faint strokes rather than a few strong ones. Each covers
+                // the band from the edge out to half its width, so a constant
+                // alpha stacks into a linear falloff; widen the step and the
+                // stack separates into rings you can count.
+                repeat(LIFT_STEPS) { step ->
+                    drawPath(
+                        path = path,
+                        color = ink.copy(alpha = 0.026f),
+                        style = Stroke(width = (step + 1) * 2.dp.toPx()),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Previous and next, because a swipe leaves no trace on a still screen.
+ *
+ * On the sides, where nothing else on this screen goes: the label and the
+ * corner control both live on the edge the anchor names, and that is only ever
+ * the top or the bottom.
+ *
+ * They take the whole inset rather than a rectangle-precise offset. A corner
+ * control can ask [cornerClearance] which rectangles are actually in its way;
+ * a button halfway down a side has no corner to be measured from, so it clears
+ * everything the window reports on that edge, bars included.
+ */
+@Composable
+private fun StepButton(
+    icon: ImageVector,
+    label: Int,
+    isEnabled: Boolean,
+    onStep: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        shape = CircleShape,
+        color = MaterialTheme.plaque,
+        contentColor = MaterialTheme.onPlaque,
+        border = BorderStroke(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f)),
+        modifier = modifier
+            .padding(16.dp)
+            .lifted(CircleShape),
+    ) {
+        IconButton(onClick = onStep, enabled = isEnabled) {
+            Icon(icon, contentDescription = stringResource(label))
+        }
+    }
+}
+
 /** A translucent plaque: the markers underneath stay visible through it. */
 @Composable
 private fun Modifier.plaque(shape: Shape): Modifier = this
+    .lifted(shape)
     .background(MaterialTheme.plaque, shape)
     .border(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f), shape)
 
@@ -458,6 +585,7 @@ private fun CornerActions(
         modifier = modifier
             .padding(16.dp)
             .offset { offset }
+            .lifted(MaterialTheme.shapes.extraLarge)
             .sizeIn(minWidth = ACTIONS_WIDTH, minHeight = 48.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -546,6 +674,12 @@ private val ACTIONS_WIDTH = 112.dp
  * four corners this has to hold.
  */
 private const val SHEET_ALPHA = 0.82f
+
+/** How far the lift falls below what it lifts. */
+private val LIFT_DROP = 4.dp
+
+/** How far it reaches, in 1dp bands. */
+private const val LIFT_STEPS = 18
 
 /** The height a corner control plus its padding occupies along its edge. */
 private val CORNER_ROW = 80.dp
