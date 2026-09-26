@@ -29,6 +29,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import io.github.damson.hardwareinsets.HardwarePolicy
 import io.github.damson.hardwareinsets.ScreenEdge
 import io.github.damson.hardwareinsets.clearOfTheHardware
 import io.github.damson.hardwareinsets.cornerClearance
+import io.github.damson.hardwareinsets.onScreenAt
 
 /**
  * The picture runs to every edge. The caption and the close button are what move.
@@ -46,22 +48,30 @@ import io.github.damson.hardwareinsets.cornerClearance
  */
 @Composable
 fun ViewerScreen(cutout: CutoutShape) {
-    var edge by remember { mutableStateOf(ScreenEdge.TOP) }
+    var chosen by remember { mutableStateOf(ScreenEdge.TOP) }
     var arePaddingBars by remember { mutableStateOf(false) }
     var isShowingCutout by remember { mutableStateOf(true) }
+
+    // LEFT and RIGHT are edges of the device, not of the screen, so a layout
+    // cannot use one directly: it has to ask which screen edge the device has
+    // turned that one into. Skipping this is what makes a side-anchored control
+    // land on top of the status bar.
+    val rotation = LocalView.current.display?.rotation ?: 0
+    val edge = chosen.onScreenAt(rotation)
 
     Box(Modifier.fillMaxSize().background(PICTURE).cutoutOverlay(cutout, isShowingCutout)) {
         Caption(
             edge = edge,
+            chosen = chosen,
             arePaddingBars = arePaddingBars,
             modifier = Modifier.align(edge.toAlignment()),
         )
         CloseButton(cutout, edge)
         Controls(
-            edge = edge,
+            edge = chosen,
             arePaddingBars = arePaddingBars,
             isShowingCutout = isShowingCutout,
-            onEdge = { edge = it },
+            onEdge = { chosen = it },
             onBars = { arePaddingBars = it },
             onCutout = { isShowingCutout = it },
             modifier = Modifier.align(Alignment.Center),
@@ -78,10 +88,16 @@ fun ViewerScreen(cutout: CutoutShape) {
  *   library leaves them out by default because most callers hide them.
  */
 @Composable
-private fun Caption(edge: ScreenEdge, arePaddingBars: Boolean, modifier: Modifier = Modifier) {
+private fun Caption(
+    edge: ScreenEdge,
+    chosen: ScreenEdge,
+    arePaddingBars: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier.fillMaxWidth().background(SCRIM)) {
         Text(
-            text = "Anchored to ${edge.name}",
+            text = if (chosen == edge) "Anchored to ${chosen.name}"
+            else "Anchored to ${chosen.name}, which is ${edge.name} right now",
             color = Color.White,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,

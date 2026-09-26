@@ -14,6 +14,12 @@ dependencies {
 }
 ```
 
+<img src="docs/media/sample.png" width="320" alt="The sample on a device with a punch hole: the close button sits below the camera, the caption is inset from the top edge, and the cutout rectangle the platform reported is drawn in red." />
+
+The red rectangle is where the platform says the camera is. The close button is placed clear of it
+by `cornerClearance`, which counts only the rectangles the button actually overlaps. The caption is
+inset by `clearOfTheHardware`.
+
 ## Pad content clear of the hardware
 
 ```kotlin
@@ -88,6 +94,8 @@ this was extracted from: it hides only the navigation bar so the clock stays, it
 for the system bars because they are still on screen, and it moves the caption between all four
 edges. It depends on the library as a Gradle project rather than by version, so an API change breaks
 it in the same build.
+
+![The sample cycling through all four edges, then turning the cutout overlay off and on. Anchoring to LEFT reads "which is BOTTOM right now", because LEFT is an edge of the device and the screen has turned it into a horizontal one.](docs/media/sample.gif)
 
 Two things writing it proved, both now on the roadmap rather than in the API:
 
