@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
@@ -49,7 +51,15 @@ fun ControlSheetContent(
     onOptions: (ViewerOptions) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth()) {
+    // Scrollable, because the sheet opens half height and a large font setting
+    // pushes the last switches past the bottom of it. Without this they cannot
+    // be reached at all, and nothing about the layout says so.
+    Column(
+        modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 24.dp)
+    ) {
         Text(
             stringResource(R.string.controls),
             color = MaterialTheme.colorScheme.onSurface,
