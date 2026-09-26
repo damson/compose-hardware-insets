@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.damson.hardwareinsets.CutoutShape
 import io.github.damson.hardwareinsets.HardwarePolicy
@@ -82,8 +83,10 @@ private fun Caption(edge: ScreenEdge, arePaddingBars: Boolean, modifier: Modifie
         Text(
             text = "Anchored to ${edge.name}",
             color = Color.White,
+            textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
+                .fillMaxWidth()
                 .clearOfTheHardware(
                     position = edge,
                     policy = HardwarePolicy(areSystemBarsIncluded = arePaddingBars),
@@ -102,7 +105,10 @@ private fun Caption(edge: ScreenEdge, arePaddingBars: Boolean, modifier: Modifie
  */
 @Composable
 private fun BoxScope.CloseButton(cutout: CutoutShape, edge: ScreenEdge) {
-    val clearance = cornerClearance(cutout.bounds, position = edge, isAtTheEnd = true)
+    // One value drives both the question and the placement. Asking about one
+    // corner while placing at the other returns a confident zero, which looks
+    // exactly like "no hardware here", and nothing in the API can catch it.
+    val clearance = cornerClearance(cutout.bounds, position = edge, isAtTheEnd = CLOSE_AT_THE_END)
     // The clearance is asked in pixels, because the rectangles the platform
     // reports are in pixels and in window coordinates.
     val widthPx = with(LocalDensity.current) { CLOSE_WIDTH.roundToPx() }
@@ -110,7 +116,7 @@ private fun BoxScope.CloseButton(cutout: CutoutShape, edge: ScreenEdge) {
     Button(
         onClick = {},
         modifier = Modifier
-            .align(edge.toAlignment())
+            .align(edge.cornerAlignment(CLOSE_AT_THE_END))
             .offset { clearance(widthPx) }
             .size(CLOSE_WIDTH, 48.dp),
     ) {
@@ -166,11 +172,24 @@ private fun Modifier.cutoutOverlay(cutout: CutoutShape, isShowing: Boolean): Mod
         }
     }
 
+/**
+ * The mapping every caller of this library writes for itself, because
+ * [ScreenEdge] names an edge without being able to place anything at it.
+ */
 private fun ScreenEdge.toAlignment(): Alignment = when (this) {
     ScreenEdge.TOP, ScreenEdge.LEFT -> Alignment.TopStart
     ScreenEdge.BOTTOM, ScreenEdge.RIGHT -> Alignment.BottomStart
 }
 
+private fun ScreenEdge.cornerAlignment(isAtTheEnd: Boolean): Alignment = when (this) {
+    ScreenEdge.TOP, ScreenEdge.LEFT ->
+        if (isAtTheEnd) Alignment.TopEnd else Alignment.TopStart
+    ScreenEdge.BOTTOM, ScreenEdge.RIGHT ->
+        if (isAtTheEnd) Alignment.BottomEnd else Alignment.BottomStart
+}
+
+/** The corner the close button lives in, asked and answered in one place. */
+private const val CLOSE_AT_THE_END = false
 private val CLOSE_WIDTH = 96.dp
 private val PICTURE = Brush.linearGradient(listOf(Color(0xFF12283C), Color(0xFF7A3B2E)))
 private val SCRIM = Color.Black.copy(alpha = 0.45f)
