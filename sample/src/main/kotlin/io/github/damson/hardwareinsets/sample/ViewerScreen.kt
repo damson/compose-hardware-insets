@@ -317,8 +317,8 @@ private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
         // border and the lift were drawn as disagreed with the thing they were
         // drawn around. Both read the shape from here now.
         //
-        // The hairline is not decoration either. The accent is 8.4:1 against the
-        // darkest plate and 1.55:1 against the palest, so on paper it is the
+        // The hairline is not decoration either. The accent is 9.72:1 against the
+        // darkest plate and 1.34:1 against the palest, so on paper it is the
         // border and the lift that give the control an edge, not the fill.
         shape = FAB_SHAPE,
         containerColor = MaterialTheme.accent,
@@ -411,11 +411,18 @@ private fun StepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
+                // White, where every other control is in the accent. Two of the
+                // plates are painted in a yellow 1.04:1 from it, and these are
+                // the controls that sit in the middle of the picture rather
+                // than on its edge, so they are the ones that would read as
+                // paint. White also measures better here: 5.53:1 on the plaque
+                // over the palest plate against the accent's 4.18:1.
+                //
                 // Spelled out for both states, because an explicit tint replaces
                 // the dimming a disabled `IconButton` would have done, and a
                 // disabled arrow that still looks live is worse than no arrow.
                 tint =
-                    if (isEnabled) MaterialTheme.accent
+                    if (isEnabled) MaterialTheme.onPlaque
                     else MaterialTheme.onPlaque.copy(alpha = 0.34f),
             )
         }
@@ -618,6 +625,9 @@ private fun CornerActions(
                     // Filled against outlined carries the state; the accent
                     // says which state is the active one. Share stays on the
                     // plaque's own colour, because it is the second action.
+                    // This one is a corner mark rather than a mark on the
+                    // picture, which is why it keeps the accent where the step
+                    // arrows give it up.
                     tint =
                         if (isFavourite) MaterialTheme.accent
                         else MaterialTheme.onPlaque.copy(alpha = 0.78f),

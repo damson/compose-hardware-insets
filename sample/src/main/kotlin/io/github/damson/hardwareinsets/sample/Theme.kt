@@ -104,17 +104,27 @@ val MaterialTheme.onPlaque: Color get() = Paper
 val MaterialTheme.onPlaqueVariant: Color get() = Mist
 
 /**
- * The interface's own colour, and no plate is painted with it.
+ * The interface's own colour: what marks a control as a control.
  *
  * The chrome had been the plaque and nothing else, which is legible but silent:
- * on a busy plate a paper icon on ink is another mark among marks. This says
- * "this is a control" at a glance, and it says it in a hue the gallery never
- * uses, so it cannot be mistaken for paint. It is also well clear of the two
- * marker colours, which mean the camera and the inset and must stay unique.
+ * on a busy plate a paper icon on ink is another mark among marks.
+ *
+ * It is 9.72:1 against the darkest plate and 1.34:1 against the palest, which
+ * is the widest spread of the six that were tried on hardware, and the reason
+ * every control keeps a hairline: on paper the fill is not what gives it an
+ * edge.
+ *
+ * **It is close to two colours it has to live beside**, and that is a decision
+ * rather than an oversight. Two plates are painted with a warmer yellow, 1.04:1
+ * against this one, and the inset marker is orange. What keeps them apart is
+ * position and not hue: the markers are washes along the window's edges, the
+ * paint is under the plaques, and this is only ever a filled control or a mark
+ * of state on one. Where that was not enough it was given up, which is why the
+ * step arrows are white.
  */
-val MaterialTheme.accent: Color get() = Color(0xFF3DE1C0)
+val MaterialTheme.accent: Color get() = Color(0xFFFFD400)
 
-/** What sits on [accent]: 8.8:1, which is the reason the accent is this bright. */
+/** What sits on [accent]: ink, at 9.72:1. */
 val MaterialTheme.onAccent: Color get() = Ink
 
 /**
