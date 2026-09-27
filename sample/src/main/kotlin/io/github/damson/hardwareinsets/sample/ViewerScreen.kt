@@ -701,14 +701,16 @@ private val ACTIONS_WIDTH = 112.dp
 private val FAB_SHAPE = CircleShape
 
 /**
- * How solid the control sheet is.
+ * How solid the control sheet is, and the third value this has been.
  *
- * 0.82 was the floor that held 4.5:1 for the supporting text, and holding a
- * floor is not the same as being comfortable to read: the plate showed through
- * every paragraph. This keeps the screen behind legible as movement without
- * asking anyone to read through a painting.
+ * 0.82 was the floor that held 4.5:1 for the supporting text, which was legible
+ * and tiring: the plate showed through every paragraph. 0.94 fixed the reading
+ * and lost the thing the sheet is see-through for, which is watching the label
+ * move while you change what moves it. This is the middle, and it is a
+ * judgement rather than a threshold: both of the others cleared every contrast
+ * check they were measured against.
  */
-private const val SHEET_ALPHA = 0.94f
+private const val SHEET_ALPHA = 0.88f
 
 /** How far the lift falls below what it lifts. */
 private val LIFT_DROP = 2.dp
