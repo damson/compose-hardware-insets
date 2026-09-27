@@ -701,16 +701,16 @@ private val ACTIONS_WIDTH = 112.dp
 private val FAB_SHAPE = CircleShape
 
 /**
- * How solid the control sheet is, and the third value this has been.
+ * How solid the sheet's frame is, which is now the only part of it you see
+ * through.
  *
- * 0.82 was the floor that held 4.5:1 for the supporting text, which was legible
- * and tiring: the plate showed through every paragraph. 0.94 fixed the reading
- * and lost the thing the sheet is see-through for, which is watching the label
- * move while you change what moves it. This is the middle, and it is a
- * judgement rather than a threshold: both of the others cleared every contrast
- * check they were measured against.
+ * It can be this low because no text sits on it. Three values were tried while
+ * the text was on this surface, 0.82, 0.94 and 0.88, and each was a trade of
+ * reading against seeing: the detail in a painting fights a paragraph whatever
+ * the average contrast says. The card in [ControlSheetContent] takes the text
+ * out of that argument, and the frame is then free to be glass.
  */
-private const val SHEET_ALPHA = 0.88f
+private const val SHEET_ALPHA = 0.55f
 
 /** How far the lift falls below what it lifts. */
 private val LIFT_DROP = 2.dp

@@ -1,5 +1,6 @@
 package io.github.damson.hardwareinsets.sample
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,17 +54,37 @@ fun ControlSheetContent(
     onOptions: (ViewerOptions) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // An opaque card inside a translucent sheet, rather than one translucent
+    // sheet holding everything.
+    //
+    // Reading over a painting is hard because of the detail in it, not the
+    // average contrast: a paragraph crossing a white stroke has two
+    // backgrounds, and every measurement of the whole sheet says it is fine
+    // while your eye says otherwise. Text here sits on one colour and never on
+    // a plate. What stays see-through is the frame around it, which is enough
+    // to watch the label move while you change what moves it, and the screen
+    // above the sheet is not covered at all.
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        // The card and the frame are the same colour with different alphas, so
+        // over a pale plate the frame arrives at almost exactly the card's tone
+        // and the panel loses its edge. The hairline is what keeps it a panel.
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 12.dp)
+            .padding(bottom = 12.dp),
+    ) {
     // Scrollable, because the sheet opens half height and a large font setting
     // pushes the last switches past the bottom of it. Without this they cannot
     // be reached at all, and nothing about the layout says so.
     Column(
-        modifier
+        Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            // The sheet's own container stops at the navigation bar; its
-            // contents do not, so the last row of a scrolled sheet sits under
-            // the gesture pill and is struck through by it.
-            .navigationBarsPadding()
             .padding(bottom = 16.dp)
     ) {
         Text(
@@ -82,6 +104,7 @@ fun ControlSheetContent(
         )
         Legend(cutout)
         Sections(options, onOptions)
+    }
     }
 }
 
