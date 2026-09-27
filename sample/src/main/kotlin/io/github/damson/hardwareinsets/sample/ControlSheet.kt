@@ -69,7 +69,16 @@ fun ControlSheetContent(
             stringResource(R.string.controls),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp),
+        )
+        // What the screen is, before what it can be set to. A reader who opens
+        // this sheet without having read the README has otherwise been handed
+        // eight switches and no sentence.
+        Text(
+            stringResource(R.string.controls_intro),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 12.dp),
         )
         Legend(cutout)
         Sections(options, onOptions)
@@ -95,6 +104,12 @@ private fun Legend(cutout: CutoutShape) {
             "T ${cutout.topInset}   B ${cutout.bottomInset}   " +
                 "L ${cutout.leftInset}   R ${cutout.rightInset}",
         )
+        Text(
+            stringResource(R.string.legend_detail),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp),
+        )
     }
     HorizontalDivider(
         Modifier.padding(vertical = 8.dp),
@@ -114,7 +129,10 @@ private fun Swatch(color: Color, label: String, value: String) {
             label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.width(76.dp),
+            // Wide enough for the longest of the two labels at a large font
+            // setting. Narrower and "Safe margins" wraps, which drags the value
+            // beside it out of line with the row above.
+            modifier = Modifier.width(124.dp),
         )
         Text(
             value,
@@ -126,23 +144,26 @@ private fun Swatch(color: Color, label: String, value: String) {
 
 @Composable
 private fun Sections(options: ViewerOptions, onOptions: (ViewerOptions) -> Unit) {
+    // First, because it is the one that proves the library found the camera at
+    // all. Every other control here moves something; this one is what lets you
+    // see what it moved around.
+    Setting(
+        R.string.markers, R.string.markers_detail, options.areMarkersShown,
+    ) { onOptions(options.copy(areMarkersShown = it)) }
+
     Choice(
         label = stringResource(R.string.anchor),
+        detail = stringResource(R.string.anchor_detail),
         entries = ScreenEdge.entries.map { it.name.take(1) + it.name.drop(1).lowercase() },
         selectedIndex = ScreenEdge.entries.indexOf(options.anchor),
         onSelect = { onOptions(options.copy(anchor = ScreenEdge.entries[it])) },
     )
     Choice(
         label = stringResource(R.string.corner),
+        detail = stringResource(R.string.corner_detail),
         entries = listOf(stringResource(R.string.start), stringResource(R.string.end)),
         selectedIndex = if (options.isCornerAtTheEnd) 1 else 0,
         onSelect = { onOptions(options.copy(isCornerAtTheEnd = it == 1)) },
-    )
-    Choice(
-        label = stringResource(R.string.cutout_mode),
-        entries = listOf("Always", "Short", "Default", "Never"),
-        selectedIndex = CutoutMode.entries.indexOf(options.cutoutMode),
-        onSelect = { onOptions(options.copy(cutoutMode = CutoutMode.entries[it])) },
     )
 
     Label(stringResource(R.string.counts_as_hardware))
@@ -161,25 +182,42 @@ private fun Sections(options: ViewerOptions, onOptions: (ViewerOptions) -> Unit)
     ) { onOptions(options.copy(isFarEdgeIgnored = it)) }
 
     Label(stringResource(R.string.window))
+    Choice(
+        label = stringResource(R.string.cutout_mode),
+        detail = stringResource(R.string.cutout_mode_detail),
+        entries = listOf("Always", "Short", "Default", "Never"),
+        selectedIndex = CutoutMode.entries.indexOf(options.cutoutMode),
+        onSelect = { onOptions(options.copy(cutoutMode = CutoutMode.entries[it])) },
+    )
     Setting(
         R.string.hide_bars, R.string.hide_bars_detail, options.areBarsHidden,
     ) { onOptions(options.copy(areBarsHidden = it)) }
-    Setting(
-        R.string.markers, R.string.markers_detail, options.areMarkersShown,
-    ) { onOptions(options.copy(areMarkersShown = it)) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Choice(label: String, entries: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+private fun Choice(
+    label: String,
+    detail: String,
+    entries: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+) {
     Column(
         Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             label,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleSmall,
+        )
+        // The same sentence a switch gets under its name. A row of four words
+        // says what it is set to and never what it is for.
+        Text(
+            detail,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodySmall,
         )
         // A segmented button, not a row of chips: these are one-of-many, and a
         // chip's selected state does not say so.

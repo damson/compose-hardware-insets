@@ -228,11 +228,11 @@ fun ViewerScreen(
             // Half height first, so a change to a top-anchored control is visible
             // while it is being made. Drag up for the rest.
             sheetState = rememberModalBottomSheetState(),
-            // No scrim and a sheet you can see through, because every control on
-            // it changes the screen behind it: dimming the plate to ask about
-            // the plate hides the answer. The alpha is the floor that keeps the
-            // supporting text at 4.5:1 in both schemes over both the palest
-            // plate and the deepest.
+            // No scrim, and a sheet you can still see through, because every
+            // control on it changes the screen behind it: dimming the plate to
+            // ask about the plate hides the answer. Near enough solid, though.
+            // The sheet is where the reading happens, and a paragraph over a
+            // painting is a harder read than a control is.
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
             // Spelled out, because `contentColorFor` has no answer for a colour
             // that is not a scheme role, and its non-answer is `Unspecified`:
@@ -701,11 +701,14 @@ private val ACTIONS_WIDTH = 112.dp
 private val FAB_SHAPE = CircleShape
 
 /**
- * How solid the control sheet is. Below this the supporting text drops under
- * 4.5:1 in the dark scheme over the palest plate, which is the worst of the
- * four corners this has to hold.
+ * How solid the control sheet is.
+ *
+ * 0.82 was the floor that held 4.5:1 for the supporting text, and holding a
+ * floor is not the same as being comfortable to read: the plate showed through
+ * every paragraph. This keeps the screen behind legible as movement without
+ * asking anyone to read through a painting.
  */
-private const val SHEET_ALPHA = 0.82f
+private const val SHEET_ALPHA = 0.94f
 
 /** How far the lift falls below what it lifts. */
 private val LIFT_DROP = 2.dp

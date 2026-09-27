@@ -39,26 +39,35 @@
     <string name="plate_crown_medium">Crown, ribs and words struck through</string>
     <string name="plate_crown_description">A yellow three-point crown over a worked dark ground, with block words struck out, a ribcage drawn in white, and blocks of blue and yellow.</string>
 
-    <string name="legend_rects">Cutout</string>
-    <string name="legend_depths">Depths</string>
-    <string name="no_cutout">None reported</string>
-    <string name="anchor">Anchor</string>
-    <string name="corner">Corner</string>
+    <string name="controls_intro">This library keeps the label and the buttons off the camera. Change what counts as being in the way, and watch them move.</string>
+    <string name="legend_rects">Camera</string>
+    <string name="legend_depths">Safe margins</string>
+    <string name="legend_detail">Red is where this phone says its camera sits. Orange is how far in it says to stay on each edge.</string>
+    <string name="no_cutout">This phone reports none</string>
+
+    <string name="markers">Show what the phone reports</string>
+    <string name="markers_detail">Draws the camera in red and the safe margins in orange, over the picture</string>
+
+    <string name="anchor">Which edge the label sits on</string>
+    <string name="anchor_detail">Left and Right are edges of the phone rather than of the screen, so they move when you turn it</string>
+    <string name="corner">Which corner the buttons sit in</string>
+    <string name="corner_detail">Start is the left corner of that edge in a left-to-right language, and the right one in Arabic or Hebrew</string>
     <string name="start">Start</string>
     <string name="end">End</string>
-    <string name="cutout_mode">Window may extend into the cutout</string>
-    <string name="counts_as_hardware">Counts as hardware</string>
-    <string name="cutout">Display cutout</string>
-    <string name="waterfall">Waterfall curve</string>
-    <string name="system_bars">System bars</string>
-    <string name="far_edge_ignored">Leave the far edge at zero</string>
-    <string name="window">Window</string>
-    <string name="hide_bars">Hide the system bars</string>
-    <string name="markers">Show the markers</string>
-    <string name="cutout_detail">The rectangles the camera occupies</string>
-    <string name="waterfall_detail">The curved edge, reported from API 30</string>
-    <string name="system_bars_detail">Include them even though they are software</string>
-    <string name="far_edge_detail">For a wrap_content ComposeView, where padding the far edge steals touches</string>
-    <string name="hide_bars_detail">Leaves them off until a swipe from the edge</string>
-    <string name="markers_detail">Draws what the platform reported over the plate</string>
+
+    <string name="counts_as_hardware">What the label moves out of the way of</string>
+    <string name="cutout">The camera</string>
+    <string name="cutout_detail">The one thing that is physically in the screen. Android reports nothing here before version 9</string>
+    <string name="waterfall">The curved edge</string>
+    <string name="waterfall_detail">Where a phone curves down its sides. You can draw there, but a touch is unreliable</string>
+    <string name="system_bars">The clock and the gesture bar</string>
+    <string name="system_bars_detail">Software rather than hardware, so this is off unless you want it</string>
+    <string name="far_edge_ignored">Leave the opposite edge alone</string>
+    <string name="far_edge_detail">Stops the label growing on the far side, where its invisible box can swallow taps meant for the picture</string>
+
+    <string name="window">The window itself</string>
+    <string name="cutout_mode">How far the picture may go under the camera</string>
+    <string name="cutout_mode_detail">Always fills the whole screen, which is what a viewer wants. Never keeps the picture clear of the camera entirely</string>
+    <string name="hide_bars">Hide the clock and the gesture bar</string>
+    <string name="hide_bars_detail">Swipe in from an edge to bring them back</string>
 </resources>
