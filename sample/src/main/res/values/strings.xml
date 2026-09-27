@@ -31,9 +31,9 @@
     <string name="plate_ledger_medium">A list, every entry struck out</string>
     <string name="plate_ledger_description">A boxed list of metals on pale paper, each one struck through, a tally counted beside it, two arrows and a crown drawn in ink.</string>
 
-    <string name="plate_chamber_title">Cloud Chamber</string>
-    <string name="plate_chamber_medium">Seeded tracks over a single glow</string>
-    <string name="plate_chamber_description">Faint diagonal tracks scattered over a blue glow on near black, with three brighter ones crossing the whole plate.</string>
+    <string name="plate_arms_title">Arms Raised</string>
+    <string name="plate_arms_medium">Figure on a banded ground, one word three times</string>
+    <string name="plate_arms_description">A stick figure with both arms up, standing on broad bands of blue and black, the word GO written three times beside it with the last struck out, and a boxed cross below.</string>
 
     <string name="plate_crown_title">Crown, Crossed Out</string>
     <string name="plate_crown_medium">Crown, ribs and words struck through</string>

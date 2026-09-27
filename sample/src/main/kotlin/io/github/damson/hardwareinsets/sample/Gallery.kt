@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
@@ -111,13 +114,13 @@ internal val Plates = listOf(
         paint = { palette, text -> paintLedger(palette, text) },
     ),
     Plate(
-        title = R.string.plate_chamber_title,
+        title = R.string.plate_arms_title,
         maker = R.string.plate_maker,
-        medium = R.string.plate_chamber_medium,
-        description = R.string.plate_chamber_description,
+        medium = R.string.plate_arms_medium,
+        description = R.string.plate_arms_description,
         isPaleAtTheTop = false,
         isPaleAtTheBottom = false,
-        paint = { palette, _ -> paintCloudChamber(palette) },
+        paint = { palette, text -> paintArmsRaised(palette, text) },
     ),
     Plate(
         title = R.string.plate_crown_title,
@@ -242,50 +245,6 @@ private fun DrawScope.paintLowTide(palette: PlatePalette) {
 }
 
 /**
- * A line field: particle tracks over a single glow. The dark plate, and the
- * one that proves a label reads over ink as well as over paper.
- */
-private fun DrawScope.paintCloudChamber(palette: PlatePalette) {
-    drawRect(palette.ink)
-
-    val glow = Offset(size.width * 0.5f, size.height * 0.42f)
-    val reach = size.minDimension * 0.95f
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(palette.sea.copy(alpha = 0.60f), Color.Transparent),
-            center = glow,
-            radius = reach,
-        ),
-        radius = reach,
-        center = glow,
-    )
-
-    val next = seeded(0x51ED)
-    repeat(140) {
-        val start = Offset(next() * size.width, next() * size.height)
-        val angle = -1.05f + next() * 0.30f
-        val length = size.minDimension * (0.03f + next() * 0.20f)
-        drawLine(
-            palette.mist.copy(alpha = 0.14f + next() * 0.30f),
-            start,
-            Offset(start.x + cos(angle) * length, start.y + sin(angle) * length),
-            strokeWidth = 1.dp.toPx(),
-        )
-    }
-    repeat(3) { index ->
-        val start = Offset(size.width * (0.12f + 0.30f * index), size.height * (0.88f - 0.06f * index))
-        val length = size.minDimension * 0.85f
-        val angle = -1.02f
-        drawLine(
-            palette.paper.copy(alpha = 0.80f),
-            start,
-            Offset(start.x + cos(angle) * length, start.y + sin(angle) * length),
-            strokeWidth = 1.5.dp.toPx(),
-        )
-    }
-}
-
-/**
  * Neo-expressionist: a crown, a ribcage, words struck through, raw blocks of
  * colour on a worked ground.
  *
@@ -362,6 +321,102 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
             palette.mist.copy(alpha = 0.10f + next() * 0.22f),
             start,
             Offset(start.x + cos(lean) * length, start.y + sin(lean) * length),
+            strokeWidth = 1.5.dp.toPx(),
+        )
+    }
+}
+
+/**
+ * A figure with both arms up, over a ground cut into bands.
+ *
+ * The fourth in this language and the only whole body among them: the others
+ * are a head, a page and a crown. Original, for the same reason as the rest.
+ */
+private fun DrawScope.paintArmsRaised(palette: PlatePalette, text: TextMeasurer) {
+    val unit = size.width / 12f
+    val next = seeded(0x2A11)
+
+    drawRect(palette.ink)
+    // Three broad bands, painted before anything stands on them. A figure on a
+    // flat ground floats; a figure on a horizon stands.
+    drawRect(palette.sea.copy(alpha = 0.55f), Offset(0f, size.height * 0.30f), Size(size.width, size.height * 0.13f))
+    drawRect(Grounded, Offset(0f, size.height * 0.55f), Size(size.width, size.height * 0.16f))
+    drawRect(palette.sea.copy(alpha = 0.30f), Offset(0f, size.height * 0.80f), Size(size.width, size.height * 0.09f))
+    repeat(5) {
+        drawRect(
+            color = palette.ink.copy(alpha = 0.45f),
+            topLeft = Offset(-unit + next() * unit * 3f, next() * size.height),
+            size = Size(size.width * (0.35f + next() * 0.6f), size.height * (0.04f + next() * 0.09f)),
+        )
+    }
+
+    // Every line of the figure is scrawled rather than drawn, and no two limbs
+    // agree. A circle head on two straight arms is a clip-art man: symmetry is
+    // the whole difference between a figure and a pictogram.
+    val stroke = 8.dp.toPx()
+    val head = Offset(unit * 4.3f, size.height * 0.40f)
+    val skull = unit * 1.05f
+    val face = Path().apply {
+        moveTo(head.x - skull * 0.95f, head.y - skull * 0.45f)
+        lineTo(head.x - skull * 0.25f, head.y - skull * 1.05f)
+        lineTo(head.x + skull * 0.85f, head.y - skull * 0.7f)
+        lineTo(head.x + skull, head.y + skull * 0.35f)
+        lineTo(head.x + skull * 0.2f, head.y + skull * 1.0f)
+        lineTo(head.x - skull * 0.8f, head.y + skull * 0.65f)
+        close()
+    }
+    drawPath(face, palette.paper, style = Stroke(width = stroke, join = StrokeJoin.Round))
+
+    val eye = Offset(head.x - skull * 0.35f, head.y - skull * 0.1f)
+    drawCircle(palette.paper, radius = skull * 0.26f, center = eye, style = Stroke(width = 4.dp.toPx()))
+    drawLine(Accent, Offset(eye.x - skull * 0.4f, eye.y - skull * 0.4f),
+        Offset(eye.x + skull * 0.4f, eye.y + skull * 0.4f), strokeWidth = 4.dp.toPx())
+    drawLine(Accent, Offset(eye.x + skull * 0.4f, eye.y - skull * 0.4f),
+        Offset(eye.x - skull * 0.4f, eye.y + skull * 0.4f), strokeWidth = 4.dp.toPx())
+    drawCircle(Accent, radius = skull * 0.14f, center = Offset(head.x + skull * 0.42f, head.y - skull * 0.18f))
+    drawLine(palette.paper, Offset(head.x - skull * 0.1f, head.y + skull * 0.55f),
+        Offset(head.x + skull * 0.62f, head.y + skull * 0.42f), strokeWidth = 5.dp.toPx())
+
+    val shoulders = Offset(head.x + unit * 0.15f, head.y + skull + size.height * 0.018f)
+    val hips = Offset(head.x - unit * 0.3f, size.height * 0.655f)
+    scrawl(shoulders, hips, palette.paper, stroke, next)
+    // The ribs, three of them, because this hand draws what is under the skin.
+    repeat(3) { index ->
+        val y = shoulders.y + (hips.y - shoulders.y) * (0.16f + index * 0.15f)
+        val reach = unit * (1.15f - index * 0.18f)
+        scrawl(Offset(shoulders.x - reach, y - unit * 0.1f), Offset(shoulders.x + reach * 0.85f, y),
+            palette.paper.copy(alpha = 0.8f), 4.dp.toPx(), next)
+    }
+    scrawl(shoulders, Offset(head.x - unit * 2.7f, size.height * 0.34f), palette.paper, stroke, next)
+    scrawl(shoulders, Offset(head.x + unit * 2.2f, size.height * 0.375f), palette.paper, stroke, next)
+    scrawl(hips, Offset(head.x - unit * 1.5f, size.height * 0.815f), palette.paper, stroke, next)
+    scrawl(hips, Offset(head.x + unit * 2.1f, size.height * 0.78f), palette.paper, stroke, next)
+
+    // One word, three times, and only the last of them struck. Repetition is
+    // the idiom's way of saying a thing louder; the strike is how it takes it
+    // back without erasing it.
+    listOf(0, 1).forEach { index ->
+        write(text, "GO", Offset(unit * 8.6f, size.height * (0.44f + index * 0.085f)), unit * 0.86f, palette.paper)
+    }
+    struckThrough(text, "GO", Offset(unit * 8.6f, size.height * 0.615f), unit * 0.86f, palette.paper)
+
+    val box = Offset(unit * 0.8f, size.height * 0.705f)
+    val side = unit * 1.9f
+    drawRect(Grounded, topLeft = box, size = Size(side, side))
+    drawRect(palette.paper, topLeft = box, size = Size(side, side), style = Stroke(width = 4.dp.toPx()))
+    drawLine(Accent, box, Offset(box.x + side, box.y + side), strokeWidth = 5.dp.toPx())
+    drawLine(Accent, Offset(box.x + side, box.y), Offset(box.x, box.y + side), strokeWidth = 5.dp.toPx())
+
+    arrow(Accent, from = Offset(unit * 10.6f, size.height * 0.84f), to = Offset(unit * 10.6f, size.height * 0.70f), head = unit * 0.5f)
+
+    repeat(36) {
+        val from = Offset(next() * size.width, next() * size.height)
+        val length = unit * (0.25f + next() * 1.3f)
+        val lean = -1.9f + next() * 0.6f
+        drawLine(
+            palette.mist.copy(alpha = 0.09f + next() * 0.20f),
+            from,
+            Offset(from.x + cos(lean) * length, from.y + sin(lean) * length),
             strokeWidth = 1.5.dp.toPx(),
         )
     }
@@ -568,6 +623,34 @@ private fun DrawScope.paintLedger(palette: PlatePalette, text: TextMeasurer) {
     }
 }
 
+/**
+ * A line with a hand's wobble in it, deterministic like everything else here.
+ *
+ * Three segments and a small perpendicular drift on each: enough that no two
+ * lines on a plate are parallel, which is what a ruled figure gets wrong.
+ */
+private fun DrawScope.scrawl(
+    from: Offset,
+    to: Offset,
+    color: Color,
+    width: Float,
+    next: () -> Float,
+) {
+    val dx = to.x - from.x
+    val dy = to.y - from.y
+    val length = hypot(dx, dy)
+    if (length <= 0f) return
+    val path = Path().apply {
+        moveTo(from.x, from.y)
+        repeat(3) { index ->
+            val along = (index + 1) / 3f
+            val drift = (next() - 0.5f) * length * 0.07f
+            lineTo(from.x + dx * along - dy / length * drift, from.y + dy * along + dx / length * drift)
+        }
+    }
+    drawPath(path, color, style = Stroke(width = width, cap = StrokeCap.Round, join = StrokeJoin.Round))
+}
+
 /** An arrow, drawn the way a note takes one: one line and two strokes. */
 private fun DrawScope.arrow(color: Color, from: Offset, to: Offset, head: Float) {
     drawLine(color, from, to, strokeWidth = 4.dp.toPx())
@@ -623,6 +706,27 @@ private fun DrawScope.ribcage(palette: PlatePalette, spine: Offset, height: Floa
     }
 }
 
+/** One word in the hand the whole plate is written in. */
+private fun DrawScope.write(
+    measurer: TextMeasurer,
+    word: String,
+    at: Offset,
+    size: Float,
+    written: Color,
+): TextLayoutResult {
+    val laid = measurer.measure(
+        text = word,
+        style = TextStyle(
+            color = written,
+            fontSize = size.toSp(),
+            fontWeight = FontWeight.Black,
+            letterSpacing = (size * 0.06f).toSp(),
+        ),
+    )
+    drawText(laid, topLeft = at)
+    return laid
+}
+
 /**
  * A word written and then struck out, which is the point: the strike is what
  * makes you read it.
@@ -635,16 +739,7 @@ private fun DrawScope.struckThrough(
     written: Color,
     strike: Color = Accent,
 ) {
-    val laid = measurer.measure(
-        text = word,
-        style = TextStyle(
-            color = written,
-            fontSize = size.toSp(),
-            fontWeight = FontWeight.Black,
-            letterSpacing = (size * 0.06f).toSp(),
-        ),
-    )
-    drawText(laid, topLeft = at)
+    val laid = write(measurer, word, at, size, written)
     val middle = at.y + laid.size.height * 0.52f
     drawLine(
         strike,
