@@ -8,6 +8,11 @@ This answers that. It publishes the cutout's rectangles as Compose state, turns 
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
 hardware you do not own.
 
+<p align="center">
+  <img src="docs/media/sample.png" width="300"
+       alt="The sample gallery: the camera cutout drawn in red, the safe margins in orange, and the wall label sitting clear of both">
+</p>
+
 ```kotlin
 dependencies {
     implementation("io.github.damson:hardware-insets:0.1.0")
@@ -93,6 +98,14 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 the next, tap to put the label away. That is the case this library is for. Full bleed is the point of a
 viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
 is meant not to be.
+
+<p align="center">
+  <img src="docs/media/sample.gif" width="300"
+       alt="The wall label moving between the four screen edges as the anchor changes">
+</p>
+
+The label steps between all four edges as the anchor changes, and `RIGHT` reads "now BOTTOM",
+because `LEFT` and `RIGHT` are edges of the device rather than of the screen.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
 bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
