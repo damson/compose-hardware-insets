@@ -1,8 +1,10 @@
 package io.github.damson.hardwareinsets.sample
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -49,6 +51,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,7 +77,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import io.github.damson.hardwareinsets.CutoutShape
 import io.github.damson.hardwareinsets.HardwarePolicy
@@ -96,7 +101,7 @@ import io.github.damson.hardwareinsets.onScreenAt
  * @param onBarsOver called with how pale the plate now showing is at the top
  *   and at the bottom. The system bars draw their icons over it, and with a
  *   transparent bar the platform has no idea what is underneath.
- * @param onShare called with the line describing the plate on show. Sending it
+ * @param onShare called with the line that introduces the library. Sending it
  *   anywhere is an `Intent`, which is the activity's business and not this
  *   function's.
  */
@@ -120,7 +125,8 @@ fun ViewerScreen(
     val edge = options.anchor.onScreenAt(rotation)
     val pager = rememberPagerState(pageCount = { Plates.size })
     val plate = Plates[pager.currentPage]
-    val plateLine = shareLine(plate)
+    val repoPitch = stringResource(R.string.share_repo)
+    var shakes by remember { mutableIntStateOf(0) }
     val steps = rememberCoroutineScope()
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
@@ -151,10 +157,14 @@ fun ViewerScreen(
                 total = Plates.size,
                 edge = edge,
                 options = options,
+                shakes = shakes,
             )
         }
+        // Both arrows go when the sheet opens. They sit at the middle of the
+        // side, which is exactly where a half-height sheet's top edge lands, so
+        // what you get otherwise is two buttons sawn in half.
         AnimatedVisibility(
-            visible = isChromeShown,
+            visible = isChromeShown && !areControlsOpen,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.CenterStart).clearOfEverything(),
@@ -167,7 +177,7 @@ fun ViewerScreen(
             )
         }
         AnimatedVisibility(
-            visible = isChromeShown,
+            visible = isChromeShown && !areControlsOpen,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.CenterEnd).clearOfEverything(),
@@ -196,8 +206,13 @@ fun ViewerScreen(
                     favourites =
                         if (isOn) favourites + pager.currentPage
                         else favourites - pager.currentPage
+                    // The label is the only thing on screen that says which
+                    // plate this is, so it is the thing that answers when you
+                    // favourite one. A counter rather than a flag: press it
+                    // twice quickly and it has to shake twice.
+                    shakes++
                 },
-                onShare = { onShare(plateLine) },
+                onShare = { onShare(repoPitch) },
             )
         }
         AnimatedVisibility(
@@ -441,6 +456,10 @@ private fun Modifier.plaque(shape: Shape): Modifier = this
  *
  * The inset goes outside the plaque, so the plaque moves clear of the hardware
  * rather than growing a transparent margin inside itself.
+ *
+ * @param shakes how many times the plate has been favourited. The label answers
+ *   with a shake, because it is the only thing on screen naming the plate the
+ *   heart was pressed for.
  */
 @Composable
 private fun WallLabel(
@@ -449,10 +468,36 @@ private fun WallLabel(
     total: Int,
     edge: ScreenEdge,
     options: ViewerOptions,
+    shakes: Int,
     modifier: Modifier = Modifier,
 ) {
+    // The swing runs in -1..1 and is scaled to pixels where it is used, so the
+    // gesture is the same size on every density, and every keyframe is a
+    // fraction of the duration, so the constant below is the only knob.
+    val nudge = remember { Animatable(0f) }
+    val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
+    LaunchedEffect(shakes) {
+        // Not on the first composition: the label would shake itself hello
+        // every time the screen is opened.
+        if (shakes == 0) return@LaunchedEffect
+        nudge.snapTo(0f)
+        nudge.animateTo(
+            targetValue = 0f,
+            animationSpec = keyframes {
+                durationMillis = SHAKE_MILLIS
+                0f at 0
+                -1f at SHAKE_MILLIS * 16 / 100
+                0.78f at SHAKE_MILLIS * 34 / 100
+                -0.48f at SHAKE_MILLIS * 52 / 100
+                0.24f at SHAKE_MILLIS * 72 / 100
+                0f at SHAKE_MILLIS
+            },
+        )
+    }
+
     Box(
         modifier
+            .offset { IntOffset((nudge.value * swing).roundToInt(), 0) }
             .fillMaxWidth()
             .clearOfTheHardware(
                 position = edge,
@@ -555,11 +600,6 @@ private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
 private fun anchorReadout(options: ViewerOptions, edge: ScreenEdge): String =
     if (options.anchor == edge) stringResource(R.string.anchored_to, options.anchor.name)
     else stringResource(R.string.anchored_to_now, options.anchor.name, edge.name)
-
-/** What is shared: the plate's title and who made it, in one line. */
-@Composable
-private fun shareLine(plate: Plate): String =
-    stringResource(R.string.share_plate, stringResource(plate.title), stringResource(plate.maker))
 
 /**
  * The corner control: favourite this plate, or send it on.
@@ -714,6 +754,12 @@ private const val SHEET_ALPHA = 0.55f
 
 /** How far the lift falls below what it lifts. */
 private val LIFT_DROP = 2.dp
+
+/** How long the label takes to answer the heart. */
+private const val SHAKE_MILLIS = 420
+
+/** How far it swings at the widest point. */
+private val SHAKE_SWING = 12.dp
 
 /**
  * How far it reaches, in half-dp bands: a 7dp shadow, not a 18dp one.

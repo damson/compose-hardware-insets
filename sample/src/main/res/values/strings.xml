@@ -6,7 +6,7 @@
     <string name="share">Share</string>
     <string name="previous_plate">Previous plate</string>
     <string name="next_plate">Next plate</string>
-    <string name="share_plate">%1$s, %2$s</string>
+    <string name="share_repo">compose-hardware-insets: a small Compose library that keeps your UI clear of the camera cutout and the curved edge, and hands you the cutout rectangles Compose will not. https://github.com/damson/compose-hardware-insets</string>
     <string name="controls">Controls</string>
     <string name="open_controls">Open the controls</string>
     <string name="hide_the_label">Hide the label</string>

@@ -66,7 +66,10 @@ fun ControlSheetContent(
     // above the sheet is not covered at all.
     Surface(
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        // Slightly see-through, and much less so than the frame around it. The
+        // card is where the reading happens, so it gives up only enough to say
+        // it is a surface over a picture rather than a page of its own.
+        color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = CARD_ALPHA),
         contentColor = MaterialTheme.colorScheme.onSurface,
         // The card and the frame are the same colour with different alphas, so
         // over a pale plate the frame arrives at almost exactly the card's tone
@@ -75,8 +78,8 @@ fun ControlSheetContent(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 12.dp)
-            .padding(bottom = 12.dp),
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 20.dp),
     ) {
     // Scrollable, because the sheet opens half height and a large font setting
     // pushes the last switches past the bottom of it. Without this they cannot
@@ -275,6 +278,14 @@ private fun Setting(label: Int, detail: Int, isOn: Boolean, onChange: (Boolean) 
         ),
     )
 }
+
+/**
+ * How solid the card is, against [SHEET_ALPHA] for the frame it sits in.
+ *
+ * High enough that a heading holds 12:1 over the palest plate and the deepest
+ * alike, which is the invariance the translucent sheet never had.
+ */
+private const val CARD_ALPHA = 0.93f
 
 @Composable
 private fun Label(text: String) {
