@@ -10,7 +10,7 @@ hardware you do not own.
 
 | A camera in the corner | A curved edge |
 |---|---|
-| <img src="docs/media/sample-corner.png" width="300" alt="The sample with a camera in the top right corner drawn in red: the favourite and share buttons have stepped down and clear of it, and the wall label is anchored to the top"> | <img src="docs/media/sample-waterfall.png" width="300" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them, with the wall label anchored to the bottom"> |
+| <img src="docs/media/sample-corner.png" width="300" alt="The sample with a camera in the top right corner drawn in red, and the favourite and share buttons stepped down and clear of it"> | <img src="docs/media/sample-waterfall.png" width="300" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them"> |
 
 Both are the same screen on different hardware, with the sample's marker overlay on: red is where the
 platform says a camera is, orange is how far in it says to stay on each edge. On the left the corner
@@ -109,12 +109,13 @@ is meant not to be.
 
 <p align="center">
   <img src="docs/media/sample.gif" width="300"
-       alt="The sample walking its five plates with the label anchored to the bottom, then moving the label to the top, then running the same screen over a punch hole, a notch, a corner camera, a curved edge and a double cutout">
+       alt="The same screen over six kinds of hardware in turn: a centred punch hole, a camera in the start corner, a wide notch, a camera in the end corner, a cutout at each end, and a curved edge">
 </p>
 
-One round of it: the label starts on the bottom edge and the gallery walks all five plates, the
-anchor moves to the top, and then the hardware underneath keeps changing. `RIGHT` reads "now
-BOTTOM" because `LEFT` and `RIGHT` are edges of the device rather than of the screen.
+One frame per kind of hardware, and no two alike: a punch hole in the middle, a camera in the start
+corner, a wide notch, a camera in the end corner with the buttons sitting under it, one cutout at
+each end, and a curved edge with no rectangle at all. The gallery walks its five plates underneath,
+with the label on the bottom edge for the first half and the top for the second.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
 bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
