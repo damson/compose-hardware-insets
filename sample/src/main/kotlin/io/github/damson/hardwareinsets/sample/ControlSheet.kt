@@ -47,6 +47,14 @@ import io.github.damson.hardwareinsets.ScreenEdge
  * stays put covers the bottom edge, and the bottom edge is one of the four this
  * screen exists to put things on: setting the anchor to `BOTTOM` would hide the
  * result behind the control that asked for it.
+ *
+ * An opaque card inside a translucent sheet, rather than one translucent sheet
+ * holding everything. Reading over a painting is hard because of the detail in
+ * it rather than the average contrast: a paragraph crossing a white stroke has
+ * two backgrounds, and a measurement of the whole sheet says it is fine while
+ * the eye says otherwise. Text here sits on one colour and never on a plate.
+ * What stays see-through is the frame around it, which is enough to watch the
+ * label move while you change what moves it.
  */
 @Composable
 fun ControlSheetContent(
@@ -55,26 +63,12 @@ fun ControlSheetContent(
     onOptions: (ViewerOptions) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // An opaque card inside a translucent sheet, rather than one translucent
-    // sheet holding everything.
-    //
-    // Reading over a painting is hard because of the detail in it, not the
-    // average contrast: a paragraph crossing a white stroke has two
-    // backgrounds, and every measurement of the whole sheet says it is fine
-    // while your eye says otherwise. Text here sits on one colour and never on
-    // a plate. What stays see-through is the frame around it, which is enough
-    // to watch the label move while you change what moves it, and the screen
-    // above the sheet is not covered at all.
     Surface(
         shape = MaterialTheme.shapes.large,
-        // Slightly see-through, and much less so than the frame around it. The
-        // card is where the reading happens, so it gives up only enough to say
-        // it is a surface over a picture rather than a page of its own.
         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = CARD_ALPHA),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        // The card and the frame are the same colour with different alphas, so
-        // over a pale plate the frame arrives at almost exactly the card's tone
-        // and the panel loses its edge. The hairline is what keeps it a panel.
+        // Over a pale plate the frame arrives at almost exactly the card's
+        // tone, and without this hairline the panel loses its edge entirely.
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = modifier
             .fillMaxWidth()
@@ -82,9 +76,9 @@ fun ControlSheetContent(
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp),
     ) {
-    // Scrollable, because the sheet opens half height and a large font setting
-    // pushes the last switches past the bottom of it. Without this they cannot
-    // be reached at all, and nothing about the layout says so.
+    // At a large font setting the last switches fall past the bottom of a
+    // half-height sheet. Without this they cannot be reached at all, and
+    // nothing about the layout says so.
     Column(
         Modifier
             .fillMaxWidth()
@@ -97,9 +91,6 @@ fun ControlSheetContent(
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp),
         )
-        // What the screen is, before what it can be set to. A reader who opens
-        // this sheet without having read the README has otherwise been handed
-        // eight switches and no sentence.
         Text(
             stringResource(R.string.controls_intro),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -128,9 +119,9 @@ private fun Legend(cutout: CutoutShape) {
         Swatch(
             InsetMarker,
             stringResource(R.string.legend_depths),
-            // Tight rather than spaced: at a large font setting the spaced form
-            // wraps, and a wrapped readout puts its last number on a line of
-            // its own where it reads as a different value.
+            // Tight rather than spaced: at a large font setting the spaced
+            // form wraps, and the last number lands on a line of its own where
+            // it reads as a different value.
             "T${cutout.topInset}  B${cutout.bottomInset}  " +
                 "L${cutout.leftInset}  R${cutout.rightInset}",
         )
@@ -159,9 +150,8 @@ private fun Swatch(color: Color, label: String, value: String) {
             label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge,
-            // Wide enough for the longest of the two labels at a large font
-            // setting. Narrower and "Safe margins" wraps, which drags the value
-            // beside it out of line with the row above.
+            // Wide enough for "Safe margins" at a large font setting, which
+            // otherwise wraps and drags its value out of line with the row above.
             modifier = Modifier.width(112.dp),
         )
         Text(
@@ -174,9 +164,6 @@ private fun Swatch(color: Color, label: String, value: String) {
 
 @Composable
 private fun Sections(options: ViewerOptions, onOptions: (ViewerOptions) -> Unit) {
-    // First, because it is the one that proves the library found the camera at
-    // all. Every other control here moves something; this one is what lets you
-    // see what it moved around.
     Setting(
         R.string.markers, R.string.markers_detail, options.areMarkersShown,
     ) { onOptions(options.copy(areMarkersShown = it)) }
@@ -242,28 +229,21 @@ private fun Choice(
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.titleSmall,
         )
-        // The same sentence a switch gets under its name. A row of four words
-        // says what it is set to and never what it is for.
         Text(
             detail,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall,
         )
-        // A segmented button, not a row of chips: these are one-of-many, and a
-        // chip's selected state does not say so.
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             entries.forEachIndexed { index, entry ->
                 SegmentedButton(
                     selected = index == selectedIndex,
                     onClick = { onSelect(index) },
                     shape = SegmentedButtonDefaults.itemShape(index, entries.size),
-                    // No check icon, and a quarter of Material's own horizontal
-                    // padding. A segment here is a quarter of a card that is
-                    // already inset twice, and the default icon plus padding
-                    // costs about 50dp of it: with four real words in the row
-                    // "Bottom" comes out as "Botto", and at a large font
-                    // setting it does so with the icon gone too. The selected
-                    // container says which one it is, and so do the semantics.
+                    // Material's check icon and default padding cost about
+                    // 50dp of a segment that is a quarter of a twice-inset
+                    // card, which renders "Bottom" as "Botto". The selected
+                    // container and the semantics both say which one it is.
                     icon = {},
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                     label = { Text(entry, maxLines = 1, textAlign = TextAlign.Center) },

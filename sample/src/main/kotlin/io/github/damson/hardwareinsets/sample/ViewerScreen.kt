@@ -123,11 +123,8 @@ fun ViewerScreen(
     onShare: (String) -> Unit,
 ) {
     var areControlsOpen by remember { mutableStateOf(false) }
-    // Saved rather than remembered. A dark mode, locale, font scale or rotation
-    // change recreates the activity, and this sample is partly an argument
-    // about rotation, so the gesture being demonstrated was the one that threw
-    // the visitor's plate and their favourites away. The sheet is deliberately
-    // not saved: a modal that resurrects itself on a rotation reads as a bug.
+    // Saved, not remembered: rotation recreates the activity, and rotation is
+    // half of what this screen demonstrates. The sheet is left out on purpose.
     var isChromeShown by rememberSaveable { mutableStateOf(true) }
     var favourites by rememberSaveable(stateSaver = FavouritesSaver) {
         mutableStateOf(emptySet<Int>())
@@ -143,14 +140,11 @@ fun ViewerScreen(
     val repoPitch = stringResource(R.string.share_repo)
     var shakes by remember { mutableIntStateOf(0) }
     val steps = rememberCoroutineScope()
-    // The swing is driven from here rather than from the label, because the
-    // label leaves composition whenever the chrome is hidden. Held there, its
-    // effect restarted on every later reveal and the label shook itself hello
-    // with nobody having favourited anything.
+    // Driven from here because the label leaves composition when the chrome
+    // hides, and an effect held there restarts on every later reveal.
     val nudge = remember { Animatable(0f) }
     LaunchedEffect(shakes) {
-        // Not on the first composition: the label would shake itself hello
-        // every time the screen is opened.
+        // Not on the first composition, or it shakes itself hello on open.
         if (shakes == 0) return@LaunchedEffect
         nudge.snapTo(0f)
         nudge.animateTo(
@@ -184,17 +178,15 @@ fun ViewerScreen(
     val cornerMoved = cornerClearance(cornerWidthPx)
         .awayFromTheHardware(edge, isAtTheEnd = options.isCornerAtTheEnd)
     // The one authored movement: the row slides clear rather than teleporting,
-    // so it is legible that the hardware is what moved it. Animated here rather
-    // than inside the row, because the label reserves what the row is using
-    // right now, not what it will be using when the spring settles.
+    // so it is legible that the hardware is what moved it. Animated here
+    // because the label reserves what the row is using now, not what it will
+    // be using once the spring settles.
     val cornerSliding by animateIntOffsetAsState(
         targetValue = cornerMoved,
         animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow),
         label = "clearance",
     )
 
-    // On the settled page, not on the swipe: flipping the icons mid-drag reads
-    // as a glitch, and the bars are over the plate you are arriving at.
     LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
 
     Box(
@@ -231,9 +223,8 @@ fun ViewerScreen(
                 },
             )
         }
-        // Both arrows go when the sheet opens. They sit at the middle of the
-        // side, which is exactly where a half-height sheet's top edge lands, so
-        // what you get otherwise is two buttons sawn in half.
+        // A half-height sheet's top edge lands exactly where these sit, so
+        // leaving them up gets you two buttons sawn in half.
         AnimatedVisibility(
             visible = isChromeShown && !areControlsOpen,
             enter = fadeIn(),
@@ -277,26 +268,21 @@ fun ViewerScreen(
                     favourites =
                         if (isOn) favourites + pager.currentPage
                         else favourites - pager.currentPage
-                    // The label is the only thing on screen that says which
-                    // plate this is, so it is the thing that answers when you
-                    // favourite one. A counter rather than a flag: press it
-                    // twice quickly and it has to shake twice.
+                    // A counter rather than a flag: pressed twice quickly, it
+                    // has to shake twice.
                     shakes++
                 },
                 onShare = { onShare(repoPitch) },
             )
         }
         AnimatedVisibility(
-            // Gone while the sheet is open: it is the thing that opened it, and
-            // a sheet you can see through shows whatever is behind it, so a
-            // button left there reads as a rendering fault rather than a button.
+            // Gone while the sheet is open: it is the thing that opened it,
+            // and a see-through sheet would show it sitting behind itself.
             visible = isChromeShown && !areControlsOpen,
             enter = fadeIn(),
             exit = fadeOut(),
-            // The trigger gets out of the way of the thing being demonstrated.
-            // Nothing else on this screen can: the demo puts its own control in
-            // a corner of whichever edge you pick, so a fixed trigger collides
-            // in exactly one configuration and looks like a bug when it does.
+            // The demo puts its own control in a corner of whichever edge you
+            // pick, so a fixed trigger collides in exactly one configuration.
             modifier = Modifier
                 .align(
                     if (edge == ScreenEdge.BOTTOM && options.isCornerAtTheEnd) Alignment.BottomStart
@@ -314,11 +300,8 @@ fun ViewerScreen(
             // Half height first, so a change to a top-anchored control is visible
             // while it is being made. Drag up for the rest.
             sheetState = rememberModalBottomSheetState(),
-            // No scrim, and a sheet you can still see through, because every
-            // control on it changes the screen behind it: dimming the plate to
-            // ask about the plate hides the answer. Near enough solid, though.
-            // The sheet is where the reading happens, and a paragraph over a
-            // painting is a harder read than a control is.
+            // No scrim: every control on this sheet changes the screen behind
+            // it, so dimming the plate to ask about the plate hides the answer.
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
             // Spelled out, because `contentColorFor` has no answer for a colour
             // that is not a scheme role, and its non-answer is `Unspecified`:
@@ -399,13 +382,11 @@ private fun Modifier.togglingTheChrome(isChromeShown: Boolean, onToggle: () -> U
 private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
         onClick = onOpen,
-        // Material's FAB is a 16dp rounded square by default, so the circle the
-        // border and the lift were drawn as disagreed with the thing they were
-        // drawn around. Both read the shape from here now.
-        //
-        // The hairline is not decoration either. The accent is 9.72:1 against the
-        // darkest plate and 1.34:1 against the palest, so on paper it is the
-        // border and the lift that give the control an edge, not the fill.
+        // Material's FAB is a 16dp rounded square by default, so the circle
+        // the border and the lift were drawn as disagreed with the thing they
+        // were drawn around. Both read the shape from here now. The accent
+        // measures 9.72:1 on the darkest plate and 1.34:1 on the palest, so the
+        // border and the lift are what give this an edge, not the fill.
         shape = FAB_SHAPE,
         containerColor = MaterialTheme.accent,
         contentColor = MaterialTheme.onAccent,
@@ -415,9 +396,7 @@ private fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
             focusedElevation = 0.dp,
             hoveredElevation = 0.dp,
         ),
-        // The hairline every plaque on this screen carries. Without it a dark
-        // control on a dark plate has no edge at all, and two of the five
-        // plates are dark.
+        // Without this hairline a dark control on a dark plate has no edge.
         modifier = modifier
             .padding(16.dp)
             .lifted(FAB_SHAPE)
@@ -448,10 +427,9 @@ private fun Modifier.lifted(shape: Shape): Modifier {
         val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
         clipPath(path, ClipOp.Difference) {
             translate(top = LIFT_DROP.toPx()) {
-                // Many faint strokes rather than a few strong ones. Each covers
-                // the band from the edge out to half its width, so a constant
-                // alpha stacks into a linear falloff; widen the step and the
-                // stack separates into rings you can count.
+                // Each stroke covers the band from the edge out to half its
+                // width, so a constant alpha stacks into a linear falloff.
+                // Widen the step and it separates into countable rings.
                 repeat(LIFT_STEPS) { step ->
                     drawPath(
                         path = path,
@@ -497,16 +475,13 @@ private fun StepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
-                // White, where every other control is in the accent. Two of the
-                // plates are painted in a yellow 1.04:1 from it, and these are
-                // the controls that sit in the middle of the picture rather
-                // than on its edge, so they are the ones that would read as
-                // paint. White also measures better here: 5.53:1 on the plaque
-                // over the palest plate against the accent's 4.18:1.
-                //
-                // Spelled out for both states, because an explicit tint replaces
-                // the dimming a disabled `IconButton` would have done, and a
-                // disabled arrow that still looks live is worse than no arrow.
+                // White, where every other control is in the accent: two
+                // plates are painted in a yellow 1.04:1 from it, and these sit
+                // in the middle of the picture where they would read as paint.
+                // It measures better too, 5.53:1 on the plaque over the palest
+                // plate against the accent's 4.18:1. Both states are spelled
+                // out because an explicit tint replaces the dimming a disabled
+                // IconButton would have done.
                 tint =
                     if (isEnabled) MaterialTheme.onPlaque
                     else MaterialTheme.onPlaque.copy(alpha = 0.34f),
@@ -548,14 +523,6 @@ private fun WallLabel(
 ) {
     val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
 
-    // The corner row is measured from the system bars and this label from
-    // whatever the policy says, so a fixed reservation cannot hold: the two are
-    // counted from different origins and meet in the middle of one of them.
-    // Reserve the distance between them instead. The row's far side is a bar
-    // inset plus its own height from the window edge, and the label has already
-    // been moved by whatever the policy applied, so only the difference is left
-    // to pay. Reserving the row plus a whole bar inset on top of that paid the
-    // cutout inset twice on every phone whose cutout already clears the bar.
     val density = LocalDensity.current
     val bars = WindowInsets.systemBars.asPaddingValues()
     val applied = with(density) {
@@ -576,10 +543,9 @@ private fun WallLabel(
                 policy = options.policy,
                 isFarEdgeIgnored = options.isFarEdgeIgnored,
             )
-            // Inboard of the corner row rather than beside it. Both corners of
-            // an edge can be occupied, by the control and by the settings
-            // button, and reserving a gutter for each leaves the label about
-            // 90dp wide, which wraps it to one word per line.
+            // Inboard of the corner row rather than beside it: both corners of
+            // an edge can be occupied, and a gutter for each leaves the label
+            // about 90dp wide.
             .padding(
                 top = if (edge.isPlacedAtTheTop) reserved else 12.dp,
                 bottom = if (edge.isPlacedAtTheTop) 12.dp else reserved,
@@ -718,12 +684,6 @@ private fun CornerActions(
                         if (isFavourite) R.string.remove_from_favourites
                         else R.string.add_to_favourites
                     ),
-                    // Filled against outlined carries the state; the accent
-                    // says which state is the active one. Share stays on the
-                    // plaque's own colour, because it is the second action.
-                    // This one is a corner mark rather than a mark on the
-                    // picture, which is why it keeps the accent where the step
-                    // arrows give it up.
                     tint =
                         if (isFavourite) MaterialTheme.accent
                         else MaterialTheme.onPlaque.copy(alpha = 0.78f),
@@ -755,8 +715,6 @@ private fun Modifier.markers(cutout: CutoutShape, isShowing: Boolean): Modifier 
             Offset(0f, 0f) to Size(cutout.leftInset.toFloat(), size.height),
             Offset(size.width - cutout.rightInset, 0f) to Size(cutout.rightInset.toFloat(), size.height),
         )
-        // A wash plus the line where the depth ends. The wash alone reads as a
-        // dirty band across the plate; the line is the number being reported.
         depths.filter { it.second.width > 0f && it.second.height > 0f }.forEach { (at, of) ->
             drawRect(InsetMarker.copy(alpha = 0.10f), topLeft = at, size = of)
             drawRect(

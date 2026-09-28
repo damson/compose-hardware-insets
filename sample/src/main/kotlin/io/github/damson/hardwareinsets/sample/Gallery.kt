@@ -154,11 +154,6 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier.fillMaxSize()) {
         val width = constraints.maxWidth
         val height = constraints.maxHeight
-        // Remembered against the plate and the size, so the strokes are laid
-        // down once and every later frame is a blit. Painting inside the draw
-        // modifier instead repaints on every recomposition, and a modal sheet
-        // recomposes this screen on every frame of its own animation: the sheet
-        // then never finishes opening and the window stops answering input.
         val painted = remember(plate, width, height) {
             ImageBitmap(width, height).also { image ->
                 CanvasDrawScope().draw(
@@ -199,8 +194,6 @@ private fun DrawScope.paintLowTide(palette: PlatePalette) {
     val horizon = size.height * 0.58f
     val sun = Offset(size.width * 0.20f, horizon - size.minDimension * 0.34f)
     val disc = size.minDimension * 0.105f
-    // The halo before the disc, so the disc keeps its edge. A sun drawn at the
-    // alpha of its own glow is the grey circle nobody means to paint.
     drawCircle(
         brush = Brush.radialGradient(
             colors = listOf(palette.paper.copy(alpha = 0.45f), Color.Transparent),
@@ -224,9 +217,6 @@ private fun DrawScope.paintLowTide(palette: PlatePalette) {
         strokeWidth = 1.5.dp.toPx(),
     )
 
-    // Tide marks, not rules. Each one starts and stops short by its own amount:
-    // drawn edge to edge they read as a ruled page, and the eye stops seeing
-    // water at all.
     val next = seeded(0x71DE)
     var gap = (size.height - horizon) * 0.34f
     var y = size.height
@@ -260,8 +250,6 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
     val unit = size.width / 12f
     val next = seeded(0x8A51)
 
-    // A worked ground rather than a flat fill: three passes of near-ink, so the
-    // marks sit on something painted instead of on a background colour.
     drawRect(palette.ink)
     repeat(7) {
         val top = next() * size.height
@@ -292,10 +280,6 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
         size = Size(unit * 3.4f, size.height * 0.10f),
     )
 
-    // Everything that carries the picture sits below the top third, because the
-    // label is there and an 82% plaque is opaque enough to lose a crown behind
-    // it. What stays up there is the ground and one word, which is what a
-    // painting under a wall label looks like anyway.
     crown(
         at = Offset(unit * 0.8f, size.height * 0.345f),
         width = unit * 4.2f,
@@ -311,8 +295,6 @@ private fun DrawScope.paintCrown(palette: PlatePalette, text: TextMeasurer) {
     struckThrough(text, "NORTH", Offset(unit * 6.2f, size.height * 0.20f), unit * 0.72f, palette.paper)
     struckThrough(text, "IRON", Offset(unit * 4.6f, size.height * 0.915f), unit * 0.86f, palette.paper)
 
-    // Scratches last, over everything, because that is the order they were made
-    // in and the only thing that keeps the blocks from looking printed.
     repeat(40) {
         val start = Offset(next() * size.width, next() * size.height)
         val length = unit * (0.3f + next() * 1.4f)
@@ -337,8 +319,6 @@ private fun DrawScope.paintArmsRaised(palette: PlatePalette, text: TextMeasurer)
     val next = seeded(0x2A11)
 
     drawRect(palette.ink)
-    // Three broad bands, painted before anything stands on them. A figure on a
-    // flat ground floats; a figure on a horizon stands.
     drawRect(palette.sea.copy(alpha = 0.55f), Offset(0f, size.height * 0.30f), Size(size.width, size.height * 0.13f))
     drawRect(Grounded, Offset(0f, size.height * 0.55f), Size(size.width, size.height * 0.16f))
     drawRect(palette.sea.copy(alpha = 0.30f), Offset(0f, size.height * 0.80f), Size(size.width, size.height * 0.09f))
@@ -350,9 +330,6 @@ private fun DrawScope.paintArmsRaised(palette: PlatePalette, text: TextMeasurer)
         )
     }
 
-    // Every line of the figure is scrawled rather than drawn, and no two limbs
-    // agree. A circle head on two straight arms is a clip-art man: symmetry is
-    // the whole difference between a figure and a pictogram.
     val stroke = 8.dp.toPx()
     val head = Offset(unit * 4.3f, size.height * 0.40f)
     val skull = unit * 1.05f
@@ -380,7 +357,6 @@ private fun DrawScope.paintArmsRaised(palette: PlatePalette, text: TextMeasurer)
     val shoulders = Offset(head.x + unit * 0.15f, head.y + skull + size.height * 0.018f)
     val hips = Offset(head.x - unit * 0.3f, size.height * 0.655f)
     scrawl(shoulders, hips, palette.paper, stroke, next)
-    // The ribs, three of them, because this hand draws what is under the skin.
     repeat(3) { index ->
         val y = shoulders.y + (hips.y - shoulders.y) * (0.16f + index * 0.15f)
         val reach = unit * (1.15f - index * 0.18f)
@@ -392,9 +368,6 @@ private fun DrawScope.paintArmsRaised(palette: PlatePalette, text: TextMeasurer)
     scrawl(hips, Offset(head.x - unit * 1.5f, size.height * 0.815f), palette.paper, stroke, next)
     scrawl(hips, Offset(head.x + unit * 2.1f, size.height * 0.78f), palette.paper, stroke, next)
 
-    // One word, three times, and only the last of them struck. Repetition is
-    // the idiom's way of saying a thing louder; the strike is how it takes it
-    // back without erasing it.
     listOf(0, 1).forEach { index ->
         write(text, "GO", Offset(unit * 8.6f, size.height * (0.44f + index * 0.085f)), unit * 0.86f, palette.paper)
     }
@@ -447,7 +420,6 @@ private fun DrawScope.paintHead(palette: PlatePalette, text: TextMeasurer) {
         size = Size(unit * 5.2f, size.height * 0.22f),
     )
 
-    // The skull, drawn as one closed line with none of its corners agreeing.
     val head = Path().apply {
         moveTo(unit * 1.6f, size.height * 0.45f)
         lineTo(unit * 4.2f, size.height * 0.395f)
@@ -460,9 +432,6 @@ private fun DrawScope.paintHead(palette: PlatePalette, text: TextMeasurer) {
     }
     drawPath(head, palette.paper, style = Stroke(width = 6.dp.toPx(), join = StrokeJoin.Round))
 
-    // The halo: struck, not drawn as a ring, so it reads as marks and not as a
-    // plate. It stops short of the top third, because that is where the wall
-    // label hangs and a halo behind a plaque is a smudge.
     repeat(13) { index ->
         val lean = -2.55f + index * 0.115f
         val from = Offset(unit * 4.9f, size.height * 0.415f)
@@ -479,7 +448,6 @@ private fun DrawScope.paintHead(palette: PlatePalette, text: TextMeasurer) {
     crossedEye(palette, Offset(unit * 3.3f, size.height * 0.505f), unit * 0.62f)
     crossedEye(palette, Offset(unit * 6.4f, size.height * 0.505f), unit * 0.62f)
 
-    // Teeth, counted. Bars in a bar is the whole of the mouth.
     val mouth = Offset(unit * 2.9f, size.height * 0.595f)
     val mouthWidth = unit * 4.4f
     val mouthHeight = size.height * 0.055f
@@ -573,7 +541,6 @@ private fun DrawScope.paintLedger(palette: PlatePalette, text: TextMeasurer) {
         )
     }
 
-    // A tally, because a ledger counts. Four and a stroke across, five times.
     repeat(5) { group ->
         val left = unit * 6.5f
         val top = size.height * (0.36f + group * 0.052f)

@@ -8,10 +8,15 @@ This answers that. It publishes the cutout's rectangles as Compose state, turns 
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
 hardware you do not own.
 
-<p align="center">
-  <img src="docs/media/sample.png" width="300"
-       alt="The sample gallery: the camera cutout drawn in red, the safe margins in orange, and the wall label sitting clear of both">
-</p>
+| A camera in the corner | A curved edge |
+|---|---|
+| <img src="docs/media/sample-corner.png" width="300" alt="The sample with a camera in the top right corner drawn in red: the favourite and share buttons have stepped down and clear of it, and the wall label is anchored to the top"> | <img src="docs/media/sample-waterfall.png" width="300" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them, with the wall label anchored to the bottom"> |
+
+Both are the same screen on different hardware, with the sample's marker overlay on: red is where the
+platform says a camera is, orange is how far in it says to stay on each edge. On the left the corner
+buttons have been driven clear of the camera by `cornerClearance`, which counts only the rectangles
+they actually overlap. On the right there is no rectangle at all, only a curved edge, and everything
+is inset by `clearOfTheHardware`.
 
 ```kotlin
 dependencies {
@@ -19,11 +24,9 @@ dependencies {
 }
 ```
 
-The red rectangle in the sample is where the platform says the camera is. The corner control is
-placed clear of it by `cornerClearance`, which counts only the rectangles the control actually
-overlaps, and off the system bars by `clearOfTheHardware` with a bars-only policy. Those are two
-different questions and the sample keeps them apart. The wall label is inset by
-`clearOfTheHardware`.
+The corner control is kept off the camera by `cornerClearance` and off the system bars by
+`clearOfTheHardware` with a bars-only policy. Those are two different questions, and the sample
+keeps them apart.
 
 ## Pad content clear of the hardware
 
@@ -101,11 +104,12 @@ is meant not to be.
 
 <p align="center">
   <img src="docs/media/sample.gif" width="300"
-       alt="The wall label moving between the four screen edges as the anchor changes">
+       alt="The sample walking its five plates with the label anchored to the bottom, then moving the label to the top, then running the same screen over a punch hole, a notch, a corner camera, a curved edge and a double cutout">
 </p>
 
-The label steps between all four edges as the anchor changes, and `RIGHT` reads "now BOTTOM",
-because `LEFT` and `RIGHT` are edges of the device rather than of the screen.
+One round of it: the label starts on the bottom edge and the gallery walks all five plates, the
+anchor moves to the top, and then the hardware underneath keeps changing. `RIGHT` reads "now
+BOTTOM" because `LEFT` and `RIGHT` are edges of the device rather than of the screen.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
 bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
