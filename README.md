@@ -18,6 +18,11 @@ buttons have been driven clear of the camera by `cornerClearance`, which counts 
 they actually overlap. On the right there is no rectangle at all, only a curved edge, and everything
 is inset by `clearOfTheHardware`.
 
+The lens and the curve in the frame are drawn from the markers rather than beside them: the camera
+sits inside the rectangle the platform reported, and the glass rolls off exactly to the depth the
+orange line marks. Both are rendered by [`docs/media/frame.py`](docs/media/frame.py) from the
+capture alone, so the hardware in the picture cannot drift from what the screenshot is claiming.
+
 ```kotlin
 dependencies {
     implementation("io.github.damson:hardware-insets:0.1.0")
