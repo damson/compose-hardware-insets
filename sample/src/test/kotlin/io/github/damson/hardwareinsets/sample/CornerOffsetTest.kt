@@ -41,8 +41,6 @@ class CornerOffsetTest {
 
     @Test
     fun `a side edge is left alone, because the clearance is zero there`() {
-        // cornerClearance answers IntOffset.Zero for LEFT and RIGHT, so the
-        // mapping has nothing to turn and must not invent a movement.
         assertThat(IntOffset.Zero.awayFromTheHardware(ScreenEdge.LEFT, isAtTheEnd = false))
             .isEqualTo(IntOffset.Zero)
         assertThat(IntOffset.Zero.awayFromTheHardware(ScreenEdge.RIGHT, isAtTheEnd = true))

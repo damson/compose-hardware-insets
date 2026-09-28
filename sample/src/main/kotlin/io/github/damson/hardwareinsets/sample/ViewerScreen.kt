@@ -82,8 +82,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import io.github.damson.hardwareinsets.CutoutShape
@@ -164,6 +166,24 @@ fun ViewerScreen(
             },
         )
     }
+    // Computed here rather than inside the row, because two things need it:
+    // the row, which moves by it, and the label, which has to reserve the room
+    // the row moves into. Hardware in the anchored edge's corner drives the row
+    // inward on both edges, towards the label either way, so the label pays the
+    // size of the move whichever direction it has.
+    val cornerWidthPx = with(LocalDensity.current) { (CORNER_PADDING + ACTIONS_WIDTH).roundToPx() }
+    val cornerClearance = cornerClearance(
+        cutout.bounds,
+        position = edge,
+        // The corner asked about and the corner placed in come from one value.
+        // Asking about one while placing at the other returns a confident zero,
+        // which looks exactly like "no hardware here", and nothing in the API
+        // can catch it.
+        isAtTheEnd = options.isCornerAtTheEnd,
+    )
+    val cornerMoved = cornerClearance(cornerWidthPx)
+        .awayFromTheHardware(edge, isAtTheEnd = options.isCornerAtTheEnd)
+
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
     LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
@@ -194,6 +214,7 @@ fun ViewerScreen(
                 edge = edge,
                 options = options,
                 shake = nudge.value,
+                rowMoved = with(LocalDensity.current) { abs(cornerMoved.y).toDp() },
             )
         }
         // Both arrows go when the sheet opens. They sit at the middle of the
@@ -234,7 +255,7 @@ fun ViewerScreen(
                 .clearOfTheBars(),
         ) {
             CornerActions(
-                cutout = cutout,
+                moved = cornerMoved,
                 edge = edge,
                 options = options,
                 isFavourite = pager.currentPage in favourites,
@@ -493,6 +514,8 @@ private fun Modifier.plaque(shape: Shape): Modifier = this
  * The inset goes outside the plaque, so the plaque moves clear of the hardware
  * rather than growing a transparent margin inside itself.
  *
+ * @param rowMoved how far the corner row has been driven inward by hardware in
+ *   its corner, which is room this label has to leave it.
  * @param shake where in its swing the favourite nudge is, in -1..1. The label
  *   answers
  *   with a shake, because it is the only thing on screen naming the plate the
@@ -506,10 +529,9 @@ private fun WallLabel(
     edge: ScreenEdge,
     options: ViewerOptions,
     shake: Float,
+    rowMoved: Dp,
     modifier: Modifier = Modifier,
 ) {
-    // The swing arrives in -1..1 and is scaled to pixels here, so the gesture is
-    // the same size on every density.
     val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
 
     // The corner row is measured from the system bars and this label from
@@ -529,7 +551,7 @@ private fun WallLabel(
     }
     val fromTheEdge =
         if (edge.isPlacedAtTheTop) bars.calculateTopPadding() else bars.calculateBottomPadding()
-    val reserved = (fromTheEdge + CORNER_ROW - applied).coerceAtLeast(0.dp)
+    val reserved = reservedForTheCornerRow(fromTheEdge, rowMoved, applied)
 
     Box(
         modifier
@@ -650,7 +672,7 @@ private fun anchorReadout(options: ViewerOptions, edge: ScreenEdge): String =
  */
 @Composable
 private fun CornerActions(
-    cutout: CutoutShape,
+    moved: IntOffset,
     edge: ScreenEdge,
     options: ViewerOptions,
     isFavourite: Boolean,
@@ -658,30 +680,10 @@ private fun CornerActions(
     onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // The corner asked about and the corner placed in come from one value.
-    // Asking about one while placing at the other returns a confident zero,
-    // which looks exactly like "no hardware here", and nothing in the API can
-    // catch it.
-    val clearance = cornerClearance(cutout.bounds, position = edge, isAtTheEnd = options.isCornerAtTheEnd)
-    // Asked in pixels, because the rectangles the platform reports are in
-    // pixels and in window coordinates, and asked about the band the row
-    // really occupies: it sits CORNER_PADDING in from the window edge, so a
-    // camera in that last strip overlaps the buttons while missing a band
-    // measured from the edge, and the answer comes back a confident zero.
-    val widthPx = with(LocalDensity.current) { (CORNER_PADDING + ACTIONS_WIDTH).roundToPx() }
-    // The clearance is reported inward from the row's own corner, while
-    // Modifier.offset moves towards the end and downwards from wherever the row
-    // was placed. Applied raw it is right only in the top start corner: at the
-    // bottom it drives the row further down onto the camera, and in the end
-    // corner further into the side inset. Each axis is turned to face the
-    // middle of the window. Modifier.offset is already direction aware, so the
-    // horizontal flip is the corner alone and carries into RTL unchanged.
-    val towardsTheMiddle =
-        clearance(widthPx).awayFromTheHardware(edge, isAtTheEnd = options.isCornerAtTheEnd)
     // The one authored movement: the control slides clear rather than
     // teleporting, so it is legible that the hardware is what moved it.
     val offset by animateIntOffsetAsState(
-        targetValue = towardsTheMiddle,
+        targetValue = moved,
         animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow),
         label = "clearance",
     )
@@ -852,6 +854,23 @@ private val CORNER_ROW = 88.dp
  * the end" and the horizontal flip is the corner alone, unchanged under RTL. The
  * vertical one is not: a positive `y` is always downwards.
  */
+/**
+ * How much further in the label has to sit to leave the corner row alone.
+ *
+ * The two are counted from different origins, which is the whole difficulty:
+ * the row is placed off the system bars whatever the policy says, and the label
+ * is placed off whatever the policy does say. So the row's far side is
+ * [barInset] plus its own height plus however far hardware in its corner has
+ * driven it in ([rowMoved]), and the label has already been moved by [applied].
+ * Only the difference is left to pay, and it is never negative: where the
+ * policy has already moved the label past the row there is nothing to reserve.
+ *
+ * Kept pure because the interesting cases are ones no emulator can produce: a
+ * [rowMoved] above zero needs a cutout in the corner of the anchored edge.
+ */
+internal fun reservedForTheCornerRow(barInset: Dp, rowMoved: Dp, applied: Dp): Dp =
+    (barInset + CORNER_ROW + rowMoved - applied).coerceAtLeast(0.dp)
+
 internal fun IntOffset.awayFromTheHardware(edge: ScreenEdge, isAtTheEnd: Boolean): IntOffset =
     IntOffset(
         x = if (isAtTheEnd) -x else x,
