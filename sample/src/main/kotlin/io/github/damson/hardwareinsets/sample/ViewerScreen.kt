@@ -183,6 +183,15 @@ fun ViewerScreen(
     )
     val cornerMoved = cornerClearance(cornerWidthPx)
         .awayFromTheHardware(edge, isAtTheEnd = options.isCornerAtTheEnd)
+    // The one authored movement: the row slides clear rather than teleporting,
+    // so it is legible that the hardware is what moved it. Animated here rather
+    // than inside the row, because the label reserves what the row is using
+    // right now, not what it will be using when the spring settles.
+    val cornerSliding by animateIntOffsetAsState(
+        targetValue = cornerMoved,
+        animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow),
+        label = "clearance",
+    )
 
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
@@ -214,7 +223,12 @@ fun ViewerScreen(
                 edge = edge,
                 options = options,
                 shake = nudge.value,
-                rowMoved = with(LocalDensity.current) { abs(cornerMoved.y).toDp() },
+                // The larger of where the row is going and where it is, so the
+                // label neither takes its space back before the row has left it
+                // nor lets the spring's overshoot carry the row into it.
+                rowMoved = with(LocalDensity.current) {
+                    maxOf(abs(cornerMoved.y), abs(cornerSliding.y)).toDp()
+                },
             )
         }
         // Both arrows go when the sheet opens. They sit at the middle of the
@@ -255,7 +269,7 @@ fun ViewerScreen(
                 .clearOfTheBars(),
         ) {
             CornerActions(
-                moved = cornerMoved,
+                moved = cornerSliding,
                 edge = edge,
                 options = options,
                 isFavourite = pager.currentPage in favourites,
@@ -680,14 +694,6 @@ private fun CornerActions(
     onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // The one authored movement: the control slides clear rather than
-    // teleporting, so it is legible that the hardware is what moved it.
-    val offset by animateIntOffsetAsState(
-        targetValue = moved,
-        animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow),
-        label = "clearance",
-    )
-
     // The plaque, not a scheme container: this sits on a painting, and the
     // gallery runs from near white to near black. A tonal container picked by
     // the scheme is invisible on half the plates, and which half changes with
@@ -699,7 +705,7 @@ private fun CornerActions(
         border = BorderStroke(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f)),
         modifier = modifier
             .padding(CORNER_PADDING)
-            .offset { offset }
+            .offset { moved }
             .lifted(MaterialTheme.shapes.extraLarge)
             .sizeIn(minWidth = ACTIONS_WIDTH, minHeight = 48.dp),
     ) {
