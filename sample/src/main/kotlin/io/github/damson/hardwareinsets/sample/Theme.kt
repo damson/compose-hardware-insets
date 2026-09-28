@@ -23,15 +23,6 @@ private val Mist = Color(0xFFDBE2EF)
 private val Sea = Color(0xFF3F72AF)
 private val Ink = Color(0xFF112D4E)
 
-/**
- * What the plates are painted from, and it does not follow the system theme.
- *
- * A painting is not a surface: the works hang as they were painted whether the
- * device is in light mode or dark, exactly as they would in a photo viewer,
- * and the chrome over them is what changes.
- */
-internal val GalleryPalette = PlatePalette(paper = Paper, mist = Mist, sea = Sea, ink = Ink)
-
 private val LightScheme = lightColorScheme(
     primary = Sea,
     onPrimary = Paper,
