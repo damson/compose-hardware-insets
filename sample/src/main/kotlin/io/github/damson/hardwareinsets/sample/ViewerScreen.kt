@@ -57,6 +57,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -89,6 +91,7 @@ import io.github.damson.hardwareinsets.HardwarePolicy
 import io.github.damson.hardwareinsets.ScreenEdge
 import io.github.damson.hardwareinsets.clearOfTheHardware
 import io.github.damson.hardwareinsets.cornerClearance
+import io.github.damson.hardwareinsets.hardwareInsets
 import io.github.damson.hardwareinsets.onScreenAt
 
 /**
@@ -118,8 +121,15 @@ fun ViewerScreen(
     onShare: (String) -> Unit,
 ) {
     var areControlsOpen by remember { mutableStateOf(false) }
-    var isChromeShown by remember { mutableStateOf(true) }
-    var favourites by remember { mutableStateOf(emptySet<Int>()) }
+    // Saved rather than remembered. A dark mode, locale, font scale or rotation
+    // change recreates the activity, and this sample is partly an argument
+    // about rotation, so the gesture being demonstrated was the one that threw
+    // the visitor's plate and their favourites away. The sheet is deliberately
+    // not saved: a modal that resurrects itself on a rotation reads as a bug.
+    var isChromeShown by rememberSaveable { mutableStateOf(true) }
+    var favourites by rememberSaveable(stateSaver = FavouritesSaver) {
+        mutableStateOf(emptySet<Int>())
+    }
     // LEFT and RIGHT are edges of the device, not of the screen, so a layout
     // cannot use one directly: it has to ask which screen edge the device has
     // turned that one into. Skipping this is what makes a side-anchored control
@@ -131,6 +141,29 @@ fun ViewerScreen(
     val repoPitch = stringResource(R.string.share_repo)
     var shakes by remember { mutableIntStateOf(0) }
     val steps = rememberCoroutineScope()
+    // The swing is driven from here rather than from the label, because the
+    // label leaves composition whenever the chrome is hidden. Held there, its
+    // effect restarted on every later reveal and the label shook itself hello
+    // with nobody having favourited anything.
+    val nudge = remember { Animatable(0f) }
+    LaunchedEffect(shakes) {
+        // Not on the first composition: the label would shake itself hello
+        // every time the screen is opened.
+        if (shakes == 0) return@LaunchedEffect
+        nudge.snapTo(0f)
+        nudge.animateTo(
+            targetValue = 0f,
+            animationSpec = keyframes {
+                durationMillis = SHAKE_MILLIS
+                0f at 0
+                -1f at SHAKE_MILLIS * 16 / 100
+                0.78f at SHAKE_MILLIS * 34 / 100
+                -0.48f at SHAKE_MILLIS * 52 / 100
+                0.24f at SHAKE_MILLIS * 72 / 100
+                0f at SHAKE_MILLIS
+            },
+        )
+    }
     // On the settled page, not on the swipe: flipping the icons mid-drag reads
     // as a glitch, and the bars are over the plate you are arriving at.
     LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
@@ -160,7 +193,7 @@ fun ViewerScreen(
                 total = Plates.size,
                 edge = edge,
                 options = options,
-                shakes = shakes,
+                shake = nudge.value,
             )
         }
         // Both arrows go when the sheet opens. They sit at the middle of the
@@ -460,7 +493,8 @@ private fun Modifier.plaque(shape: Shape): Modifier = this
  * The inset goes outside the plaque, so the plaque moves clear of the hardware
  * rather than growing a transparent margin inside itself.
  *
- * @param shakes how many times the plate has been favourited. The label answers
+ * @param shake where in its swing the favourite nudge is, in -1..1. The label
+ *   answers
  *   with a shake, because it is the only thing on screen naming the plate the
  *   heart was pressed for.
  */
@@ -471,49 +505,35 @@ private fun WallLabel(
     total: Int,
     edge: ScreenEdge,
     options: ViewerOptions,
-    shakes: Int,
+    shake: Float,
     modifier: Modifier = Modifier,
 ) {
-    // The swing runs in -1..1 and is scaled to pixels where it is used, so the
-    // gesture is the same size on every density, and every keyframe is a
-    // fraction of the duration, so the constant below is the only knob.
-    val nudge = remember { Animatable(0f) }
+    // The swing arrives in -1..1 and is scaled to pixels here, so the gesture is
+    // the same size on every density.
     val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
 
     // The corner row is measured from the system bars and this label from
-    // whatever the policy says, so a fixed reservation cannot hold: with the
-    // bars left out of the policy the label sits at the screen edge while the
-    // controls sit a navigation bar above it, and the two meet. Reserve the row
-    // plus the part of the bar inset the policy is not already applying.
+    // whatever the policy says, so a fixed reservation cannot hold: the two are
+    // counted from different origins and meet in the middle of one of them.
+    // Reserve the distance between them instead. The row's far side is a bar
+    // inset plus its own height from the window edge, and the label has already
+    // been moved by whatever the policy applied, so only the difference is left
+    // to pay. Reserving the row plus a whole bar inset on top of that paid the
+    // cutout inset twice on every phone whose cutout already clears the bar.
+    val density = LocalDensity.current
     val bars = WindowInsets.systemBars.asPaddingValues()
-    val unreserved = when {
-        options.policy.areSystemBarsIncluded -> 0.dp
-        edge.isPlacedAtTheTop -> bars.calculateTopPadding()
-        else -> bars.calculateBottomPadding()
+    val applied = with(density) {
+        hardwareInsets(edge, options.policy, options.isFarEdgeIgnored).let {
+            if (edge.isPlacedAtTheTop) it.getTop(density).toDp() else it.getBottom(density).toDp()
+        }
     }
-    val reserved = CORNER_ROW + unreserved
-    LaunchedEffect(shakes) {
-        // Not on the first composition: the label would shake itself hello
-        // every time the screen is opened.
-        if (shakes == 0) return@LaunchedEffect
-        nudge.snapTo(0f)
-        nudge.animateTo(
-            targetValue = 0f,
-            animationSpec = keyframes {
-                durationMillis = SHAKE_MILLIS
-                0f at 0
-                -1f at SHAKE_MILLIS * 16 / 100
-                0.78f at SHAKE_MILLIS * 34 / 100
-                -0.48f at SHAKE_MILLIS * 52 / 100
-                0.24f at SHAKE_MILLIS * 72 / 100
-                0f at SHAKE_MILLIS
-            },
-        )
-    }
+    val fromTheEdge =
+        if (edge.isPlacedAtTheTop) bars.calculateTopPadding() else bars.calculateBottomPadding()
+    val reserved = (fromTheEdge + CORNER_ROW - applied).coerceAtLeast(0.dp)
 
     Box(
         modifier
-            .offset { IntOffset((nudge.value * swing).roundToInt(), 0) }
+            .offset { IntOffset((shake * swing).roundToInt(), 0) }
             .fillMaxWidth()
             .clearOfTheHardware(
                 position = edge,
@@ -643,13 +663,25 @@ private fun CornerActions(
     // which looks exactly like "no hardware here", and nothing in the API can
     // catch it.
     val clearance = cornerClearance(cutout.bounds, position = edge, isAtTheEnd = options.isCornerAtTheEnd)
-    // The clearance is asked in pixels, because the rectangles the platform
-    // reports are in pixels and in window coordinates.
-    val widthPx = with(LocalDensity.current) { ACTIONS_WIDTH.roundToPx() }
+    // Asked in pixels, because the rectangles the platform reports are in
+    // pixels and in window coordinates, and asked about the band the row
+    // really occupies: it sits CORNER_PADDING in from the window edge, so a
+    // camera in that last strip overlaps the buttons while missing a band
+    // measured from the edge, and the answer comes back a confident zero.
+    val widthPx = with(LocalDensity.current) { (CORNER_PADDING + ACTIONS_WIDTH).roundToPx() }
+    // The clearance is reported inward from the row's own corner, while
+    // Modifier.offset moves towards the end and downwards from wherever the row
+    // was placed. Applied raw it is right only in the top start corner: at the
+    // bottom it drives the row further down onto the camera, and in the end
+    // corner further into the side inset. Each axis is turned to face the
+    // middle of the window. Modifier.offset is already direction aware, so the
+    // horizontal flip is the corner alone and carries into RTL unchanged.
+    val towardsTheMiddle =
+        clearance(widthPx).awayFromTheHardware(edge, isAtTheEnd = options.isCornerAtTheEnd)
     // The one authored movement: the control slides clear rather than
     // teleporting, so it is legible that the hardware is what moved it.
     val offset by animateIntOffsetAsState(
-        targetValue = clearance(widthPx),
+        targetValue = towardsTheMiddle,
         animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessMediumLow),
         label = "clearance",
     )
@@ -664,7 +696,7 @@ private fun CornerActions(
         contentColor = MaterialTheme.onPlaque,
         border = BorderStroke(1.dp, MaterialTheme.onPlaque.copy(alpha = 0.22f)),
         modifier = modifier
-            .padding(16.dp)
+            .padding(CORNER_PADDING)
             .offset { offset }
             .lifted(MaterialTheme.shapes.extraLarge)
             .sizeIn(minWidth = ACTIONS_WIDTH, minHeight = 48.dp),
@@ -806,3 +838,34 @@ private const val LIFT_ALPHA = 0.013f
  * whether the label has already paid for it depends on the policy.
  */
 private val CORNER_ROW = 88.dp
+
+/**
+ * Turns the inward distances [cornerClearance] reports into the translation
+ * `Modifier.offset` wants, for a control in the [isAtTheEnd] corner of [edge].
+ *
+ * Kept out of the composable because no emulator can prove it: the sign is only
+ * wrong where the cutout sits in the corner of the anchored edge, and no cutout
+ * emulation puts one in a bottom corner. The same argument the library makes for
+ * keeping its own geometry pure.
+ *
+ * `Modifier.offset` is direction aware, so a positive `x` already means "towards
+ * the end" and the horizontal flip is the corner alone, unchanged under RTL. The
+ * vertical one is not: a positive `y` is always downwards.
+ */
+internal fun IntOffset.awayFromTheHardware(edge: ScreenEdge, isAtTheEnd: Boolean): IntOffset =
+    IntOffset(
+        x = if (isAtTheEnd) -x else x,
+        y = if (edge == ScreenEdge.TOP) y else -y,
+    )
+
+/** How far the corner row sits in from the window edge on every side. */
+private val CORNER_PADDING = 16.dp
+
+/**
+ * A [Set] is not one of the types a `Bundle` carries, so the favourites travel
+ * as the list they came from.
+ */
+private val FavouritesSaver = listSaver<Set<Int>, Int>(
+    save = { it.toList() },
+    restore = { it.toSet() },
+)

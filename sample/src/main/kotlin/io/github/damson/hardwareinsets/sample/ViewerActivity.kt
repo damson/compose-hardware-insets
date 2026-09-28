@@ -42,6 +42,11 @@ class ViewerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // A dark mode, locale, font scale or rotation change recreates this
+        // activity, and these are the things the visitor came to change. Read
+        // before the window is asked for anything, since two of them are window
+        // attributes and the restored values are what the window should open on.
+        options = viewerOptionsFrom(savedInstanceState)
         applyWindow(options)
         setContentView(buildContentView())
         cutout = insetHost.cutoutShape()
@@ -52,6 +57,11 @@ class ViewerActivity : ComponentActivity() {
         // Returning from another app or dismissing a dialog can leave a bar
         // behind, so this is asked for again rather than once.
         if (hasFocus) applyWindow(options)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        options.saveInto(outState)
     }
 
     override fun onDestroy() {
