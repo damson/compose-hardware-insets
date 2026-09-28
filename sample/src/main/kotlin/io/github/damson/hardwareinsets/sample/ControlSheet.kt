@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -127,8 +128,11 @@ private fun Legend(cutout: CutoutShape) {
         Swatch(
             InsetMarker,
             stringResource(R.string.legend_depths),
-            "T ${cutout.topInset}   B ${cutout.bottomInset}   " +
-                "L ${cutout.leftInset}   R ${cutout.rightInset}",
+            // Tight rather than spaced: at a large font setting the spaced form
+            // wraps, and a wrapped readout puts its last number on a line of
+            // its own where it reads as a different value.
+            "T${cutout.topInset}  B${cutout.bottomInset}  " +
+                "L${cutout.leftInset}  R${cutout.rightInset}",
         )
         Text(
             stringResource(R.string.legend_detail),
@@ -158,7 +162,7 @@ private fun Swatch(color: Color, label: String, value: String) {
             // Wide enough for the longest of the two labels at a large font
             // setting. Narrower and "Safe margins" wraps, which drags the value
             // beside it out of line with the row above.
-            modifier = Modifier.width(124.dp),
+            modifier = Modifier.width(112.dp),
         )
         Text(
             value,
@@ -230,7 +234,7 @@ private fun Choice(
     onSelect: (Int) -> Unit,
 ) {
     Column(
-        Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+        Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
@@ -253,6 +257,15 @@ private fun Choice(
                     selected = index == selectedIndex,
                     onClick = { onSelect(index) },
                     shape = SegmentedButtonDefaults.itemShape(index, entries.size),
+                    // No check icon, and a quarter of Material's own horizontal
+                    // padding. A segment here is a quarter of a card that is
+                    // already inset twice, and the default icon plus padding
+                    // costs about 50dp of it: with four real words in the row
+                    // "Bottom" comes out as "Botto", and at a large font
+                    // setting it does so with the icon gone too. The selected
+                    // container says which one it is, and so do the semantics.
+                    icon = {},
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                     label = { Text(entry, maxLines = 1, textAlign = TextAlign.Center) },
                 )
             }

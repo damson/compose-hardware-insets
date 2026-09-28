@@ -14,6 +14,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.pager.HorizontalPager
@@ -476,6 +479,19 @@ private fun WallLabel(
     // fraction of the duration, so the constant below is the only knob.
     val nudge = remember { Animatable(0f) }
     val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
+
+    // The corner row is measured from the system bars and this label from
+    // whatever the policy says, so a fixed reservation cannot hold: with the
+    // bars left out of the policy the label sits at the screen edge while the
+    // controls sit a navigation bar above it, and the two meet. Reserve the row
+    // plus the part of the bar inset the policy is not already applying.
+    val bars = WindowInsets.systemBars.asPaddingValues()
+    val unreserved = when {
+        options.policy.areSystemBarsIncluded -> 0.dp
+        edge.isPlacedAtTheTop -> bars.calculateTopPadding()
+        else -> bars.calculateBottomPadding()
+    }
+    val reserved = CORNER_ROW + unreserved
     LaunchedEffect(shakes) {
         // Not on the first composition: the label would shake itself hello
         // every time the screen is opened.
@@ -509,8 +525,8 @@ private fun WallLabel(
             // button, and reserving a gutter for each leaves the label about
             // 90dp wide, which wraps it to one word per line.
             .padding(
-                top = if (edge == ScreenEdge.TOP) CORNER_ROW else 12.dp,
-                bottom = if (edge == ScreenEdge.TOP) 12.dp else CORNER_ROW,
+                top = if (edge.isPlacedAtTheTop) reserved else 12.dp,
+                bottom = if (edge.isPlacedAtTheTop) 12.dp else reserved,
                 start = 16.dp,
                 end = 16.dp,
             ),
@@ -720,13 +736,21 @@ private fun Modifier.markers(cutout: CutoutShape, isShowing: Boolean): Modifier 
     }
 
 /**
+ * Which end of the screen this edge puts things at.
+ *
+ * [toAlignment] and the label's own padding both need the answer, and when they
+ * disagree the label reserves its gutter at the end it is not sitting at, which
+ * runs the corner control straight through it. That is what `LEFT` did.
+ */
+private val ScreenEdge.isPlacedAtTheTop: Boolean
+    get() = this == ScreenEdge.TOP || this == ScreenEdge.LEFT
+
+/**
  * The mapping every caller of this library writes for itself, because
  * [ScreenEdge] names an edge without being able to place anything at it.
  */
-private fun ScreenEdge.toAlignment(): Alignment = when (this) {
-    ScreenEdge.TOP, ScreenEdge.LEFT -> Alignment.TopStart
-    ScreenEdge.BOTTOM, ScreenEdge.RIGHT -> Alignment.BottomStart
-}
+private fun ScreenEdge.toAlignment(): Alignment =
+    if (isPlacedAtTheTop) Alignment.TopStart else Alignment.BottomStart
 
 internal fun ScreenEdge.cornerAlignment(isAtTheEnd: Boolean): Alignment = when (this) {
     ScreenEdge.TOP, ScreenEdge.LEFT ->
@@ -773,5 +797,12 @@ private const val LIFT_STEPS = 14
 /** Each band's share of the shadow. Fourteen of these is 0.18 at the contact. */
 private const val LIFT_ALPHA = 0.013f
 
-/** The height a corner control plus its padding occupies along its edge. */
-private val CORNER_ROW = 80.dp
+/**
+ * The height the corner row occupies along its edge, measured from where that
+ * row starts rather than from the screen.
+ *
+ * The tallest thing in it is the trigger: 16dp of padding, a 56dp circle, and
+ * 16dp again. The bar inset underneath is added at the point of use, because
+ * whether the label has already paid for it depends on the policy.
+ */
+private val CORNER_ROW = 88.dp
