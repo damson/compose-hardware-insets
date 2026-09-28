@@ -8,20 +8,20 @@ This answers that. It publishes the cutout's rectangles as Compose state, turns 
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
 hardware you do not own.
 
-| A camera in the corner | A curved edge |
-|---|---|
-| <img src="docs/media/sample-corner.png" width="300" alt="The sample with a camera in the top right corner drawn in red, and the favourite and share buttons stepped down and clear of it"> | <img src="docs/media/sample-waterfall.png" width="300" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them"> |
+| A curved edge | A camera in the corner | One kind after another |
+|---|---|---|
+| <img src="docs/media/sample-waterfall.png" width="240" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them"> | <img src="docs/media/sample-corner.png" width="240" alt="The sample with a camera in the top right corner drawn in red, and the favourite and share buttons stepped down and clear of it"> | <img src="docs/media/sample.gif" width="240" alt="The same screen over one kind of hardware after another: punch holes in the middle and in a corner, a wide notch, a cutout at each end, and a curved edge with no cutout at all"> |
 
-Both are the same screen on different hardware, with the sample's marker overlay on: red is where the
-platform says a camera is, orange is how far in it says to stay on each edge. On the left the corner
+The same screen on different hardware, with the sample's marker overlay on: red is where the platform
+says a camera is, orange is how far in it says to stay on each edge. On the left there is no rectangle
+at all, only a curved edge, and everything is inset by `clearOfTheHardware`. In the middle the corner
 buttons have been driven clear of the camera by `cornerClearance`, which counts only the rectangles
-they actually overlap. On the right there is no rectangle at all, only a curved edge, and everything
-is inset by `clearOfTheHardware`.
+they actually overlap. On the right the gallery runs over one kind of hardware after another.
 
 The lens and the curve in the frame are drawn from the markers rather than beside them: the camera
 sits inside the rectangle the platform reported, and the glass rolls off exactly to the depth the
-orange line marks. Both are rendered by [`docs/media/frame.py`](docs/media/frame.py) from the
-capture alone, so the hardware in the picture cannot drift from what the screenshot is claiming.
+orange line marks. Both are measured from the capture, so the hardware in the picture cannot drift
+from what the screenshot is claiming.
 
 ```kotlin
 dependencies {
@@ -102,20 +102,13 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 
 ## The sample is a second caller, not a screenshot
 
-`:sample` is a gallery: five plates, one at a time, each running to every edge, swipe or step for
+`:sample` is a gallery: painted plates, one at a time, each running to every edge, swipe or step for
 the next, tap to put the label away. That is the case this library is for. Full bleed is the point of a
 viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
 is meant not to be.
 
-<p align="center">
-  <img src="docs/media/sample.gif" width="300"
-       alt="The same screen over six kinds of hardware in turn: a centred punch hole, a camera in the start corner, a wide notch, a camera in the end corner, a cutout at each end, and a curved edge">
-</p>
-
-One frame per kind of hardware, and no two alike: a punch hole in the middle, a camera in the start
-corner, a wide notch, a camera in the end corner with the buttons sitting under it, one cutout at
-each end, and a curved edge with no rectangle at all. The gallery walks its five plates underneath,
-with the label on the bottom edge for the first half and the top for the second.
+The tour at the top of this file is one frame per kind of hardware, no two alike, with the gallery
+walking its plates underneath and the label starting on the bottom edge.
 
 It deliberately makes different choices from the app this was extracted from: it keeps the system
 bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
