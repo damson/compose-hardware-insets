@@ -100,24 +100,22 @@ covered on hardware nobody in this project owns.
 `cornerClearanceFor` is public for the same reason it is pure: so you can ask it about a punch-hole,
 a chin, a notch and three overlapping rectangles without owning any of them.
 
-## The sample is a second caller, not a screenshot
+## The sample is a second caller
 
 `:sample` is a gallery: painted plates, one at a time, each running to every edge, swipe or step for
-the next, tap to put the label away. That is the case this library is for. Full bleed is the point of a
-viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
-is meant not to be.
+the next, tap to put the label away. That is the case this library is for. A viewer is full bleed
+because that is what a viewer is, so the picture belongs under the camera and the wall label belongs
+clear of it.
 
 The tour at the top of this file is one frame per kind of hardware, no two alike, with the gallery
 walking its plates underneath and the label starting on the bottom edge.
 
-It deliberately makes different choices from the app this was extracted from: it keeps the system
-bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
-sharing rather than on a way out, and it puts two controls on two policies. The corner one clears
-the bars by padding and the camera by offset, because `cornerClearance` can say which rectangles
-are actually in its way. The previous and next buttons on the sides have no corner to be measured
-from, so they clear everything the window reports on that edge. It
-depends on the library as a Gradle project rather than by version, so an API change breaks it in the
-same build.
+It keeps the system bars on screen, moves the label between all four edges, spends its corner on
+favouriting and sharing, and runs two controls on two policies. The corner one clears the bars by
+padding and the camera by offset, because `cornerClearance` can say which rectangles are in its way.
+The previous and next buttons sit halfway down the sides with no corner to be measured from, so they
+clear everything the window reports on that edge. It depends on the library as a Gradle project, so
+an API change breaks it in the same build.
 
 Three things writing it proved:
 
