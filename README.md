@@ -116,14 +116,14 @@ Three things writing it proved:
   and the sample is why it is the first roadmap item rather than a nice-to-have.
 - **`ScreenEdge` will not lay anything out for you.** The sample writes its own four-case mapping to
   an `Alignment`. Every caller would write the same one.
-- **`drawBehindTheHardware` sets the bar icons, every time it is called.** It goes through
-  `enableEdgeToEdge`, which picks light or dark icons from the night resources, so anything the app
-  chose for itself is undone on the next call. A viewer that decides per picture has to set the
-  appearance again afterwards, and the only symptom of getting it wrong is a clock nobody can read.
-  The sample does it in one place with the reason written down; taking a style parameter for this
-  is a `0.2` question rather than a roadmap one.
+- **The bar icons are a parameter of `drawBehindTheHardware`, not something to set after it.** It
+  goes through `enableEdgeToEdge`, which re-picks light or dark icons on every call, so an
+  appearance set separately is undone by the next one. Pass `statusBarStyle` and
+  `navigationBarStyle` and the question does not arise. An app that changes the appearance between
+  those calls, as a viewer deciding per picture does, still has to set it again after each one, and
+  the only symptom of getting that wrong is a clock nobody can read.
 
-The first two are on the roadmap. The third is a documented order of calls.
+The first two are on the roadmap. The third is what those two parameters are for.
 
 ## Supported
 
