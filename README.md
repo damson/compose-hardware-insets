@@ -100,22 +100,18 @@ covered on hardware nobody in this project owns.
 `cornerClearanceFor` is public for the same reason it is pure: so you can ask it about a punch-hole,
 a chin, a notch and three overlapping rectangles without owning any of them.
 
-## The sample is a second caller
+## The sample
 
 `:sample` is a gallery: painted plates, one at a time, each running to every edge, swipe or step for
-the next, tap to put the label away. That is the case this library is for. A viewer is full bleed
-because that is what a viewer is, so the picture belongs under the camera and the wall label belongs
-clear of it.
+the next, tap to put the label away. The picture runs under the camera and the wall label has to stay
+clear of it, which is this library's problem in one screen.
 
-The tour at the top of this file is one frame per kind of hardware, no two alike, with the gallery
-walking its plates underneath and the label starting on the bottom edge.
+It keeps the system bars on screen and moves the label between all four edges. The previous and next
+buttons are the interesting half: they sit halfway down the sides with no corner to be measured
+from, so they take everything the window reports on that edge, while the corner row asks about the
+rectangles it actually overlaps. Two controls, two policies, one screen.
 
-It keeps the system bars on screen, moves the label between all four edges, spends its corner on
-favouriting and sharing, and runs two controls on two policies. The corner one clears the bars by
-padding and the camera by offset, because `cornerClearance` can say which rectangles are in its way.
-The previous and next buttons sit halfway down the sides with no corner to be measured from, so they
-clear everything the window reports on that edge. It depends on the library as a Gradle project, so
-an API change breaks it in the same build.
+It depends on the library as a Gradle project, so an API change breaks it in the same build.
 
 Three things writing it proved:
 
