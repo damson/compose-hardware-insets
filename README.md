@@ -8,11 +8,30 @@ This answers that. It publishes the cutout's rectangles as Compose state, turns 
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
 hardware you do not own.
 
+| A curved edge | A camera in the corner | One kind after another |
+|---|---|---|
+| <img src="docs/media/sample-waterfall.png" width="240" alt="The sample on a phone with curved edges: the safe margins run down both sides in orange and every control sits inside them"> | <img src="docs/media/sample-corner.png" width="240" alt="The sample with a camera in the top right corner drawn in red, and the favourite and share buttons stepped down and clear of it"> | <img src="docs/media/sample.gif" width="240" alt="The same screen over one kind of hardware after another: punch holes in the middle and in a corner, a wide notch, a cutout at each end, and a curved edge with no cutout at all"> |
+
+The same screen on different hardware, with the sample's marker overlay on: red is where the platform
+says a camera is, orange is how far in it says to stay on each edge. On the left there is no rectangle
+at all, only a curved edge, and everything is inset by `clearOfTheHardware`. In the middle the corner
+buttons have been driven clear of the camera by `cornerClearance`, which counts only the rectangles
+they actually overlap. On the right the gallery runs over one kind of hardware after another.
+
+The lens and the curve in the frame are drawn from the markers rather than beside them: the camera
+sits inside the rectangle the platform reported, and the glass rolls off exactly to the depth the
+orange line marks. Both are measured from the capture, so the hardware in the picture cannot drift
+from what the screenshot is claiming.
+
 ```kotlin
 dependencies {
     implementation("io.github.damson:hardware-insets:0.1.0")
 }
 ```
+
+The corner control is kept off the camera by `cornerClearance` and off the system bars by
+`clearOfTheHardware` with a bars-only policy. Those are two different questions, and the sample
+keeps them apart.
 
 ## Pad content clear of the hardware
 
@@ -81,6 +100,42 @@ covered on hardware nobody in this project owns.
 `cornerClearanceFor` is public for the same reason it is pure: so you can ask it about a punch-hole,
 a chin, a notch and three overlapping rectangles without owning any of them.
 
+## The sample is a second caller, not a screenshot
+
+`:sample` is a gallery: painted plates, one at a time, each running to every edge, swipe or step for
+the next, tap to put the label away. That is the case this library is for. Full bleed is the point of a
+viewer rather than a style choice, so the picture is meant to be under the camera and the wall label
+is meant not to be.
+
+The tour at the top of this file is one frame per kind of hardware, no two alike, with the gallery
+walking its plates underneath and the label starting on the bottom edge.
+
+It deliberately makes different choices from the app this was extracted from: it keeps the system
+bars on screen, it moves the label between all four edges, it spends its corner on favouriting and
+sharing rather than on a way out, and it puts two controls on two policies. The corner one clears
+the bars by padding and the camera by offset, because `cornerClearance` can say which rectangles
+are actually in its way. The previous and next buttons on the sides have no corner to be measured
+from, so they clear everything the window reports on that edge. It
+depends on the library as a Gradle project rather than by version, so an API change breaks it in the
+same build.
+
+Three things writing it proved:
+
+- **Reading the cutout in a Compose-only app costs twelve lines of `View` code.** You need a sibling
+  view for the listener, which means a `FrameLayout`, which means building the content view by hand.
+  `ViewerActivity` does it with the reason written down. That is what `rememberCutoutShape()` is for,
+  and the sample is why it is the first roadmap item rather than a nice-to-have.
+- **`ScreenEdge` will not lay anything out for you.** The sample writes its own four-case mapping to
+  an `Alignment`. Every caller would write the same one.
+- **`drawBehindTheHardware` sets the bar icons, every time it is called.** It goes through
+  `enableEdgeToEdge`, which picks light or dark icons from the night resources, so anything the app
+  chose for itself is undone on the next call. A viewer that decides per picture has to set the
+  appearance again afterwards, and the only symptom of getting it wrong is a clock nobody can read.
+  The sample does it in one place with the reason written down; taking a style parameter for this
+  is a `0.2` question rather than a roadmap one.
+
+The first two are on the roadmap. The third is a documented order of calls.
+
 ## Supported
 
 - `minSdk 23`, which is Compose's floor rather than this library's. The cutout API arrives at API
@@ -95,6 +150,8 @@ a chin, a notch and three overlapping rectangles without owning any of them.
 ## Roadmap
 
 - `rememberCutoutShape()` and a `LocalCutoutShape`, so a Compose-only app never touches a `View`.
+  The sample shows what this costs today.
+- An edge to `Alignment` mapping, so `ScreenEdge` can place something and not only name it.
 - Rounded-corner insets. The platform reports corners as a radius from API 31 rather than as an
   inset, and Compose does not expose them either.
 - A safest-edge chooser: given the shape, which edge has the least hardware in it.
