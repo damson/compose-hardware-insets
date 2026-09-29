@@ -18,11 +18,6 @@ at all, only a curved edge, and everything is inset by `clearOfTheHardware`. In 
 buttons have been driven clear of the camera by `cornerClearance`, which counts only the rectangles
 they actually overlap. On the right the gallery runs over one kind of hardware after another.
 
-The lens and the curve in the frame are drawn from the markers rather than beside them: the camera
-sits inside the rectangle the platform reported, and the glass rolls off exactly to the depth the
-orange line marks. Both are measured from the capture, so the hardware in the picture cannot drift
-from what the screenshot is claiming.
-
 ```kotlin
 dependencies {
     implementation("io.github.damson:hardware-insets:0.1.0")
