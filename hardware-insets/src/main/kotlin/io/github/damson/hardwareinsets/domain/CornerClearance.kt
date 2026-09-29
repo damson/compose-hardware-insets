@@ -2,6 +2,7 @@ package io.github.damson.hardwareinsets.domain
 
 import android.graphics.Rect
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 
 /**
  * The geometry `cornerClearance` is built on, kept pure so it can be tested
@@ -29,19 +30,19 @@ fun cornerClearanceFor(
     cutoutBounds: List<Rect>,
     controlWidth: Int,
     sideInset: Int,
-    windowWidth: Int,
-    windowHeight: Int,
-    isRtl: Boolean,
-    isAtTop: Boolean,
+    windowSize: IntSize,
+    corner: WindowCorner,
 ): IntOffset {
-    val start = if (isRtl) windowWidth - sideInset - controlWidth else sideInset
+    val start =
+        if (corner.isAtTheRight) windowSize.width - sideInset - controlWidth else sideInset
     val end = start + controlWidth
 
     val overlapping = cutoutBounds.filter { it.right > start && it.left < end }
-    val depth = if (isAtTop) {
+    val depth = if (corner.isAtTheTop) {
         overlapping.filter { it.top <= 0 }.maxOfOrNull { it.bottom }
     } else {
-        overlapping.filter { it.bottom >= windowHeight }.maxOfOrNull { windowHeight - it.top }
+        overlapping.filter { it.bottom >= windowSize.height }
+            .maxOfOrNull { windowSize.height - it.top }
     }
 
     return IntOffset(x = sideInset, y = depth ?: 0)

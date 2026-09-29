@@ -13,10 +13,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import io.github.damson.hardwareinsets.domain.CutoutShape
 import io.github.damson.hardwareinsets.domain.HardwarePolicy
 import io.github.damson.hardwareinsets.domain.ScreenEdge
+import io.github.damson.hardwareinsets.domain.WindowCorner
 import io.github.damson.hardwareinsets.domain.cornerClearanceFor
 import io.github.damson.hardwareinsets.platform.cutoutShape
 
@@ -123,11 +125,19 @@ fun cornerClearance(
     val view = LocalView.current
     // The end corner under LTR is the visual right, exactly where the start
     // corner is under RTL, so one flag serves the maths for both.
-    val isRtl = (direction == LayoutDirection.Rtl) != isAtTheEnd
+    // The end corner under LTR is the visual right, exactly where the start
+    // corner is under RTL, so the two flags collapse into one corner.
+    val isAtTheRight = (direction == LayoutDirection.Rtl) != isAtTheEnd
+    val corner = when {
+        position == ScreenEdge.TOP && isAtTheRight -> WindowCorner.TOP_RIGHT
+        position == ScreenEdge.TOP -> WindowCorner.TOP_LEFT
+        isAtTheRight -> WindowCorner.BOTTOM_RIGHT
+        else -> WindowCorner.BOTTOM_LEFT
+    }
     val cutout = WindowInsets.displayCutout
     val waterfall = WindowInsets.waterfall
 
-    val side = if (isRtl) {
+    val side = if (isAtTheRight) {
         maxOf(cutout.getRight(density, direction), waterfall.getRight(density, direction))
     } else {
         maxOf(cutout.getLeft(density, direction), waterfall.getLeft(density, direction))
@@ -142,10 +152,8 @@ fun cornerClearance(
             // ComposeView measures the host rather than the window, and the
             // rectangles are in window coordinates. Read here rather than at
             // composition, when it is still zero.
-            windowWidth = view.rootView.width,
-            windowHeight = view.rootView.height,
-            isRtl = isRtl,
-            isAtTop = position == ScreenEdge.TOP,
+            windowSize = IntSize(view.rootView.width, view.rootView.height),
+            corner = corner,
         )
     }
 }

@@ -65,7 +65,9 @@ class ArchitectureTest {
         assertNoImports(
             importedFrom = "android.",
             inLayer = DOMAIN,
-            except = { it == "android.graphics.Rect" || it == "android.view.Surface" },
+            // Rect only, now that the rotation constants have a home in the
+            // platform layer and the domain names its rotations instead.
+            except = { it == "android.graphics.Rect" },
         )
         assertNoImports(importedFrom = "androidx.core.view", inLayer = DOMAIN)
         assertNoImports(importedFrom = "androidx.activity", inLayer = DOMAIN)

@@ -94,6 +94,7 @@ import io.github.damson.hardwareinsets.cornerClearance
 import io.github.damson.hardwareinsets.hardwareInsets
 import io.github.damson.hardwareinsets.domain.CutoutShape
 import io.github.damson.hardwareinsets.domain.ScreenEdge
+import io.github.damson.hardwareinsets.domain.ScreenRotation
 import io.github.damson.hardwareinsets.domain.onScreenAt
 import io.github.damson.hardwareinsets.sample.R
 import io.github.damson.hardwareinsets.sample.model.Plate
@@ -122,6 +123,7 @@ import io.github.damson.hardwareinsets.sample.model.ViewerOptions
 fun ViewerScreen(
     cutout: CutoutShape,
     options: ViewerOptions,
+    rotation: ScreenRotation,
     onOptions: (ViewerOptions) -> Unit,
     onBarsOver: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
     onShare: (String) -> Unit,
@@ -137,7 +139,6 @@ fun ViewerScreen(
     // cannot use one directly: it has to ask which screen edge the device has
     // turned that one into. Skipping this is what makes a side-anchored control
     // land on top of the status bar.
-    val rotation = LocalView.current.display?.rotation ?: 0
     val edge = options.anchor.onScreenAt(rotation)
     val pager = rememberPagerState(pageCount = { Plates.size })
     val plate = Plates[pager.currentPage]
