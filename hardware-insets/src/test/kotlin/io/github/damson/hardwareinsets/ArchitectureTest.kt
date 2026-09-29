@@ -21,11 +21,13 @@ import org.junit.Test
  */
 class ArchitectureTest {
 
+    private val workingDirectory: String = System.getProperty("user.dir").orEmpty()
+
     private val sourceRoot: File =
-        generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+        generateSequence(File(workingDirectory)) { it.parentFile }
             .map { File(it, "hardware-insets/src/main/kotlin") }
             .firstOrNull { it.isDirectory }
-            ?: error("hardware-insets/src/main/kotlin not found above ${System.getProperty("user.dir")}")
+            ?: error("hardware-insets/src/main/kotlin not found above $workingDirectory")
 
     private val sources: List<File> =
         sourceRoot.walkTopDown().filter { it.extension == "kt" }.toList()
@@ -91,13 +93,38 @@ class ArchitectureTest {
         assertOnlyInLayer(importedFrom = "android.view.View", layer = PLATFORM)
     }
 
-    private fun layer(prefix: String): List<File> =
-        sources.filter { it.relativeTo(sourceRoot).path.startsWith(prefix) }
+    // Separators are normalised because the prefixes below are written with
+    // forward slashes and File.path uses the platform's own. On Windows nothing
+    // would match, every layer would read as empty, and a rule over an empty
+    // set passes.
+    private fun File.pathInSource(): String =
+        relativeTo(sourceRoot).path.replace(File.separatorChar, '/')
 
-    private fun imports(file: File): List<String> =
-        file.readLines()
+    private fun layer(prefix: String): List<File> =
+        sources.filter { it.pathInSource().startsWith(prefix) }
+
+    /**
+     * Every name a file reaches for, whether it imported it or spelled it out.
+     *
+     * Reading the import list alone is the obvious way to do this and leaves a
+     * hole the size of the rule: a file that writes `android.view.View` inline
+     * never imports it, and a boundary that only inspects imports waves it
+     * through. Comments are stripped first, so documentation may still link
+     * across a layer without being read as a dependency.
+     */
+    private fun references(file: File): List<String> {
+        val imports = file.readLines()
             .filter { it.startsWith("import ") }
             .map { it.removePrefix("import ").substringBefore(" as ").trim() }
+        val code = file.readText()
+            .replace(Regex("""/\*.*?\*/""", RegexOption.DOT_MATCHES_ALL), " ")
+            .replace(Regex("//.*"), " ")
+            .lines()
+            .filterNot { it.trimStart().startsWith("import ") || it.trimStart().startsWith("package ") }
+            .joinToString("\n")
+        val qualified = QUALIFIED.findAll(code).map { it.value }.toList()
+        return imports + qualified
+    }
 
     private fun assertNoImports(
         importedFrom: String,
@@ -105,7 +132,7 @@ class ArchitectureTest {
         except: (String) -> Boolean = { false },
     ) {
         val offences = layer(inLayer).flatMap { file ->
-            imports(file)
+            references(file)
                 .filter { it.startsWith(importedFrom) && !except(it) }
                 .map { "${file.relativeTo(sourceRoot).path} imports $it" }
         }
@@ -118,7 +145,7 @@ class ArchitectureTest {
         val offences = sources
             .filterNot { it.relativeTo(sourceRoot).path.startsWith(layer) }
             .flatMap { file ->
-                imports(file)
+                references(file)
                     .filter { it.startsWith(importedFrom) }
                     .map { "${file.relativeTo(sourceRoot).path} imports $it" }
             }
@@ -128,6 +155,9 @@ class ArchitectureTest {
     }
 
     private companion object {
+        /** A name spelled out in code rather than imported, of the roots that matter here. */
+        val QUALIFIED = Regex("""\b(?:android|androidx|io\.github\.damson\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""")
+
         const val LIBRARY = "io.github.damson.hardwareinsets"
         const val DOMAIN = "io/github/damson/hardwareinsets/domain"
         const val PLATFORM = "io/github/damson/hardwareinsets/platform"

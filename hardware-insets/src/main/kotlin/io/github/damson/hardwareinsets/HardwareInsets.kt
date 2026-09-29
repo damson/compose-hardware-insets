@@ -14,9 +14,11 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import io.github.damson.hardwareinsets.domain.CutoutShape
 import io.github.damson.hardwareinsets.domain.HardwarePolicy
 import io.github.damson.hardwareinsets.domain.ScreenEdge
 import io.github.damson.hardwareinsets.domain.cornerClearanceFor
+import io.github.damson.hardwareinsets.platform.cutoutShape
 
 /**
  * How far content has to stay off each edge to clear the hardware there.
