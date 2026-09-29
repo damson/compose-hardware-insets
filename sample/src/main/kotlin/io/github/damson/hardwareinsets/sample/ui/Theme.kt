@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

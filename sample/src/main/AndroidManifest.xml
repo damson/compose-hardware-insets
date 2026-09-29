@@ -7,7 +7,7 @@
         android:theme="@style/Theme.Sample">
 
         <activity
-            android:name=".ViewerActivity"
+            android:name=".platform.ViewerActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
             <intent-filter>

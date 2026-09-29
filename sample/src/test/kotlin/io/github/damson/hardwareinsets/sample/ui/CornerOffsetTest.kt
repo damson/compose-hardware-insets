@@ -1,9 +1,9 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.ui.unit.IntOffset
-import io.github.damson.hardwareinsets.ScreenEdge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import io.github.damson.hardwareinsets.domain.ScreenEdge
 
 /**
  * The clearance arrives as distances inward from the control's own corner, and

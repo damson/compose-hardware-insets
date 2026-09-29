@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -35,9 +35,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.damson.hardwareinsets.CutoutMode
-import io.github.damson.hardwareinsets.CutoutShape
-import io.github.damson.hardwareinsets.ScreenEdge
+import io.github.damson.hardwareinsets.domain.CutoutShape
+import io.github.damson.hardwareinsets.domain.ScreenEdge
+import io.github.damson.hardwareinsets.domain.CutoutMode
+import io.github.damson.hardwareinsets.sample.R
+import io.github.damson.hardwareinsets.sample.model.ViewerOptions
 
 /**
  * Every parameter the library takes, as a Material control, over a readout of

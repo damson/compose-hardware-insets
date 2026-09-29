@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -88,13 +88,17 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
-import io.github.damson.hardwareinsets.CutoutShape
-import io.github.damson.hardwareinsets.HardwarePolicy
-import io.github.damson.hardwareinsets.ScreenEdge
+import io.github.damson.hardwareinsets.domain.HardwarePolicy
 import io.github.damson.hardwareinsets.clearOfTheHardware
 import io.github.damson.hardwareinsets.cornerClearance
 import io.github.damson.hardwareinsets.hardwareInsets
-import io.github.damson.hardwareinsets.onScreenAt
+import io.github.damson.hardwareinsets.domain.CutoutShape
+import io.github.damson.hardwareinsets.domain.ScreenEdge
+import io.github.damson.hardwareinsets.domain.onScreenAt
+import io.github.damson.hardwareinsets.sample.R
+import io.github.damson.hardwareinsets.sample.model.Plate
+import io.github.damson.hardwareinsets.sample.model.Plates
+import io.github.damson.hardwareinsets.sample.model.ViewerOptions
 
 /**
  * A gallery: one plate at a time, running to every edge, swipe for the next.

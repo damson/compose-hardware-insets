@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.ui.unit.dp
 import org.assertj.core.api.Assertions.assertThat

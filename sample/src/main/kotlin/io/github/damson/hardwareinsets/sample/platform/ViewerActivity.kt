@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample
+package io.github.damson.hardwareinsets.sample.platform
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,11 +12,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import io.github.damson.hardwareinsets.CutoutShape
-import io.github.damson.hardwareinsets.cutoutShape
-import io.github.damson.hardwareinsets.drawBehindTheHardware
-import io.github.damson.hardwareinsets.hideTheSystemBars
-import io.github.damson.hardwareinsets.stopReportingCutoutShape
+import io.github.damson.hardwareinsets.domain.CutoutShape
+import io.github.damson.hardwareinsets.platform.cutoutShape
+import io.github.damson.hardwareinsets.platform.drawBehindTheHardware
+import io.github.damson.hardwareinsets.platform.hideTheSystemBars
+import io.github.damson.hardwareinsets.platform.stopReportingCutoutShape
+import io.github.damson.hardwareinsets.sample.R
+import io.github.damson.hardwareinsets.sample.model.ViewerOptions
+import io.github.damson.hardwareinsets.sample.ui.SampleTheme
+import io.github.damson.hardwareinsets.sample.ui.ViewerScreen
 
 /**
  * A full-bleed gallery, which wants the opposite of what a form wants: the
