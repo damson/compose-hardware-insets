@@ -547,12 +547,17 @@ private fun WallLabel(
     // The two corner controls do not sit off the same thing. The row clears the
     // bars; the settings button clears everything, so with the bars hidden and
     // a cutout on this edge it is the one standing further in.
-    val everything = with(density) {
-        hardwareInsets(edge, EverythingPolicy).let {
-            if (edge.isPlacedAtTheTop) it.getTop(density).toDp() else it.getBottom(density).toDp()
-        }
+    //
+    // The button stays on the bottom edge whatever the label does, so it only
+    // competes with a label anchored there. Counting it at the top reserved
+    // room for a control that is not on that edge, and the label answered a
+    // policy change it had no business answering.
+    val settingsButton = if (edge.isPlacedAtTheTop) {
+        0.dp
+    } else {
+        with(density) { hardwareInsets(edge, EverythingPolicy).getBottom(density).toDp() }
     }
-    val reserved = reservedForTheCornerControls(fromTheEdge, everything, rowMoved, applied)
+    val reserved = reservedForTheCornerControls(fromTheEdge, settingsButton, rowMoved, applied)
 
     Box(
         modifier
