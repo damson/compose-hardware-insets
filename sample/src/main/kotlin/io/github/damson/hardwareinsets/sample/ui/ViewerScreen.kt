@@ -288,12 +288,18 @@ fun ViewerScreen(
             exit = fadeOut(),
             // The demo puts its own control in a corner of whichever edge you
             // pick, so a fixed trigger collides in exactly one configuration.
+            //
+            // Clear of everything rather than of the bars alone: this is the
+            // way back to the controls, and a corner camera or a curved edge
+            // under it is a button the visitor cannot reliably press. The
+            // corner row is the one demonstrating a rectangle-precise offset;
+            // this one only has to be reachable.
             modifier = Modifier
                 .align(
                     if (edge == ScreenEdge.BOTTOM && options.isCornerAtTheEnd) Alignment.BottomStart
                     else Alignment.BottomEnd
                 )
-                .clearOfTheBars(),
+                .clearOfEverything(),
         ) {
             OpenControls(onOpen = { areControlsOpen = true })
         }
