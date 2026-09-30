@@ -46,10 +46,6 @@ internal fun CornerActions(
     onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // The plaque, not a scheme container: this sits on a painting, and the
-    // gallery runs from near white to near black. A tonal container picked by
-    // the scheme is invisible on half the plates, and which half changes with
-    // the system theme.
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.plaque,

@@ -31,10 +31,9 @@ internal fun Modifier.plaque(shape: Shape): Modifier = this
  * centre with a hard frame at the edges, which reads as a rendering fault and
  * gets blamed on the gradient.
  *
- * So the shape is clipped out first and only what falls outside is painted.
- * Concentric strokes rather than a blur, because a mask filter is silently
- * ignored on a hardware canvas and the failure looks like a shadow that was
- * never asked for.
+ * So the shape is clipped out first and only what falls outside is painted,
+ * in concentric strokes rather than a blur: a mask filter is silently ignored
+ * on a hardware canvas, and the failure looks like a shadow nobody asked for.
  */
 @Composable
 internal fun Modifier.lifted(shape: Shape): Modifier {
@@ -43,9 +42,6 @@ internal fun Modifier.lifted(shape: Shape): Modifier {
         val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
         clipPath(path, ClipOp.Difference) {
             translate(top = LIFT_DROP.toPx()) {
-                // Each stroke covers the band from the edge out to half its
-                // width, so a constant alpha stacks into a linear falloff.
-                // Widen the step and it separates into countable rings.
                 repeat(LIFT_STEPS) { step ->
                     drawPath(
                         path = path,
@@ -60,14 +56,8 @@ internal fun Modifier.lifted(shape: Shape): Modifier {
 
 private val LIFT_DROP = 2.dp
 
-/**
- * How far it reaches, in half-dp bands: a 7dp shadow, not a 18dp one.
- *
- * The bands are narrow because the falloff is only as smooth as they are thin,
- * and there are this many because the darkest point is their sum. Change one
- * without the other and it goes back to rings.
- */
+/** Bands, narrow enough not to read as rings. Change this and [LIFT_ALPHA] together. */
 private const val LIFT_STEPS = 14
 
-/** Each band's share of the shadow. Fourteen of these is 0.18 at the contact. */
+/** Each band's share, which sums to the darkness at the contact. */
 private const val LIFT_ALPHA = 0.013f

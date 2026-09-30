@@ -75,55 +75,22 @@ private val DarkScheme = darkColorScheme(
 )
 
 /**
- * The ground a wall label sits on, and the one colour on this screen that is
- * not a scheme role.
+ * The ground a wall label sits on.
  *
- * It has to be, because what is behind it is a plate and not a surface. Ink at
- * this alpha clears 5.5:1 for [onPlaque] over the palest plate and 9.9:1 over
- * the deepest, where a role tinted from the scheme would take its contrast from
- * the wrong thing entirely and lose the text on half the gallery.
- *
- * Translucent rather than solid so the inset markers underneath stay readable
- * through it, which is the one thing this screen exists to show.
+ * Translucent rather than solid, so the markers underneath stay readable
+ * through it. That is the one thing this screen exists to show.
  */
 val MaterialTheme.plaque: Color get() = Ink.copy(alpha = 0.72f)
 
-/** The label's own text, over [plaque] in either scheme. */
 val MaterialTheme.onPlaque: Color get() = Paper
 
-/** The label's second voice: the plate number, the medium, the anchor readout. */
 val MaterialTheme.onPlaqueVariant: Color get() = Mist
 
-/**
- * The interface's own colour: what marks a control as a control.
- *
- * A control in the plaque alone is legible but silent: on a busy plate a paper
- * icon on ink is another mark among marks.
- *
- * It is 9.72:1 against the darkest plate and 1.34:1 against the palest, which
- * is the widest spread of the six that were tried on hardware, and the reason
- * every control keeps a hairline: on paper the fill is not what gives it an
- * edge.
- *
- * **It is close to two colours it has to live beside**, and that is a decision
- * rather than an oversight. Two plates are painted with a warmer yellow, 1.04:1
- * against this one, and the inset marker is orange. What keeps them apart is
- * position and not hue: the markers are washes along the window's edges, the
- * paint is under the plaques, and this is only ever a filled control or a mark
- * of state on one. Where that was not enough it was given up, which is why the
- * step arrows are white.
- */
+/** The interface's own colour: what marks a control as a control. */
 val MaterialTheme.accent: Color get() = Color(0xFFFFD400)
 
-/** What sits on [accent]: ink, at 9.72:1. */
 val MaterialTheme.onAccent: Color get() = Ink
 
-/**
- * What every floating control is lifted off the plate by.
- *
- * Ink rather than black, so the shadow belongs to the palette instead of
- * greying whatever it falls on.
- */
 val MaterialTheme.plaqueShadow: Color get() = Ink
 
 /** The markers, which must not belong: in the palette they would read as decoration. */
