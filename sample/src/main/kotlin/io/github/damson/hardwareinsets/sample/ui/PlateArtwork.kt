@@ -1,12 +1,16 @@
 package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import io.github.damson.hardwareinsets.sample.R
 import io.github.damson.hardwareinsets.sample.model.Plate
 
 /**
@@ -27,5 +31,28 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
         contentDescription = stringResource(plate.description),
         contentScale = ContentScale.Crop,
         modifier = modifier.fillMaxSize(),
+    )
+}
+
+/**
+ * Tap the plate to put the controls away: the gesture every full-screen viewer
+ * has, and the one that leaves the plate alone under the camera.
+ *
+ * No indication, because a ripple over a painting is a defect, and a click
+ * label rather than a bare handler, because with the controls gone there is
+ * nothing on the screen for a screen reader to describe.
+ */
+@Composable
+internal fun Modifier.togglingTheControls(
+    areControlsShown: Boolean,
+    onToggle: () -> Unit,
+): Modifier {
+    val label =
+        stringResource(if (areControlsShown) R.string.hide_the_label else R.string.show_the_label)
+    return clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null,
+        onClickLabel = label,
+        onClick = onToggle,
     )
 }
