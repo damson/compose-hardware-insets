@@ -27,8 +27,8 @@ android {
 
     buildTypes {
         release {
-            // Unsigned, and never released. The sample exists to be a second
-            // caller of the library's API, not to ship.
+            // Unsigned, and never released. The sample exists to be run and
+            // read, not to ship.
             isMinifyEnabled = false
         }
     }
@@ -42,8 +42,8 @@ kotlin {
 
 dependencies {
     // The published coordinates would work here too. A project dependency is
-    // deliberate: a sample that cannot break when the API changes is not a
-    // second consumer, it is a screenshot.
+    // deliberate: an API change breaks the sample in the same build rather
+    // than after a release.
     implementation(project(":hardware-insets"))
 
     implementation(libs.androidx.activity.compose)

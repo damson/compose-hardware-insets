@@ -9,6 +9,6 @@ plugins {
 }
 
 apiValidation {
-    // The sample is a consumer, not part of the published surface.
+    // The sample is not part of the published surface.
     ignoredProjects.add("sample")
 }
