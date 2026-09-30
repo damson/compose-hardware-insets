@@ -20,24 +20,12 @@ import androidx.compose.ui.unit.dp
 import io.github.damson.hardwareinsets.cornerClearance
 import io.github.damson.hardwareinsets.sample.R
 
-/**
- * The only thing on the plate that is not part of the demonstration.
- *
- * The one control in the accent rather than on the plaque, because it is the
- * primary action and a gallery has exactly one. Flat, like the rest: a surface
- * with an elevation draws its own ambient shadow behind itself, and [lifted] is
- * what every control here is raised by instead.
- */
+/** The way into the sheet: the only control here that demonstrates nothing. */
 @Composable
 internal fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
         onClick = onOpen,
-        // Material's FAB is a 16dp rounded square by default, so the circle
-        // the border and the lift were drawn as disagreed with the thing they
-        // were drawn around. Both read the shape from here now. The accent
-        // measures 9.72:1 on the darkest plate and 1.34:1 on the palest, so the
-        // border and the lift are what give this an edge, not the fill.
-        shape = FAB_SHAPE,
+        shape = CircleShape,
         containerColor = MaterialTheme.accent,
         contentColor = MaterialTheme.onAccent,
         elevation = FloatingActionButtonDefaults.elevation(
@@ -46,22 +34,17 @@ internal fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
             focusedElevation = 0.dp,
             hoveredElevation = 0.dp,
         ),
-        // Without this hairline a dark control on a dark plate has no edge.
         modifier = modifier
             .padding(16.dp)
-            .lifted(FAB_SHAPE)
-            .border(1.dp, MaterialTheme.onAccent.copy(alpha = 0.18f), FAB_SHAPE),
+            .lifted(CircleShape)
+            .border(1.dp, MaterialTheme.onAccent.copy(alpha = 0.18f), CircleShape),
     ) {
         Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.open_controls))
     }
 }
 
 /**
- * Previous and next, because a swipe leaves no trace on a still screen.
- *
- * On the sides, where nothing else on this screen goes: the label and the
- * corner control both live on the edge the anchor names, and that is only ever
- * the top or the bottom.
+ * Previous and next, halfway down the sides.
  *
  * They take the whole inset rather than a rectangle-precise offset. A corner
  * control can ask [cornerClearance] which rectangles are actually in its way;
@@ -89,13 +72,6 @@ internal fun StepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
-                // White, where every other control is in the accent: two
-                // plates are painted in a yellow 1.04:1 from it, and these sit
-                // in the middle of the picture where they would read as paint.
-                // It measures better too, 5.53:1 on the plaque over the palest
-                // plate against the accent's 4.18:1. Both states are spelled
-                // out because an explicit tint replaces the dimming a disabled
-                // IconButton would have done.
                 tint =
                     if (isEnabled) MaterialTheme.onPlaque
                     else MaterialTheme.onPlaque.copy(alpha = 0.34f),
@@ -103,5 +79,3 @@ internal fun StepButton(
         }
     }
 }
-
-private val FAB_SHAPE = CircleShape

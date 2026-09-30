@@ -212,10 +212,8 @@ fun ViewerScreen(
             // No scrim: every control on this sheet changes the screen behind
             // it, so dimming the plate to ask about the plate hides the answer.
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
-            // Spelled out, because `contentColorFor` has no answer for a colour
-            // that is not a scheme role, and its non-answer is `Unspecified`:
-            // the text would then inherit whatever the ambient content colour
-            // happens to be.
+            // `contentColorFor` answers `Unspecified` for a colour that is not
+            // a scheme role, and the text would then take whatever is ambient.
             contentColor = MaterialTheme.colorScheme.onSurface,
             scrimColor = Color.Transparent,
         ) {
@@ -224,16 +222,7 @@ fun ViewerScreen(
     }
 }
 
-/**
- * How solid the sheet's frame is, which is now the only part of it you see
- * through.
- *
- * It can be this low because no text sits on it. Three values were tried while
- * the text was on this surface, 0.82, 0.94 and 0.88, and each was a trade of
- * reading against seeing: the detail in a painting fights a paragraph whatever
- * the average contrast says. The card in [ControlSheetContent] takes the text
- * out of that argument, and the frame is then free to be glass.
- */
+/** How solid the sheet's frame is. It can be glass because no text sits on it. */
 internal const val SHEET_ALPHA = 0.55f
 
 /** How long the label takes to answer the heart. */

@@ -50,13 +50,8 @@ import io.github.damson.hardwareinsets.sample.model.ViewerOptions
  * screen exists to put things on: setting the anchor to `BOTTOM` would hide the
  * result behind the control that asked for it.
  *
- * An opaque card inside a translucent sheet, rather than one translucent sheet
- * holding everything. Reading over a painting is hard because of the detail in
- * it rather than the average contrast: a paragraph crossing a white stroke has
- * two backgrounds, and a measurement of the whole sheet says it is fine while
- * the eye says otherwise. Text here sits on one colour and never on a plate.
- * What stays see-through is the frame around it, which is enough to watch the
- * label move while you change what moves it.
+ * Only the frame around the card stays see-through, which is enough to watch
+ * the label move while you change what moves it.
  */
 @Composable
 fun ControlSheetContent(
@@ -274,12 +269,7 @@ private fun Setting(label: Int, detail: Int, isOn: Boolean, onChange: (Boolean) 
     )
 }
 
-/**
- * How solid the card is, against [SHEET_ALPHA] for the frame it sits in.
- *
- * High enough that a heading holds 12:1 over the palest plate and the deepest
- * alike, which is the invariance the translucent sheet never had.
- */
+/** How solid the card is, against [SHEET_ALPHA] for the frame around it. */
 private const val CARD_ALPHA = 0.93f
 
 @Composable
