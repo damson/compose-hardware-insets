@@ -9,9 +9,9 @@ import io.github.damson.hardwareinsets.sample.R
  * One work in the gallery: the wall label, and the plate it hangs beside.
  *
  * @param artwork the plate itself, exported from the generator that paints it
- *   rather than drawn here. The sample is a caller of an insets library and
- *   nothing else; a few hundred lines of painting in it were a second subject
- *   competing with the first.
+ *   rather than drawn here. The sample is about insets and nothing else; a
+ *   few hundred lines of painting in it would be a second subject competing
+ *   with the first.
  * @param isPaleAtTheTop whether the status bar's icons have to be dark to be
  *   seen over this plate.
  * @param isPaleAtTheBottom the same question for the navigation bar. Asked per

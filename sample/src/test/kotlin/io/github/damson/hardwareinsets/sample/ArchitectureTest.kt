@@ -11,8 +11,8 @@ import org.junit.Test
  *   no Compose beyond the annotations that make a value observable.
  * - `ui` is every composable. It may read the model and may not touch the
  *   framework: a screen that reached for an Activity would be doing the
- *   platform layer's job somewhere nobody would look for it.
- * - `platform` is the window and the things only an Activity can do, including
+ *   app layer's job somewhere nobody would look for it.
+ * - `app` is the window and the things only an Activity can do, including
  *   carrying the options across a recreation.
  *
  * A sample is where a reader looks to see what a library expects of them, so
@@ -34,7 +34,7 @@ class ArchitectureTest {
         assertThat(sources).isNotEmpty
         assertThat(layer(MODEL).map { it.name }).contains("ViewerOptions.kt", "Gallery.kt")
         assertThat(layer(UI).map { it.name }).contains("ViewerScreen.kt")
-        assertThat(layer(PLATFORM).map { it.name }).contains("ViewerActivity.kt")
+        assertThat(layer(APP).map { it.name }).contains("ViewerActivity.kt")
     }
 
     @Test
@@ -70,10 +70,10 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `Should ask the library for the window through the platform layer only`() {
+    fun `Should ask the library for the window through the app layer only`() {
         // Every call that changes the window itself goes through one file, so
         // "what does this sample do to the window" has a single answer.
-        assertOnlyInLayer(importedFrom = "io.github.damson.hardwareinsets.platform", layer = PLATFORM)
+        assertOnlyInLayer(importedFrom = "io.github.damson.hardwareinsets.platform", layer = APP)
     }
 
     private fun layer(prefix: String): List<File> =
@@ -112,6 +112,6 @@ class ArchitectureTest {
         const val SAMPLE = "io.github.damson.hardwareinsets.sample"
         const val MODEL = "io/github/damson/hardwareinsets/sample/model"
         const val UI = "io/github/damson/hardwareinsets/sample/ui"
-        const val PLATFORM = "io/github/damson/hardwareinsets/sample/platform"
+        const val APP = "io/github/damson/hardwareinsets/sample/app"
     }
 }
