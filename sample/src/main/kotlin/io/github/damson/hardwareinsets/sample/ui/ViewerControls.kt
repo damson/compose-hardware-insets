@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.damson.hardwareinsets.cornerClearance
 import io.github.damson.hardwareinsets.sample.R
@@ -78,4 +80,20 @@ internal fun StepButton(
             )
         }
     }
+}
+
+@Preview(name = "Settings trigger")
+@Composable
+internal fun OpenControlsPreview() = SamplePreview { OpenControls(onOpen = {}) }
+
+@Preview(name = "Step, enabled")
+@Composable
+internal fun StepButtonPreview() = SamplePreview {
+    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = true, onStep = {})
+}
+
+@Preview(name = "Step, at the end of the gallery")
+@Composable
+internal fun StepButtonDisabledPreview() = SamplePreview {
+    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onStep = {})
 }
