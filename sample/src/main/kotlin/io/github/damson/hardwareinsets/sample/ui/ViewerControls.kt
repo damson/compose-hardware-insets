@@ -104,5 +104,4 @@ internal fun StepButton(
     }
 }
 
-/** The trigger is a circle, at every size and in every state. */
 private val FAB_SHAPE = CircleShape

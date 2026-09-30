@@ -172,6 +172,9 @@ internal fun rememberCornerMovement(
     edge: ScreenEdge,
     isAtTheEnd: Boolean,
 ): CornerMovement {
+    // The padding counts. A control is moved only by the cutout rectangles
+    // that fall inside the width asked about, so the row's inset from the edge
+    // is part of the space it occupies, not a margin outside it.
     val width = with(LocalDensity.current) { (CORNER_PADDING + ACTIONS_WIDTH).roundToPx() }
     val clearance = cornerClearance(
         cutout.bounds,
