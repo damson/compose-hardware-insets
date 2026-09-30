@@ -35,9 +35,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.damson.hardwareinsets.domain.CutoutMode
 import io.github.damson.hardwareinsets.domain.CutoutShape
 import io.github.damson.hardwareinsets.domain.ScreenEdge
+import io.github.damson.hardwareinsets.domain.CutoutMode
 import io.github.damson.hardwareinsets.sample.R
 import io.github.damson.hardwareinsets.sample.model.ViewerOptions
 
