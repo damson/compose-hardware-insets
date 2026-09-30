@@ -58,7 +58,6 @@ internal fun Modifier.lifted(shape: Shape): Modifier {
     }
 }
 
-/** How far the lift falls below what it lifts. */
 private val LIFT_DROP = 2.dp
 
 /**

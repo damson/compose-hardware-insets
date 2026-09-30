@@ -84,5 +84,4 @@ internal fun CornerActions(
 
 internal val ACTIONS_WIDTH = 112.dp
 
-/** How far the corner row sits in from the window edge on every side. */
 internal val CORNER_PADDING = 16.dp
