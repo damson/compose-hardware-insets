@@ -97,8 +97,8 @@ val MaterialTheme.onPlaqueVariant: Color get() = Mist
 /**
  * The interface's own colour: what marks a control as a control.
  *
- * The chrome had been the plaque and nothing else, which is legible but silent:
- * on a busy plate a paper icon on ink is another mark among marks.
+ * A control in the plaque alone is legible but silent: on a busy plate a paper
+ * icon on ink is another mark among marks.
  *
  * It is 9.72:1 against the darkest plate and 1.34:1 against the palest, which
  * is the widest spread of the six that were tried on hardware, and the reason
