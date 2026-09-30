@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample.platform
+package io.github.damson.hardwareinsets.sample.app
 
 import android.content.Intent
 import android.hardware.display.DisplayManager

@@ -1,4 +1,4 @@
-package io.github.damson.hardwareinsets.sample.platform
+package io.github.damson.hardwareinsets.sample.app
 
 import android.os.Bundle
 import io.github.damson.hardwareinsets.sample.model.ViewerOptions
