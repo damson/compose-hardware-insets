@@ -51,9 +51,8 @@ import kotlin.math.roundToInt
  * @param rowMoved how far the corner row has been driven inward by hardware in
  *   its corner, which is room this label has to leave it.
  * @param shake where in its swing the favourite nudge is, in -1..1. The label
- *   answers
- *   with a shake, because it is the only thing on screen naming the plate the
- *   heart was pressed for.
+ *   answers the heart because it is the only thing on screen naming the plate
+ *   the heart was pressed for.
  */
 @Composable
 internal fun WallLabel(
@@ -155,10 +154,7 @@ internal fun WallLabel(
 /**
  * Where you are in the gallery, and that there is somewhere else to be.
  *
- * An indicator and not a control: a dot small enough to read as one is far
- * under the 48dp a touch target owes, and the gesture it would duplicate is the
- * swipe the whole screen already takes. The row carries the count for a screen
- * reader, because four shapes do not.
+ * The row carries the count for a screen reader, because four shapes do not.
  */
 @Composable
 private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
@@ -196,7 +192,6 @@ private fun anchorReadout(options: ViewerOptions, edge: ScreenEdge): String =
     if (options.anchor == edge) stringResource(R.string.anchored_to, options.anchor.name)
     else stringResource(R.string.anchored_to_now, options.anchor.name, edge.name)
 
-/** How far it swings at the widest point. */
 private val SHAKE_SWING = 12.dp
 
 /**
@@ -231,5 +226,4 @@ internal fun rememberLabelShake(shakes: Int): Float {
     return nudge.value
 }
 
-/** How long the label takes to answer the heart. */
 private const val SHAKE_MILLIS = 420
