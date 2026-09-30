@@ -38,9 +38,8 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
  * Tap the plate to put the controls away: the gesture every full-screen viewer
  * has, and the one that leaves the plate alone under the camera.
  *
- * No indication, because a ripple over a painting is a defect, and a click
- * label rather than a bare handler, because with the controls gone there is
- * nothing on the screen for a screen reader to describe.
+ * A click label rather than a bare handler, because with the controls gone
+ * there is nothing left on the screen for a screen reader to describe.
  */
 @Composable
 internal fun Modifier.togglingTheControls(

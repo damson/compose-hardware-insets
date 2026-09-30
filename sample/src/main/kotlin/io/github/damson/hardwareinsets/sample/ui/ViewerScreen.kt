@@ -222,9 +222,6 @@ fun ViewerScreen(
 /** How solid the sheet's frame is. It can be glass because no text sits on it. */
 internal const val SHEET_ALPHA = 0.55f
 
-/** How long the label takes to answer the heart. */
-private const val SHAKE_MILLIS = 420
-
 /**
  * A [Set] is not one of the types a `Bundle` carries, so the favourites travel
  * as the list they came from.

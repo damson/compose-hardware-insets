@@ -32,9 +32,8 @@ internal class Plate(
 /**
  * The works, in hanging order.
  *
- * Some are pale and some are dark on purpose. A label over artwork cannot take
- * its contrast from the colour scheme, because what is behind it is a painting
- * and not a surface, and a gallery of pale plates would never show it.
+ * Some are pale and some are dark on purpose: a gallery of one or the other
+ * would never show what the system bars do over the plate behind them.
  */
 internal val Plates = listOf(
     Plate(

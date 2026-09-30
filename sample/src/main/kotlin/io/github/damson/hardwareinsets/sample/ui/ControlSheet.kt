@@ -49,9 +49,6 @@ import io.github.damson.hardwareinsets.sample.model.ViewerOptions
  * stays put covers the bottom edge, and the bottom edge is one of the four this
  * screen exists to put things on: setting the anchor to `BOTTOM` would hide the
  * result behind the control that asked for it.
- *
- * Only the frame around the card stays see-through, which is enough to watch
- * the label move while you change what moves it.
  */
 @Composable
 fun ControlSheetContent(
@@ -64,8 +61,6 @@ fun ControlSheetContent(
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = CARD_ALPHA),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        // Over a pale plate the frame arrives at almost exactly the card's
-        // tone, and without this hairline the panel loses its edge entirely.
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = modifier
             .fillMaxWidth()
@@ -73,9 +68,8 @@ fun ControlSheetContent(
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp),
     ) {
-    // At a large font setting the last switches fall past the bottom of a
-    // half-height sheet. Without this they cannot be reached at all, and
-    // nothing about the layout says so.
+    // Scrollable because at a large font setting the last switches fall past
+    // the bottom of a half-height sheet, out of reach with nothing to say so.
     Column(
         Modifier
             .fillMaxWidth()
@@ -116,9 +110,6 @@ private fun Legend(cutout: CutoutShape) {
         Swatch(
             InsetMarker,
             stringResource(R.string.legend_depths),
-            // Tight rather than spaced: at a large font setting the spaced
-            // form wraps, and the last number lands on a line of its own where
-            // it reads as a different value.
             "T${cutout.topInset}  B${cutout.bottomInset}  " +
                 "L${cutout.leftInset}  R${cutout.rightInset}",
         )
@@ -147,8 +138,6 @@ private fun Swatch(color: Color, label: String, value: String) {
             label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelLarge,
-            // Wide enough for "Safe margins" at a large font setting, which
-            // otherwise wraps and drags its value out of line with the row above.
             modifier = Modifier.width(112.dp),
         )
         Text(
@@ -237,10 +226,6 @@ private fun Choice(
                     selected = index == selectedIndex,
                     onClick = { onSelect(index) },
                     shape = SegmentedButtonDefaults.itemShape(index, entries.size),
-                    // Material's check icon and default padding cost about
-                    // 50dp of a segment that is a quarter of a twice-inset
-                    // card, which renders "Bottom" as "Botto". The selected
-                    // container and the semantics both say which one it is.
                     icon = {},
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
                     label = { Text(entry, maxLines = 1, textAlign = TextAlign.Center) },
@@ -250,10 +235,6 @@ private fun Choice(
     }
 }
 
-/**
- * A settings row in the shape a real app uses: the option, what it does, and a
- * switch, with the whole row as the target rather than the switch alone.
- */
 @Composable
 private fun Setting(label: Int, detail: Int, isOn: Boolean, onChange: (Boolean) -> Unit) {
     ListItem(
