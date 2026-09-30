@@ -72,4 +72,19 @@ class CornerReservationTest {
         )
         assertThat(rowIsFurther).isEqualTo(buttonIsFurther).isEqualTo(48.dp + row)
     }
+
+    @Test
+    fun `a control on the other edge asks for nothing`() {
+        // The settings button lives on the bottom edge whatever the label does,
+        // so a top-anchored label passes zero for it. Counting it there
+        // reserved room for a control that is not on that edge.
+        assertThat(
+            reservedForTheCornerControls(
+                barInset = 48.dp,
+                everythingInset = 0.dp,
+                rowMoved = 0.dp,
+                applied = 0.dp,
+            ),
+        ).isEqualTo(48.dp + row)
+    }
 }
