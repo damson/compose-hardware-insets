@@ -35,8 +35,8 @@ enum class ScreenEdge {
 /**
  * Which edge of the screen a chosen edge of the device has become.
  *
- * @param rotation what `Display.getRotation()` last reported, which is one of
- *   the `Surface.ROTATION_*` constants and not a number of degrees.
+ * @param rotation how far the device is turned from upright, which a caller
+ *   reads off its own display with `Display.screenRotation`.
  * @return the screen edge this one has become. Always a horizontal edge, since
  *   a side only lays out along one.
  */
