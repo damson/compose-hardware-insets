@@ -13,12 +13,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
 /**
- * The one place that still reads `Surface.ROTATION_*`.
+ * The mapping off `Surface.ROTATION_*`, against the real constants.
  *
- * Everything above it takes a [ScreenRotation], so if this mapping is wrong the
- * error is invisible: a side-anchored control lands on a different edge and
- * nothing throws. It is also the whole point of the type, which is why it is
- * tested against the real constants rather than against a copy of them.
+ * Everything above [screenRotation] takes a [ScreenRotation], so a wrong
+ * mapping here is invisible: a side-anchored control lands on a different edge
+ * and nothing throws. Asserting against a copy of the constants would prove
+ * only that the copy matches itself.
  */
 @RunWith(RobolectricTestRunner::class)
 class ScreenRotationTest {
