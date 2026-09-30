@@ -1,7 +1,7 @@
 package io.github.damson.hardwareinsets.sample.platform
 
 import android.content.Intent
-import android.content.res.Configuration
+import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -65,9 +65,32 @@ class ViewerActivity : ComponentActivity() {
         cutout = insetHost.cutoutShape()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
+    // A configuration change is not enough on its own. Turning the device from
+    // one landscape to the other keeps the orientation, the size and the
+    // layout, so the Configuration can be identical and no callback arrives,
+    // while the rotation has gone from a quarter turn to three quarters and a
+    // side-anchored control belongs on the opposite edge. The display says so
+    // even when the configuration does not.
+    private val displayListener = object : DisplayManager.DisplayListener {
+        override fun onDisplayAdded(displayId: Int) = Unit
+
+        override fun onDisplayRemoved(displayId: Int) = Unit
+
+        override fun onDisplayChanged(displayId: Int) {
+            rotation = readRotation()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
         rotation = readRotation()
+        getSystemService(DisplayManager::class.java)
+            ?.registerDisplayListener(displayListener, null)
+    }
+
+    override fun onStop() {
+        getSystemService(DisplayManager::class.java)?.unregisterDisplayListener(displayListener)
+        super.onStop()
     }
 
     private fun readRotation(): ScreenRotation =

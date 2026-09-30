@@ -124,8 +124,6 @@ fun cornerClearance(
     val direction = LocalLayoutDirection.current
     val view = LocalView.current
     // The end corner under LTR is the visual right, exactly where the start
-    // corner is under RTL, so one flag serves the maths for both.
-    // The end corner under LTR is the visual right, exactly where the start
     // corner is under RTL, so the two flags collapse into one corner.
     val isAtTheRight = (direction == LayoutDirection.Rtl) != isAtTheEnd
     val corner = when {

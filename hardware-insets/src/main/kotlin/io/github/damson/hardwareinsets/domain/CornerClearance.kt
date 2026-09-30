@@ -18,12 +18,12 @@ import androidx.compose.ui.unit.IntSize
  * @param cutoutBounds the cutout rectangles, in window coordinates and pixels.
  * @param controlWidth how wide the control is, in pixels.
  * @param sideInset how far in from the near side the control already sits.
- * @param windowWidth the window's width in pixels, not the host view's.
- * @param windowHeight the window's height in pixels, not the host view's.
- * @param isRtl whether the control is measured from the right side rather than
- *   the left.
- * @param isAtTop whether the control is anchored to the top edge rather than
- *   the bottom one.
+ * @param windowSize the window's size in pixels, not the host view's. A view
+ *   inside a `wrap_content` host measures the host, and the rectangles above
+ *   are in window coordinates, so the two would not be in the same space.
+ * @param corner which corner of the window the control is tucked into, which
+ *   decides both the side the width is measured from and the edge a rectangle
+ *   has to touch to count.
  * @return the offset to place the control at, relative to its corner.
  */
 fun cornerClearanceFor(
