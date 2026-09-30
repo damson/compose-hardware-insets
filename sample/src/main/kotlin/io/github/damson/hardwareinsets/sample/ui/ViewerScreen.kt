@@ -50,6 +50,9 @@ import kotlinx.coroutines.launch
  *
  * @param cutout the live shape from the activity's sibling view. Passed in
  *   rather than read here, so this stays a function of its input.
+ * @param rotation where the display is turned to now, watched by the activity
+ *   for the same reason. A landscape flip fires no configuration change, so a
+ *   screen that read this once would go on laying out for the old one.
  * @param onBarsOver called with how pale the plate now showing is at the top
  *   and at the bottom. The system bars draw their icons over it, and with a
  *   transparent bar the platform has no idea what is underneath.
