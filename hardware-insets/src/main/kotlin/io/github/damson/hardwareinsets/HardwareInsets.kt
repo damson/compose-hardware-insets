@@ -123,8 +123,9 @@ fun cornerClearance(
     val density = LocalDensity.current
     val direction = LocalLayoutDirection.current
     val view = LocalView.current
-    // The end corner under LTR is the visual right, exactly where the start
-    // corner is under RTL, so the two flags collapse into one corner.
+    // Which corner this is takes the layout direction as well as the choice:
+    // the end corner is the visual right under LTR and the visual left under
+    // RTL, and a cutout is on one side or the other regardless.
     val isAtTheRight = (direction == LayoutDirection.Rtl) != isAtTheEnd
     val corner = when {
         position == ScreenEdge.TOP && isAtTheRight -> WindowCorner.TOP_RIGHT
