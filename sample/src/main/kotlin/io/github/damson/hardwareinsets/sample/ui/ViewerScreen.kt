@@ -353,12 +353,13 @@ private fun Modifier.clearOfTheBars(): Modifier = clearOfTheHardware(
  * gets the precise one.
  */
 @Composable
-private fun Modifier.clearOfEverything(): Modifier = clearOfTheHardware(
-    policy = HardwarePolicy(
-        isCutoutIncluded = true,
-        isWaterfallIncluded = true,
-        areSystemBarsIncluded = true,
-    ),
+private fun Modifier.clearOfEverything(): Modifier = clearOfTheHardware(policy = EverythingPolicy)
+
+/** The policy behind [clearOfEverything], named so the label can ask about it too. */
+private val EverythingPolicy = HardwarePolicy(
+    isCutoutIncluded = true,
+    isWaterfallIncluded = true,
+    areSystemBarsIncluded = true,
 )
 
 /**
@@ -542,7 +543,15 @@ private fun WallLabel(
     }
     val fromTheEdge =
         if (edge.isPlacedAtTheTop) bars.calculateTopPadding() else bars.calculateBottomPadding()
-    val reserved = reservedForTheCornerRow(fromTheEdge, rowMoved, applied)
+    // The two corner controls do not sit off the same thing. The row clears the
+    // bars; the settings button clears everything, so with the bars hidden and
+    // a cutout on this edge it is the one standing further in.
+    val everything = with(density) {
+        hardwareInsets(edge, EverythingPolicy).let {
+            if (edge.isPlacedAtTheTop) it.getTop(density).toDp() else it.getBottom(density).toDp()
+        }
+    }
+    val reserved = reservedForTheCornerControls(fromTheEdge, everything, rowMoved, applied)
 
     Box(
         modifier
@@ -829,21 +838,26 @@ private val CORNER_ROW = 88.dp
  * vertical one is not: a positive `y` is always downwards.
  */
 /**
- * How much further in the label has to sit to leave the corner row alone.
+ * How much further in the label has to sit to leave both corner controls alone.
  *
  * The two are counted from different origins, which is the whole difficulty:
- * the row is placed off the system bars whatever the policy says, and the label
- * is placed off whatever the policy does say. So the row's far side is
- * [barInset] plus its own height plus however far hardware in its corner has
- * driven it in ([rowMoved]), and the label has already been moved by [applied].
+ * the row is placed off the system bars whatever the policy says, the settings
+ * button off everything the window reports, and the label off whatever the
+ * policy does say. So the further of the two corner controls is [barInset] plus
+ * [rowMoved], or [everythingInset], plus its own height, and the label has
+ * already been moved by [applied].
  * Only the difference is left to pay, and it is never negative: where the
  * policy has already moved the label past the row there is nothing to reserve.
  *
  * Kept pure because the interesting cases are ones no emulator can produce: a
  * [rowMoved] above zero needs a cutout in the corner of the anchored edge.
  */
-internal fun reservedForTheCornerRow(barInset: Dp, rowMoved: Dp, applied: Dp): Dp =
-    (barInset + CORNER_ROW + rowMoved - applied).coerceAtLeast(0.dp)
+internal fun reservedForTheCornerControls(
+    barInset: Dp,
+    everythingInset: Dp,
+    rowMoved: Dp,
+    applied: Dp,
+): Dp = (maxOf(barInset + rowMoved, everythingInset) + CORNER_ROW - applied).coerceAtLeast(0.dp)
 
 internal fun IntOffset.awayFromTheHardware(edge: ScreenEdge, isAtTheEnd: Boolean): IntOffset =
     IntOffset(
