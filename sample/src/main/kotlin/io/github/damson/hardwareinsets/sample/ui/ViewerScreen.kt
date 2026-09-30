@@ -551,11 +551,10 @@ private fun WallLabel(
     // competes with a label anchored there. Counting it at the top reserved
     // room for a control that is not on that edge, and the label answered a
     // policy change it had no business answering.
-    val settingsButton = if (edge.isPlacedAtTheTop) {
-        0.dp
-    } else {
-        with(density) { hardwareInsets(edge, EverythingPolicy).getBottom(density).toDp() }
-    }
+    val settingsButton = settingsButtonReachOn(
+        edge,
+        with(density) { hardwareInsets(edge, EverythingPolicy).getBottom(density).toDp() },
+    )
     val reserved = reservedForTheCornerControls(fromTheEdge, settingsButton, rowMoved, applied)
 
     Box(
@@ -857,6 +856,19 @@ private val CORNER_ROW = 88.dp
  * Kept pure because the interesting cases are ones no emulator can produce: a
  * [rowMoved] above zero needs a cutout in the corner of the anchored edge.
  */
+/**
+ * How far in the settings button stands, as far as [edge]'s label is concerned.
+ *
+ * Zero unless the label shares the button's edge. The button sits at the bottom
+ * whatever the label does, so a top-anchored label has no room to leave it, and
+ * reserving some moved the label for a control that was not on its edge.
+ *
+ * Pulled out of the layout because the decision is the part that was wrong, and
+ * a test of the sum below cannot reach it.
+ */
+internal fun settingsButtonReachOn(edge: ScreenEdge, atTheBottom: Dp): Dp =
+    if (edge.isPlacedAtTheTop) 0.dp else atTheBottom
+
 internal fun reservedForTheCornerControls(
     barInset: Dp,
     everythingInset: Dp,

@@ -1,6 +1,7 @@
 package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.compose.ui.unit.dp
+import io.github.damson.hardwareinsets.domain.ScreenEdge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -74,17 +75,16 @@ class CornerReservationTest {
     }
 
     @Test
-    fun `a control on the other edge asks for nothing`() {
-        // The settings button lives on the bottom edge whatever the label does,
-        // so a top-anchored label passes zero for it. Counting it there
-        // reserved room for a control that is not on that edge.
-        assertThat(
-            reservedForTheCornerControls(
-                barInset = 48.dp,
-                everythingInset = 0.dp,
-                rowMoved = 0.dp,
-                applied = 0.dp,
-            ),
-        ).isEqualTo(48.dp + row)
+    fun `a top anchored label leaves nothing for the settings button`() {
+        // The button is on the bottom edge whatever the label does, and LEFT is
+        // placed at the top, so neither has the button beside it.
+        assertThat(settingsButtonReachOn(ScreenEdge.TOP, atTheBottom = 53.dp)).isEqualTo(0.dp)
+        assertThat(settingsButtonReachOn(ScreenEdge.LEFT, atTheBottom = 53.dp)).isEqualTo(0.dp)
+    }
+
+    @Test
+    fun `a bottom anchored label leaves the button its whole reach`() {
+        assertThat(settingsButtonReachOn(ScreenEdge.BOTTOM, atTheBottom = 53.dp)).isEqualTo(53.dp)
+        assertThat(settingsButtonReachOn(ScreenEdge.RIGHT, atTheBottom = 53.dp)).isEqualTo(53.dp)
     }
 }
