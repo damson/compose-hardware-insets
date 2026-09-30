@@ -3,11 +3,9 @@ package io.github.damson.hardwareinsets.domain
 /**
  * Which corner of the window a control is tucked into.
  *
- * One value instead of the pair of booleans this replaces. Those were
- * `isRtl` and `isAtTop`, and the first was not the layout direction: it meant
- * "against the right edge", which is the start corner under RTL. A caller
- * reading the name and passing the layout direction got a confident answer
- * about the wrong corner.
+ * Named by the physical edges rather than by start and end, because a camera
+ * is at a place on the screen and does not move with the layout direction.
+ * Under a right-to-left layout the start corner is `TOP_RIGHT`.
  */
 enum class WindowCorner {
     TOP_LEFT,
