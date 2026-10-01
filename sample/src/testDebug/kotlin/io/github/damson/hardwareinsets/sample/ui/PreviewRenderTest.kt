@@ -2,8 +2,11 @@ package io.github.damson.hardwareinsets.sample.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onRoot
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +44,25 @@ class PreviewRenderTest {
 
     private fun render(preview: @Composable () -> Unit) {
         compose.setContent { preview() }
-        compose.onRoot().assertExists()
+        // Not `onRoot().assertExists()`. A root exists the moment `setContent`
+        // returns, so asserting it proves only what `setContent` already proved
+        // by not throwing. A preview that composes and emits nothing is the
+        // failure worth catching, and it is the one a reader of the file cannot
+        // see: the IDE shows them an empty rectangle either way.
+        assertThat(compose.onAllNodes(readable, useUnmergedTree = true).fetchSemanticsNodes())
+            .describedAs("the preview emitted nothing a reader could see")
+            .isNotEmpty()
+    }
+
+    private companion object {
+        /**
+         * Something on screen with words on it: every preview here has text, an
+         * icon with a description, or a described painting.
+         */
+        val readable = SemanticsMatcher("carries text or a content description") { node ->
+            node.config.getOrNull(SemanticsProperties.Text)?.isNotEmpty() == true ||
+                node.config.getOrNull(SemanticsProperties.ContentDescription)?.isNotEmpty() == true
+        }
     }
 
     @Test

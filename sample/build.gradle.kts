@@ -27,7 +27,6 @@ android {
 
     testOptions {
         unitTests {
-            // The previews reach for drawables and strings.
             isIncludeAndroidResources = true
 
             all {
