@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import android.view.View

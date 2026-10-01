@@ -1,7 +1,7 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

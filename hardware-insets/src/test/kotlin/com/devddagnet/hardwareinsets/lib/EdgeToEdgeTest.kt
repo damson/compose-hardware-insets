@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Color.TRANSPARENT
 import android.os.Build
@@ -18,9 +18,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import com.devddagnet.hardwareinsets.domain.CutoutMode
-import com.devddagnet.hardwareinsets.platform.drawBehindTheHardware
-import com.devddagnet.hardwareinsets.platform.hideTheSystemBars
+import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
+import com.devddagnet.hardwareinsets.lib.platform.drawBehindTheHardware
+import com.devddagnet.hardwareinsets.lib.platform.hideTheSystemBars
 
 /**
  * Two decisions that arrive together and are not the same one.

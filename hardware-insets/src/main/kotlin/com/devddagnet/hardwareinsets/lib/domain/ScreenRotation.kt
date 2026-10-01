@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets.domain
+package com.devddagnet.hardwareinsets.lib.domain
 
 /**
  * How far the device is turned from its natural orientation.

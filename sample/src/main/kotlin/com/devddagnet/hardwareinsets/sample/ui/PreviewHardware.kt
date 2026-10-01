@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.devddagnet.hardwareinsets.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
 
 /**
  * Hardware to lay a preview out against, which is the argument this library

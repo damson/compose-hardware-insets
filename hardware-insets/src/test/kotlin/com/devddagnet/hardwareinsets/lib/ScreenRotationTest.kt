@@ -1,10 +1,10 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.view.Surface
 import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
-import com.devddagnet.hardwareinsets.domain.ScreenRotation
-import com.devddagnet.hardwareinsets.platform.screenRotation
+import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
+import com.devddagnet.hardwareinsets.lib.platform.screenRotation
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

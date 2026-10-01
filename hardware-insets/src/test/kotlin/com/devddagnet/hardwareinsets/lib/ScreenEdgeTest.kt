@@ -1,10 +1,10 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.domain.ScreenRotation
-import com.devddagnet.hardwareinsets.domain.onScreenAt
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
+import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
 
 /**
  * The mapping from the edge the user named to the edge the layout uses.

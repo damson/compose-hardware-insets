@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.cornerClearance
+import com.devddagnet.hardwareinsets.lib.cornerClearance
 import com.devddagnet.hardwareinsets.sample.R
 
 /** The way into the sheet: the only control here that demonstrates nothing. */

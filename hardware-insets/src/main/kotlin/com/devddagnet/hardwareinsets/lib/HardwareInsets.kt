@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,12 +15,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import com.devddagnet.hardwareinsets.domain.CutoutShape
-import com.devddagnet.hardwareinsets.domain.HardwarePolicy
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.domain.WindowCorner
-import com.devddagnet.hardwareinsets.domain.cornerClearanceFor
-import com.devddagnet.hardwareinsets.platform.cutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.WindowCorner
+import com.devddagnet.hardwareinsets.lib.domain.cornerClearanceFor
+import com.devddagnet.hardwareinsets.lib.platform.cutoutShape
 
 /**
  * How far content has to stay off each edge to clear the hardware there.

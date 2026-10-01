@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets.domain
+package com.devddagnet.hardwareinsets.lib.domain
 
 /**
  * What a hidden system bar does when the user reaches for it.

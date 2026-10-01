@@ -32,10 +32,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.devddagnet.hardwareinsets.domain.CutoutShape
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.domain.ScreenRotation
-import com.devddagnet.hardwareinsets.domain.onScreenAt
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
+import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.Plates
 import com.devddagnet.hardwareinsets.sample.model.ViewerOptions

@@ -36,9 +36,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.domain.CutoutMode
-import com.devddagnet.hardwareinsets.domain.CutoutShape
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 

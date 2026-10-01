@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import android.view.View
@@ -31,8 +31,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.domain.HardwarePolicy
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
 
 /**
  * The contents' half of edge-to-edge. A surface covers the hardware and so

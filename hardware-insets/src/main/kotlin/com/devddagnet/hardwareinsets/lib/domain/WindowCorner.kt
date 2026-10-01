@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets.domain
+package com.devddagnet.hardwareinsets.lib.domain
 
 /**
  * Which corner of the window a control is tucked into.

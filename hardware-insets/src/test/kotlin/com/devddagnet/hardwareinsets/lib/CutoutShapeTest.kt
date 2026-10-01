@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import android.widget.FrameLayout
@@ -12,9 +12,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import com.devddagnet.hardwareinsets.domain.CutoutShape
-import com.devddagnet.hardwareinsets.platform.cutoutShape
-import com.devddagnet.hardwareinsets.platform.stopReportingCutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.platform.cutoutShape
+import com.devddagnet.hardwareinsets.lib.platform.stopReportingCutoutShape
 
 /**
  * The handle avoids a camera by its shape rather than by its inset, so where the

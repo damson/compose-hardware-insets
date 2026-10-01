@@ -81,7 +81,7 @@ class ArchitectureTest {
     fun `Should ask the library for the window through the app layer only`() {
         // Every call that changes the window itself goes through one file, so
         // "what does this sample do to the window" has a single answer.
-        assertOnlyInLayer(importedFrom = "com.devddagnet.hardwareinsets.platform", layer = APP)
+        assertOnlyInLayer(importedFrom = "com.devddagnet.hardwareinsets.lib.platform", layer = APP)
     }
 
     private fun layer(prefix: String): List<File> =

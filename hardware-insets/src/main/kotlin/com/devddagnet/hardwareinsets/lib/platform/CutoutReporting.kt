@@ -1,11 +1,11 @@
-package com.devddagnet.hardwareinsets.platform
+package com.devddagnet.hardwareinsets.lib.platform
 
 import android.graphics.Rect
 import android.view.View
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.view.ViewCompat
-import com.devddagnet.hardwareinsets.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
 
 /**
  * The window's [CutoutShape] as Compose state, refreshed on every inset

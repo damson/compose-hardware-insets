@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import java.io.File
 import org.assertj.core.api.Assertions.assertThat
@@ -157,8 +157,8 @@ class ArchitectureTest {
         /** A name spelled out in code rather than imported, of the roots that matter here. */
         val QUALIFIED = Regex("""\b(?:android|androidx|io\.github\.damson\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""")
 
-        const val LIBRARY = "com.devddagnet.hardwareinsets"
-        const val DOMAIN = "com/devddagnet/hardwareinsets/domain"
-        const val PLATFORM = "com/devddagnet/hardwareinsets/platform"
+        const val LIBRARY = "com.devddagnet.hardwareinsets.lib"
+        const val DOMAIN = "com/devddagnet/hardwareinsets/lib/domain"
+        const val PLATFORM = "com/devddagnet/hardwareinsets/lib/platform"
     }
 }

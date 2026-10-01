@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets.domain
+package com.devddagnet.hardwareinsets.lib.domain
 
 /**
  * An edge content can be anchored to.

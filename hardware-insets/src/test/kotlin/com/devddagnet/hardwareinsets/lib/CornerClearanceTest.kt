@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets
+package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import androidx.compose.ui.unit.IntOffset
@@ -7,8 +7,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import androidx.compose.ui.unit.IntSize
-import com.devddagnet.hardwareinsets.domain.WindowCorner
-import com.devddagnet.hardwareinsets.domain.cornerClearanceFor
+import com.devddagnet.hardwareinsets.lib.domain.WindowCorner
+import com.devddagnet.hardwareinsets.lib.domain.cornerClearanceFor
 
 /**
  * A corner control sits in the corner of whichever edge it is anchored to, and

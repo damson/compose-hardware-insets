@@ -11,11 +11,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.clearOfTheHardware
-import com.devddagnet.hardwareinsets.cornerClearance
-import com.devddagnet.hardwareinsets.domain.CutoutShape
-import com.devddagnet.hardwareinsets.domain.HardwarePolicy
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.clearOfTheHardware
+import com.devddagnet.hardwareinsets.lib.cornerClearance
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import kotlin.math.abs
 
 /**

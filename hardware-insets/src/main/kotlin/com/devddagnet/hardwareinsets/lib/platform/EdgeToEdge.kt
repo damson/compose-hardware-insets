@@ -1,4 +1,4 @@
-package com.devddagnet.hardwareinsets.platform
+package com.devddagnet.hardwareinsets.lib.platform
 
 import android.os.Build
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
@@ -11,8 +11,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.devddagnet.hardwareinsets.domain.BarBehavior
-import com.devddagnet.hardwareinsets.domain.CutoutMode
+import com.devddagnet.hardwareinsets.lib.domain.BarBehavior
+import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
 
 /**
  * Lays the window out behind the system bars and the display cutout, so content

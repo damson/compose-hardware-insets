@@ -1,10 +1,10 @@
 package com.devddagnet.hardwareinsets.sample.model
 
 import androidx.compose.runtime.Immutable
-import com.devddagnet.hardwareinsets.domain.HardwarePolicy
-import com.devddagnet.hardwareinsets.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.domain.onScreenAt
-import com.devddagnet.hardwareinsets.domain.CutoutMode
+import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
+import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
 
 /**
  * Every decision the library leaves to its caller, in one place.

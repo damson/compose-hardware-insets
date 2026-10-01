@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.devddagnet.hardwareinsets"
+    namespace = "com.devddagnet.hardwareinsets.lib"
     compileSdk = 36
 
     defaultConfig {

@@ -1,8 +1,8 @@
-package com.devddagnet.hardwareinsets.platform
+package com.devddagnet.hardwareinsets.lib.platform
 
 import android.view.Display
 import android.view.Surface
-import com.devddagnet.hardwareinsets.domain.ScreenRotation
+import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
 
 /**
  * The display's rotation, named.
