@@ -245,7 +245,7 @@ private val FavouritesSaver = listSaver<Set<Int>, Int>(
  */
 @Preview(name = "A camera in the corner", showSystemUi = true)
 @Composable
-internal fun ViewerScreenPreview() = SampleTheme {
+private fun ViewerScreenPreview() = SampleTheme {
     ViewerScreen(
         cutout = PreviewHardware.cameraInTheCorner,
         options = ViewerOptions(),
@@ -258,7 +258,7 @@ internal fun ViewerScreenPreview() = SampleTheme {
 
 @Preview(name = "A punch-hole in the middle", showSystemUi = true)
 @Composable
-internal fun ViewerScreenCentredHolePreview() = SampleTheme {
+private fun ViewerScreenCentredHolePreview() = SampleTheme {
     ViewerScreen(
         cutout = PreviewHardware.centredPunchHole,
         options = ViewerOptions(),
@@ -271,7 +271,7 @@ internal fun ViewerScreenCentredHolePreview() = SampleTheme {
 
 @Preview(name = "Curved edges, no camera", showSystemUi = true)
 @Composable
-internal fun ViewerScreenCurvedPreview() = SampleTheme {
+private fun ViewerScreenCurvedPreview() = SampleTheme {
     ViewerScreen(
         cutout = PreviewHardware.curvedEdges,
         options = ViewerOptions(anchor = ScreenEdge.BOTTOM),
@@ -284,7 +284,7 @@ internal fun ViewerScreenCurvedPreview() = SampleTheme {
 
 @Preview(name = "Nothing in the way", showSystemUi = true)
 @Composable
-internal fun ViewerScreenWithoutHardwarePreview() = SampleTheme {
+private fun ViewerScreenWithoutHardwarePreview() = SampleTheme {
     ViewerScreen(
         cutout = PreviewHardware.none,
         options = ViewerOptions(areMarkersShown = false),

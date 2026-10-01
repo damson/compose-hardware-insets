@@ -85,7 +85,7 @@ internal val CORNER_PADDING = 16.dp
 
 @Preview(name = "Corner row")
 @Composable
-internal fun CornerActionsPreview() = SamplePreview {
+private fun CornerActionsPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset.Zero,
         edge = ScreenEdge.TOP,
@@ -98,7 +98,7 @@ internal fun CornerActionsPreview() = SamplePreview {
 
 @Preview(name = "Corner row, favourited and stepped clear of a camera")
 @Composable
-internal fun CornerActionsClearPreview() = SamplePreview {
+private fun CornerActionsClearPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset(x = 0, y = 126),
         edge = ScreenEdge.TOP,

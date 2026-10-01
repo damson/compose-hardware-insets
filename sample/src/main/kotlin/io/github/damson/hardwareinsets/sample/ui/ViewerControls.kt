@@ -84,16 +84,16 @@ internal fun StepButton(
 
 @Preview(name = "Settings trigger")
 @Composable
-internal fun OpenControlsPreview() = SamplePreview { OpenControls(onOpen = {}) }
+private fun OpenControlsPreview() = SamplePreview { OpenControls(onOpen = {}) }
 
 @Preview(name = "Step, enabled")
 @Composable
-internal fun StepButtonPreview() = SamplePreview {
+private fun StepButtonPreview() = SamplePreview {
     StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = true, onStep = {})
 }
 
 @Preview(name = "Step, at the end of the gallery")
 @Composable
-internal fun StepButtonDisabledPreview() = SamplePreview {
+private fun StepButtonDisabledPreview() = SamplePreview {
     StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onStep = {})
 }

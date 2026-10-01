@@ -266,7 +266,7 @@ private fun Label(text: String) {
 
 @Preview(name = "Controls, over a camera in the corner", heightDp = 900)
 @Composable
-internal fun ControlSheetPreview() = SamplePreview(alignment = Alignment.BottomStart) {
+private fun ControlSheetPreview() = SamplePreview(alignment = Alignment.BottomStart) {
     ControlSheetContent(
         cutout = PreviewHardware.cameraInTheCorner,
         options = ViewerOptions(),
@@ -276,7 +276,7 @@ internal fun ControlSheetPreview() = SamplePreview(alignment = Alignment.BottomS
 
 @Preview(name = "Controls, on a phone with nothing in the way", heightDp = 900)
 @Composable
-internal fun ControlSheetWithoutHardwarePreview() = SamplePreview(alignment = Alignment.BottomStart) {
+private fun ControlSheetWithoutHardwarePreview() = SamplePreview(alignment = Alignment.BottomStart) {
     ControlSheetContent(
         cutout = PreviewHardware.none,
         options = ViewerOptions(),

@@ -232,7 +232,7 @@ private const val SHAKE_MILLIS = 420
 
 @Preview(name = "Label, anchored to the top", widthDp = 400)
 @Composable
-internal fun WallLabelPreview() = SamplePreview(alignment = Alignment.TopStart) {
+private fun WallLabelPreview() = SamplePreview(alignment = Alignment.TopStart) {
     WallLabel(
         plate = Plates.first(),
         number = 1,
@@ -246,7 +246,7 @@ internal fun WallLabelPreview() = SamplePreview(alignment = Alignment.TopStart) 
 
 @Preview(name = "Label, anchored to the bottom", widthDp = 400)
 @Composable
-internal fun WallLabelAtTheBottomPreview() = SamplePreview(alignment = Alignment.BottomStart) {
+private fun WallLabelAtTheBottomPreview() = SamplePreview(alignment = Alignment.BottomStart) {
     WallLabel(
         plate = Plates.first(),
         number = 1,
@@ -260,7 +260,7 @@ internal fun WallLabelAtTheBottomPreview() = SamplePreview(alignment = Alignment
 
 @Preview(name = "Label, leaving room for a corner row on hardware", widthDp = 400)
 @Composable
-internal fun WallLabelBesideTheCornerPreview() = SamplePreview(alignment = Alignment.TopStart) {
+private fun WallLabelBesideTheCornerPreview() = SamplePreview(alignment = Alignment.TopStart) {
     WallLabel(
         plate = Plates.first(),
         number = 1,
@@ -274,7 +274,7 @@ internal fun WallLabelBesideTheCornerPreview() = SamplePreview(alignment = Align
 
 @Preview(name = "Label, mid shake", widthDp = 400)
 @Composable
-internal fun WallLabelShakingPreview() = SamplePreview(alignment = Alignment.TopStart) {
+private fun WallLabelShakingPreview() = SamplePreview(alignment = Alignment.TopStart) {
     WallLabel(
         plate = Plates.first(),
         number = 1,

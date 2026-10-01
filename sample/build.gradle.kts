@@ -25,22 +25,6 @@ android {
         compose = true
     }
 
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-
-            all {
-                // Robolectric reaches jdk.internal.access to set up the
-                // application state, which java.base exports to nobody. Without
-                // this every Robolectric test dies before it runs, with
-                // "Failed to interact with raw FileDescriptor internals;
-                // perhaps JRE has changed?", which names neither the module nor
-                // the flag.
-                it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
-            }
-        }
-    }
-
     buildTypes {
         release {
             // Unsigned, and never released. The sample exists to be run and
@@ -74,17 +58,8 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    // Merges a ComponentActivity into the debug manifest, which the preview
-    // render test launches into. As testImplementation the AAR is on the
-    // classpath but its manifest is not merged, and the test dies resolving
-    // an activity that is genuinely not declared anywhere.
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     testImplementation(composeBom)
     testImplementation(libs.junit)
     testImplementation(libs.assertj)
-    // The previews are composed by a test, because nothing else opens them.
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.androidx.compose.ui.test.junit4)
 }
