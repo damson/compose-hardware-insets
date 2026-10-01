@@ -4,17 +4,20 @@ name: Release artifacts
 # needs a release object to attach to, and a tag push can arrive before one
 # exists. Publishing a release always implies its tag.
 #
-# Three things this event does not do, none of which it can be made to do here:
-# editing a published release fires `edited`, not `published`, so a correction
-# never re-attaches; a tag pushed without a release produces no run at all, and
-# JitPack will still build that tag, so it is served with no assets; and a release
-# created by anything authenticating as GITHUB_TOKEN produces no run, so
-# automating release creation would silently stop the attachment with no failing
-# check to notice it.
+# **This file has to be in the tagged commit, not just on the default branch.** A
+# run uses the workflow present at the ref the event carries, and for a release
+# that ref is the tag; the release event is one of the ones with no default-branch
+# fallback. Releases here are tagged on `main`, so a promotion that has not reached
+# `main` yet means a release that attaches nothing, with no failing check to say so.
+# `CONTRIBUTING.md` puts that in the release procedure.
 #
-# The file is read from the default branch whatever the release targets, which is
-# documented behaviour for every event but push and pull_request. It does not need
-# to exist on `main`.
+# `published` fires for a pre-release too, including one published from a draft, so
+# a release candidate gets the same five files. Three things this event does not do,
+# none of them fixable from here: editing a published release fires `edited`, so a
+# correction never re-attaches; a tag pushed with no release produces no run, and
+# JitPack serves that tag with no assets; and a release created by anything
+# authenticating as GITHUB_TOKEN produces no run at all, so automating release
+# creation would silently stop the attachment.
 on:
   release:
     types: [published]

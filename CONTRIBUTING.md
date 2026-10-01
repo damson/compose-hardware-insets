@@ -52,6 +52,11 @@ re-cut.
 **The tag carries no `v`.** JitPack's coordinate is the tag itself, so `v0.2.0` would be served as
 version `v0.2.0` while every file and the README say `0.2.0`.
 
+**Promote to `main` before tagging there.** A workflow run uses the file present at the ref the event
+carries, and for a release that ref is the tag, with no fall back to the default branch. So a tag whose
+commit predates `.github/workflows/release.yml` publishes a release that attaches nothing, and no check
+goes red to say so.
+
 Then publish a release for the tag. Attaching the artifacts is automatic from there, and two of them
 come with caveats worth knowing before anyone relies on them.
 
@@ -62,5 +67,6 @@ come with caveats worth knowing before anyone relies on them.
   it needs.
 - **The sample apk is debug-signed, and every release's is signed by a different key.** The runner
   generates one when none exists, so consecutive samples cannot upgrade over each other: uninstall the
-  previous one first. It is also debuggable and unminified, which is fine for reading and is not a
+  previous one first. Its `versionCode` is 1 and stays there, which would block an upgrade on its own
+  even if the keys matched. It is also debuggable and unminified, which is fine for reading and is not a
   release build of anything.
