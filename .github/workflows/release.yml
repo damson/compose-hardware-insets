@@ -1,0 +1,85 @@
+name: Release artifacts
+
+# On the release being published rather than on the tag being pushed: the upload
+# needs a release object to attach to, and a tag push can arrive before one
+# exists. Publishing a release always implies its tag.
+on:
+  release:
+    types: [published]
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # The only job in this repository that writes. Scoped here rather than at the
+    # workflow level, so the rest stays read-only.
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The tag, not the default branch: a release is a statement about one
+          # commit, and the default branch has usually moved on by now.
+          ref: ${{ github.event.release.tag_name }}
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: The tag and the published version agree
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          declared=$(sed -n 's/^ *version = "\(.*\)"$/\1/p' hardware-insets/build.gradle.kts)
+          if [ -z "$declared" ]; then
+            echo "No version found in hardware-insets/build.gradle.kts" >&2
+            exit 1
+          fi
+          # A tag that disagrees with the publication is the mistake worth failing
+          # on: the artifacts would carry one number and the release page another,
+          # and JitPack builds from the tag.
+          if [ "$declared" != "${TAG#v}" ]; then
+            echo "Tag $TAG does not match the published version $declared" >&2
+            exit 1
+          fi
+          echo "VERSION=$declared" >> "$GITHUB_ENV"
+
+      - name: Build the library and the sample
+        # publishToMavenLocal rather than assembleRelease: it writes the aar, the
+        # sources jar and the pom under one versioned directory with stable names,
+        # where assembleRelease leaves the sources jar in an intermediates path
+        # that moves between AGP versions.
+        run: ./gradlew :hardware-insets:publishToMavenLocal :sample:assembleDebug --stacktrace
+
+      - name: Collect them, and fail on anything missing
+        run: |
+          set -eu
+          out=artifacts
+          mkdir -p "$out"
+          m2="$HOME/.m2/repository/com/devddagnet/hardware-insets/$VERSION"
+          # The sample ships debug-signed, which is what makes it installable
+          # without anyone generating a key. Its release build is unsigned on
+          # purpose and is not published anywhere.
+          cp "$m2/hardware-insets-$VERSION.aar"          "$out/"
+          cp "$m2/hardware-insets-$VERSION-sources.jar"  "$out/"
+          cp sample/build/outputs/apk/debug/sample-debug.apk \
+             "$out/hardware-insets-sample-$VERSION.apk"
+          # An empty file uploads as happily as a real one, and reads as a
+          # corrupt download rather than as a broken build.
+          for f in "$out"/*; do
+            [ -s "$f" ] || { echo "$f is empty" >&2; exit 1; }
+          done
+          ls -l "$out"
+
+      - name: Attach them to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        # --clobber so re-running this job replaces the assets instead of failing
+        # on a name that already exists.
+        run: gh release upload "$TAG" artifacts/* --clobber --repo "$GITHUB_REPOSITORY"
