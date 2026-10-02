@@ -10,7 +10,7 @@ binaryCompatibility = "0.18.1"
 kover = "0.9.11"
 
 activity = "1.13.0"
-composeBom = "2026.06.01"
+composeBom = "2026.09.00"
 coreKtx = "1.18.0"
 
 assertj = "3.27.7"
