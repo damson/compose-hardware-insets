@@ -18,6 +18,13 @@ overall at 90% of lines and 85% of branches.
 the API 36 jar refuses to load under anything earlier. On JDK 17 every test fails in setup with
 `Failed to create a Robolectric sandbox`, which reads like broken tests rather than a wrong JDK.
 
+## Branches
+
+Gitflow, on two long-lived branches. `develop` integrates and `main` carries releases, so a change is
+cut from `develop` as `feature/<what-it-does>` and merged back into it; `release/` and `hotfix/` are the
+other two prefixes gitflow defines. Nothing enforces this, which is how the history above it ended up
+with four other prefixes.
+
 ## What a change needs
 
 - **A test that has been seen failing.** Break what your new test guards, watch it go red, put it
@@ -61,9 +68,15 @@ carries, and for a release that ref is the tag, with no fall back to the default
 commit predates `.github/workflows/release.yml` publishes a release that attaches nothing, and no check
 goes red to say so.
 
-Then publish a release for the tag. Attaching the artifacts and publishing the API reference are both
-automatic from there, and two of the artifacts come with caveats worth knowing before anyone relies on
-them.
+Then publish a release for the tag. Attaching the artifacts is automatic from there, and two of them
+come with caveats worth knowing before anyone relies on them.
+
+**The API reference needs two repository settings that no workflow can set for itself**, and until both
+exist the documentation job fails rather than publishing. Pages has to be enabled with "GitHub Actions"
+as its source, and the `github-pages` environment has to allow deploying from a tag: GitHub creates that
+environment limited to the default branch, and a release run's ref is a tag, so the deploy is refused
+with a message naming a branch for a tag. A manual run of the workflow from a branch works before
+either, which is the way to prove the setup.
 
 - **The aar is for reading and archiving. JitPack is how you depend on this.** The aar's own
   coordinates are `com.devddagnet:hardware-insets`, which resolves nowhere, and JitPack serves

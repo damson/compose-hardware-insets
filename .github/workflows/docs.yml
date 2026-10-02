@@ -1,24 +1,35 @@
 name: API documentation
 
-# On a published release, like the artifacts workflow and for the same reason: the
-# docs describe a version, so they are generated from the tag that names one rather
-# than from whatever the default branch holds today.
+# **This file has to be in the tagged commit**, exactly as `release.yml` says of
+# itself: a run uses the workflow present at the ref the event carries, and for a
+# release that ref is the tag. `CONTRIBUTING.md` carries it as a release step, and
+# an earlier version of this comment claimed the opposite.
 #
-# This file is read from the default branch, not from the tagged commit, which is
-# documented for every event except push and pull_request. It is the one difference
-# from `release.yml`, which needs the commit and takes it with `ref:`.
+# Two one-time repository settings this cannot do for itself, and without which it
+# fails rather than publishing:
+#
+#   1. Pages enabled, with "GitHub Actions" as the source. `configure-pages` offers
+#      an `enablement` input and its own description rules it out here: "This option
+#      requires a token other than GITHUB_TOKEN". Enabling goes through
+#      `administration:write`, which is not in the `permissions:` vocabulary at all.
+#   2. The `github-pages` environment allowed to deploy from a tag. GitHub creates
+#      it limited to the default branch, and a release run's ref is a tag, so the
+#      deploy is refused with `Branch "0.2.0" is not allowed to deploy to
+#      github-pages`, naming a branch for a tag. Settings, Environments,
+#      github-pages, add a deployment branch and tag rule of type Tag.
 on:
   release:
     types: [published]
-  # So the first publish does not have to wait for a release, and so a broken Pages
-  # setup can be found on purpose rather than at the next tag.
+  # A manual run publishes whichever ref is chosen, which is a branch by default and
+  # therefore the one path that works before setting 2 above. Useful for proving the
+  # setup, and it pins the source links to that ref rather than to a release.
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# One deployment at a time, and never cancelled halfway: a cancelled deploy can
-# leave the site on a half-written commit.
+# One deployment at a time, never cancelled halfway: a cancelled deploy can leave
+# the site on a half-written commit.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -29,8 +40,8 @@ jobs:
     timeout-minutes: 20
 
     permissions:
-      # `pages: write` and `id-token: write` are what the deployment needs, and
-      # `contents` stays read: nothing here pushes to the repository.
+      # `contents` stays read: this pushes nothing to the repository, so unlike
+      # `release.yml` there is no write token to keep off the disk.
       contents: read
       pages: write
       id-token: write
@@ -42,8 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The release's tag for a release, and the default branch for a manual
-          # run, which is what `github.ref_name` already resolves to in each case.
           ref: ${{ github.ref_name }}
           persist-credentials: false
 
@@ -55,25 +64,26 @@ jobs:
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Generate
-        # The source ref is passed in so every "source" link on the page points at
-        # the commit the page documents. Without it the links follow `develop` and
-        # rot the moment it moves.
-        run: ./gradlew :hardware-insets:dokkaGeneratePublicationHtml -PdokkaSourceRef=${{ github.ref_name }} --stacktrace
+        env:
+          # Through the environment and quoted at the point of use, for the reason
+          # `release.yml` gives: `${{ }}` is substituted into the script text before
+          # bash sees it, and `git check-ref-format` accepts `$(`, backticks, `;`
+          # and `&&` in a ref name.
+          REF: ${{ github.ref_name }}
+        run: ./gradlew :hardware-insets:dokkaGeneratePublicationHtml "-PdokkaSourceRef=$REF" --stacktrace
 
-      - name: There is something to publish
-        # Dokka succeeds on an empty source set, and an empty site deploys as
-        # happily as a real one. This fails instead.
-        run: |
-          set -eu
-          out=hardware-insets/build/dokka/html
-          [ -s "$out/index.html" ] || { echo "no index.html in $out" >&2; exit 1; }
-          grep -q "clearOfTheHardware" "$out/navigation.html" \
-            || { echo "the entry point is not in the navigation" >&2; exit 1; }
+      - name: The site documents this ref
+        env:
+          REF: ${{ github.ref_name }}
+        # Not a check that Dokka ran, which its exit status already proved. Dokka
+        # writes a 10KB index.html carrying 446 characters of text even when it
+        # documents nothing, so file existence asserts almost nothing. These two
+        # assert the feature: that declarations have pages, and that their source
+        # links point at the ref being published rather than at whatever a cached
+        # earlier run pinned.
+        run: ./.github/scripts/check-docs.sh hardware-insets/build/dokka/html "$REF"
 
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-        with:
-          # So the first run does not need Pages turned on by hand first.
-          enablement: true
 
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

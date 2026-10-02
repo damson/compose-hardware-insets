@@ -4,7 +4,6 @@
 [![CI](https://github.com/damson/compose-hardware-insets/actions/workflows/ci.yml/badge.svg)](https://github.com/damson/compose-hardware-insets/actions/workflows/ci.yml)
 [![API 23+](https://img.shields.io/badge/API-23%2B-brightgreen)](#supported)
 [![Licence](https://img.shields.io/github/license/damson/compose-hardware-insets)](LICENSE)
-[![API docs](https://img.shields.io/badge/API-reference-blue)](https://damson.github.io/compose-hardware-insets/)
 
 Compose tells you how deep the display cutout goes into each edge. It does not tell you **where**
 the camera is, so there is no supported way to ask whether the hardware is actually in the way of
@@ -140,12 +139,6 @@ Three things writing it proved:
   the only symptom of getting that wrong is a clock nobody can read.
 
 The first two are on the roadmap. The third is what those two parameters are for.
-
-## API documentation
-
-[The generated reference](https://damson.github.io/compose-hardware-insets/), published on every
-release and pinned to that release's tag: the "source" link beside a declaration points at the code
-that version shipped, not at whatever `develop` holds now.
 
 ## Supported
 
