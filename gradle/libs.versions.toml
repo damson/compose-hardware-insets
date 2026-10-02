@@ -15,7 +15,7 @@ activity = "1.13.0"
 # which requires compileSdk 37, which needs AGP 9 and Gradle 9.6. All three move
 # together or none of them do.
 composeBom = "2026.06.01"
-coreKtx = "1.18.0"
+coreKtx = "1.19.1"
 
 assertj = "3.27.7"
 junit = "4.13.2"
