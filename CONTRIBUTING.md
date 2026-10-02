@@ -64,12 +64,13 @@ goes red to say so.
 Then publish a release for the tag. Attaching the artifacts is automatic from there, and two of them
 come with caveats worth knowing before anyone relies on them.
 
-**The API reference needs two repository settings that no workflow can set for itself**, and until both
-exist the documentation job fails rather than publishing. Pages has to be enabled with "GitHub Actions"
-as its source, and the `github-pages` environment has to allow deploying from a tag: GitHub creates that
-environment limited to the default branch, and a release run's ref is a tag, so the deploy is refused
-with a message naming a branch for a tag. A manual run of the workflow from a branch works before
-either, which is the way to prove the setup.
+**Publishing the API reference is automatic too, and rests on two repository settings** that no
+workflow can set for itself. Both are set; they are recorded here because nothing in the build fails if
+one is undone, and a fork starts with neither. Pages is enabled with "GitHub Actions" as its source, and
+the `github-pages` environment carries a `tag: *` deployment rule beside the default-branch one, because
+a release run's ref is a tag and GitHub creates that environment limited to the default branch. Without
+the rule the deploy is refused with a message naming a branch for a tag. A manual run of the workflow
+from a branch is how to prove the setup without cutting a release.
 
 - **The aar is for reading and archiving. JitPack is how you depend on this.** The aar's own
   coordinates are `com.devddagnet:hardware-insets`, which resolves nowhere, and JitPack serves

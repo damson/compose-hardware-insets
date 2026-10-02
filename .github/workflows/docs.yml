@@ -5,24 +5,26 @@ name: API documentation
 # release that ref is the tag. `CONTRIBUTING.md` carries it as a release step, and
 # an earlier version of this comment claimed the opposite.
 #
-# Two one-time repository settings this cannot do for itself, and without which it
-# fails rather than publishing:
+# Two repository settings this depends on and cannot set for itself. Both are in
+# place; they are written down because nothing in the build fails if one is undone,
+# and a fork starts with neither:
 #
-#   1. Pages enabled, with "GitHub Actions" as the source. `configure-pages` offers
-#      an `enablement` input and its own description rules it out here: "This option
-#      requires a token other than GITHUB_TOKEN". Enabling goes through
+#   1. Pages enabled with "GitHub Actions" as the source. `configure-pages` offers
+#      an `enablement` input that cannot help here, by its own description: "This
+#      option requires a token other than GITHUB_TOKEN". Enabling goes through
 #      `administration:write`, which is not in the `permissions:` vocabulary at all.
-#   2. The `github-pages` environment allowed to deploy from a tag. GitHub creates
-#      it limited to the default branch, and a release run's ref is a tag, so the
-#      deploy is refused with `Branch "0.2.0" is not allowed to deploy to
-#      github-pages`, naming a branch for a tag. Settings, Environments,
-#      github-pages, add a deployment branch and tag rule of type Tag.
+#   2. The `github-pages` environment allowed to deploy from a tag, which is the
+#      `tag: *` rule beside the default-branch one. GitHub creates that environment
+#      limited to the default branch, and a release run's ref is a tag, so without
+#      the rule the deploy is refused with `Branch "0.2.0" is not allowed to deploy
+#      to github-pages`, naming a branch for a tag and sending you to the wrong
+#      place.
 on:
   release:
     types: [published]
-  # A manual run publishes whichever ref is chosen, which is a branch by default and
-  # therefore the one path that works before setting 2 above. Useful for proving the
-  # setup, and it pins the source links to that ref rather than to a release.
+  # A manual run publishes whichever ref is chosen, pinning the source links to that
+  # ref rather than to a release. It is how to prove the setup without cutting a
+  # release, and the only path that works if the tag rule above is ever removed.
   workflow_dispatch:
 
 permissions:
