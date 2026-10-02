@@ -15,6 +15,18 @@ Say which released version is affected.
 A hotfix skips `develop`, so it needs a reason: what a consumer cannot do until this
 ships, and why waiting for the next release is not an answer.
 
+<!--
+The shape, using the one real near-miss this repository has had:
+
+  Anyone following the README cannot resolve the dependency at all: the install line
+  names a coordinate that returns 404, so the first thing a visitor copies fails.
+  Waiting means every visitor between now and the next release hits it.
+
+A weak version of the same thing, which is ordinary work rather than a hotfix:
+
+  The install line is formatted inconsistently with the rest of the README.
+-->
+
 ## What changed
 
 Keep it to the fix. A hotfix is the worst branch to carry a tidy-up on, because it is
@@ -31,6 +43,14 @@ the one reviewed in a hurry and released without soaking.
 
 `main` is not merged back automatically, and a fix that lands only on `main` is
 reverted by the next promotion without anything failing.
+
+<!--
+Example:
+
+  Follow-up #41 carries this onto `develop`. Without it the next promotion of
+  `develop` to `main` reverts the fix, and nothing fails: the tree simply goes back to
+  what `develop` has, which is the broken version.
+-->
 
 - [ ] A follow-up is open, or named here, that gets this onto `develop`
 - [ ] `CHANGELOG.md` records it under the patch version being cut
