@@ -18,13 +18,6 @@ overall at 90% of lines and 85% of branches.
 the API 36 jar refuses to load under anything earlier. On JDK 17 every test fails in setup with
 `Failed to create a Robolectric sandbox`, which reads like broken tests rather than a wrong JDK.
 
-## Branches
-
-Gitflow, on two long-lived branches. `develop` integrates and `main` carries releases, so a change is
-cut from `develop` as `feature/<what-it-does>` and merged back into it; `release/` and `hotfix/` are the
-other two prefixes gitflow defines. Nothing enforces this, which is how the history above it ended up
-with four other prefixes.
-
 ## What a change needs
 
 - **A test that has been seen failing.** Break what your new test guards, watch it go red, put it
