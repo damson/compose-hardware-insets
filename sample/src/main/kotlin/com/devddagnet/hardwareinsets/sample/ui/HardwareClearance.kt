@@ -58,19 +58,12 @@ internal val EverythingPolicy = HardwarePolicy(
 /**
  * Which end of the screen this edge puts things at.
  *
- * [toAlignment] and the label's own padding both need the answer, and when they
- * disagree the label reserves its gutter at the end it is not sitting at, which
- * runs the corner control straight through it. That is what `LEFT` did.
+ * The label and its gutter make an app-specific choice for a side edge. For
+ * placing a control at a screen edge, use `toAlignment` after mapping device
+ * edges with `onScreenAt`.
  */
 internal val ScreenEdge.isPlacedAtTheTop: Boolean
     get() = this == ScreenEdge.TOP || this == ScreenEdge.LEFT
-
-/**
- * The mapping every caller of this library writes for itself, because
- * [ScreenEdge] names an edge without being able to place anything at it.
- */
-internal fun ScreenEdge.toAlignment(): Alignment =
-    if (isPlacedAtTheTop) Alignment.TopStart else Alignment.BottomStart
 
 internal fun ScreenEdge.cornerAlignment(isAtTheEnd: Boolean): Alignment = when (this) {
     ScreenEdge.TOP, ScreenEdge.LEFT ->
