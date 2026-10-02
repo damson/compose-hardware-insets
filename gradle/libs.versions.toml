@@ -5,7 +5,7 @@
 # that 9.6 removed, so neither this nor the wrapper can move first. The wrapper
 # properties carry the other half.
 agp = "8.13.2"
-kotlin = "2.2.21"
+kotlin = "2.4.20"
 binaryCompatibility = "0.18.2"
 kover = "0.9.11"
 dokka = "2.2.0"
