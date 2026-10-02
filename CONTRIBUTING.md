@@ -61,8 +61,9 @@ carries, and for a release that ref is the tag, with no fall back to the default
 commit predates `.github/workflows/release.yml` publishes a release that attaches nothing, and no check
 goes red to say so.
 
-Then publish a release for the tag. Attaching the artifacts is automatic from there, and two of them
-come with caveats worth knowing before anyone relies on them.
+Then publish a release for the tag. Attaching the artifacts and publishing the API reference are both
+automatic from there, and two of the artifacts come with caveats worth knowing before anyone relies on
+them.
 
 - **The aar is for reading and archiving. JitPack is how you depend on this.** The aar's own
   coordinates are `com.devddagnet:hardware-insets`, which resolves nowhere, and JitPack serves

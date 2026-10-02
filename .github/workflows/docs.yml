@@ -1,0 +1,83 @@
+name: API documentation
+
+# On a published release, like the artifacts workflow and for the same reason: the
+# docs describe a version, so they are generated from the tag that names one rather
+# than from whatever the default branch holds today.
+#
+# This file is read from the default branch, not from the tagged commit, which is
+# documented for every event except push and pull_request. It is the one difference
+# from `release.yml`, which needs the commit and takes it with `ref:`.
+on:
+  release:
+    types: [published]
+  # So the first publish does not have to wait for a release, and so a broken Pages
+  # setup can be found on purpose rather than at the next tag.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time, and never cancelled halfway: a cancelled deploy can
+# leave the site on a half-written commit.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      # `pages: write` and `id-token: write` are what the deployment needs, and
+      # `contents` stays read: nothing here pushes to the repository.
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The release's tag for a release, and the default branch for a manual
+          # run, which is what `github.ref_name` already resolves to in each case.
+          ref: ${{ github.ref_name }}
+          persist-credentials: false
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Generate
+        # The source ref is passed in so every "source" link on the page points at
+        # the commit the page documents. Without it the links follow `develop` and
+        # rot the moment it moves.
+        run: ./gradlew :hardware-insets:dokkaGeneratePublicationHtml -PdokkaSourceRef=${{ github.ref_name }} --stacktrace
+
+      - name: There is something to publish
+        # Dokka succeeds on an empty source set, and an empty site deploys as
+        # happily as a real one. This fails instead.
+        run: |
+          set -eu
+          out=hardware-insets/build/dokka/html
+          [ -s "$out/index.html" ] || { echo "no index.html in $out" >&2; exit 1; }
+          grep -q "clearOfTheHardware" "$out/navigation.html" \
+            || { echo "the entry point is not in the navigation" >&2; exit 1; }
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        with:
+          # So the first run does not need Pages turned on by hand first.
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: hardware-insets/build/dokka/html
+
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
