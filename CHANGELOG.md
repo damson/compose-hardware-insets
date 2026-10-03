@@ -7,6 +7,13 @@ may change in any 0.x release.
 
 ## [Unreleased]
 
+### Changed
+
+- **Consumers now need `compileSdk 37` or later.** The aar declares it, so a project on 36 fails to
+  resolve this library with a message naming it rather than naming the consumer's own `compileSdk`.
+  It follows the Compose version this builds against: `foundation` 1.12 requires 37, and the toolchain
+  moves with it, to AGP 9.4.1, Gradle 9.8.0 and Kotlin 2.4.20. `minSdk` is unchanged at 23.
+
 ## [0.1.0] - 2026-10-01
 
 First release. Extracted from a production app and generalised, so every decision that was that

@@ -2,16 +2,16 @@ import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     `maven-publish`
 }
 
 android {
     namespace = "com.devddagnet.hardwareinsets.lib"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         // 23 is Compose's own floor, not this library's: the cutout API arrives
@@ -112,6 +112,12 @@ dokka {
     moduleName.set("compose-hardware-insets")
 
     dokkaSourceSets.configureEach {
+        // Fourteen source sets reach Dokka under AGP 9, one per Android source
+        // set, and `main`, `debug` and `release` share every source root, which
+        // Dokka refuses outright. `main` is the one that holds the published API,
+        // and documenting the test and variant sets would be wrong anyway.
+        suppress.set(name != "main")
+
         // Every link in the docs points at the tag, not at a branch: a page
         // published for 0.1.0 has to keep pointing at the code it documented
         // after develop has moved on. The workflow passes the tag in; locally it
@@ -175,3 +181,4 @@ publishing {
         }
     }
 }
+
