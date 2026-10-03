@@ -145,10 +145,13 @@ The first two are on the roadmap. The third is what those two parameters are for
 - `minSdk 23`, which is Compose's floor rather than this library's. The cutout API arrives at API
   28 and the waterfall at API 30; below each, the platform reports nothing and this reports zero, so
   there is nothing to branch on in your code.
-- **`compileSdk 37` or later in your project.** The aar says so in its metadata, so a project on 36
-  fails to resolve it with a message naming this library rather than its own `compileSdk`. That is
-  not this library's choice: Compose requires it from `foundation` 1.12, and tracking Compose is the
-  point of the dependency.
+- **`compileSdk 37` or later in your project, and AGP 9.1 or later.** The aar declares
+  `minCompileSdk=37`, so a project on 36 resolves the dependency and then fails
+  `checkDebugAarMetadata`, naming this library alongside every Compose and `androidx.core` artifact
+  that asks for the same thing, and stating the `compileSdk` the module is on. Those same
+  artifacts set the AGP floor separately, so raising `compileSdk` alone on AGP 8 leaves the build
+  red. Neither is this library's choice: Compose requires both from 1.12, and tracking Compose is
+  the point of the dependency.
 
 ## Status
 

@@ -9,10 +9,13 @@ may change in any 0.x release.
 
 ### Changed
 
-- **Consumers now need `compileSdk 37` or later.** The aar declares it, so a project on 36 fails to
-  resolve this library with a message naming it rather than naming the consumer's own `compileSdk`.
-  It follows the Compose version this builds against: `foundation` 1.12 requires 37, and the toolchain
-  moves with it, to AGP 9.4.1, Gradle 9.8.0 and Kotlin 2.4.20. `minSdk` is unchanged at 23.
+- **Consumers now need `compileSdk 37` or later, and AGP 9.1 or later.** The aar declares
+  `minCompileSdk=37`, so a project on 36 resolves the dependency and then fails the
+  `checkDebugAarMetadata` task, with a message naming this library alongside every Compose and
+  `androidx.core` artifact that requires the same, and stating the `compileSdk` the module is on.
+  Both floors follow the Compose version this builds against: 1.12 requires `compileSdk 37` and AGP
+  9.1, and the toolchain moves with it, to AGP 9.4.1, Gradle 9.8.0 and Kotlin 2.4.20. `minSdk` is
+  unchanged at 23.
 
 ## [0.1.0] - 2026-10-01
 
