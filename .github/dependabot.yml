@@ -38,6 +38,14 @@ updates:
       kotlin:
         patterns:
           - org.jetbrains.kotlin.*
+    # Two holdbacks, both because the artifact pushes a `compileSdk 37` and AGP
+    # 9.1 floor onto consumers rather than because anything here breaks. The
+    # reason and the condition for lifting them are on the catalogue lines, and
+    # issue #39 holds the threshold. Without these the same pull request arrives
+    # weekly and has to be closed by hand every time.
+    ignore:
+      - dependency-name: androidx.compose:compose-bom
+      - dependency-name: androidx.core:core-ktx
   # Pinned by commit SHA here, every one of them, so a pin cannot move unless
   # something opens a pull request to move it. Dependabot rewrites the trailing
   # `# vX.Y.Z` comment along with the SHA.

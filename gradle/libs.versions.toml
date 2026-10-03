@@ -9,8 +9,15 @@ kover = "0.9.11"
 dokka = "2.2.0"
 
 activity = "1.13.0"
-composeBom = "2026.09.00"
-coreKtx = "1.19.1"
+# Held, and not for this repository's sake: 2026.09.00 brings foundation-layout
+# 1.12.1, which declares `minCompileSdk=37` and AGP 9.1, and this library exports
+# Compose as `api`, so both land on every consumer. Nothing here uses an API past
+# 30. Raise it when requiring compileSdk 37 of consumers is acceptable, which
+# issue #39 holds the threshold for.
+composeBom = "2026.06.01"
+# Held with the Compose line: 1.19.1 declares `minCompileSdk=37` and AGP 9.1 too,
+# so raising it alone reimposes exactly what holding Compose avoids.
+coreKtx = "1.18.0"
 
 assertj = "3.27.7"
 junit = "4.13.2"

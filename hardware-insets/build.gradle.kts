@@ -19,6 +19,15 @@ android {
         // nothing and this reports zero. Lowering it fails the manifest merge
         // against foundation-layout rather than failing at runtime.
         minSdk = 23
+
+        // AGP 9 defaults this to the module's own `compileSdk`, so leaving it out
+        // tells every consumer to compile against 37 because this build happens
+        // to. 30 is what the code needs: the highest platform API it touches is
+        // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS, added in R. The floor consumers
+        // actually meet is AndroidX's, which is higher, and theirs to state.
+        aarMetadata {
+            minCompileSdk = 30
+        }
     }
 
     compileOptions {
