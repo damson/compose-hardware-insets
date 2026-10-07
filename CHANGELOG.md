@@ -5,7 +5,7 @@ All notable changes to this project are documented here, in the format of
 [semantic versioning](https://semver.org/spec/v2.0.0.html) from 0.1.0, which means the public API
 may change in any 0.x release.
 
-## [0.2.0] - 2026-10-07
+## [0.2.0] - 2026-10-08
 
 ### Added
 
