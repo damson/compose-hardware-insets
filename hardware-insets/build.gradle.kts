@@ -152,7 +152,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.devddagnet"
             artifactId = "hardware-insets"
-            version = "0.1.0"
+            version = "0.2.0"
             afterEvaluate { from(components["release"]) }
 
             // Without this block the POM carries coordinates and dependencies

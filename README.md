@@ -36,7 +36,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.damson:compose-hardware-insets:0.1.0")
+    implementation("com.github.damson:compose-hardware-insets:0.2.0")
 }
 ```
 
@@ -172,7 +172,7 @@ that version shipped rather than at whatever `develop` holds now.
 
 ## Status
 
-`0.1.0` generalises code that has been in production in one app. The API is expected to move before
+This generalises code that has been in production in one app. The API is expected to move before
 `1.0`; see [CHANGELOG.md](CHANGELOG.md) and the roadmap below.
 
 ## Roadmap
