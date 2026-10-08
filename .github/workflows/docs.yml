@@ -20,8 +20,12 @@ name: API documentation
 #      to github-pages`, naming a branch for a tag and sending you to the wrong
 #      place.
 on:
-  release:
-    types: [published]
+  # The tag push, not `release: published`. `release.yml` creates the release now,
+  # and a release created by anything authenticating as GITHUB_TOKEN raises no
+  # event, so waiting on one here would mean the docs silently stopped publishing
+  # the moment release creation was automated.
+  push:
+    tags: ['[0-9]*']
   # A manual run publishes whichever ref is chosen, pinning the source links to that
   # ref rather than to a release. It is how to prove the setup without cutting a
   # release, and the only path that works if the tag rule above is ever removed.

@@ -20,22 +20,28 @@ the API 36 jar refuses to load under anything earlier. On JDK 17 every test fail
 
 ## Branches and pull requests
 
-Gitflow, on two long-lived branches. `develop` integrates and `main` carries releases, so a change is
-cut from `develop` as `feature/<what-it-does>` and merged back into it; `release/` and `hotfix/` are the
-other two prefixes gitflow defines. Nothing enforces the naming, which is how the history behind this
-file ended up with four other prefixes.
+**One long-lived branch, `main`.** Cut a short-lived branch from it, open a pull
+request back into it, and delete the branch on merge. `feature/<what-it-does>` and
+`fix/<what-it-fixes>` are the prefixes in use; nothing enforces the naming.
 
-**Target `develop`.** `main` receives two things only: a promotion of `develop`, and a hotfix. A feature
-pull request against `main` would put unreleased work on the branch that gets tagged.
+**A release is a tag on `main`, not a branch.** There is no integration branch to
+promote from, which is deliberate: a release run reads the workflow present at the
+ref the event carries, so a tag cut on a branch work never lands on can publish a
+release that attaches nothing with no check going red. This repository shipped
+`0.1.0` that way. One branch makes that impossible rather than guarded against.
 
-Each of the three has a template, and the two uncommon ones have to be named in the URL, because GitHub
-applies the default without offering a choice:
+**A backport is cut on demand.** If a released version ever needs a patch after
+`main` has moved on, branch `release/<x.y>` from that version's tag, fix it there,
+and tag from it. Nothing maintains such a branch between releases.
+
+Three templates, and the two uncommon ones have to be named in the URL because
+GitHub applies the default without offering a choice:
 
 | Flow | Base | Template |
 |---|---|---|
-| Ordinary work | `develop` | the default, applied automatically |
-| Promotion | `main` | add `?template=release.md` to the compare URL |
-| Hotfix | `main` | add `?template=hotfix.md` |
+| Ordinary work | `main` | the default, applied automatically |
+| The version bump before a tag | `main` | add `?template=version-bump.md` to the compare URL |
+| Backport on a `release/<x.y>` branch | that branch | add `?template=hotfix.md` |
 
 ## What a change needs
 
@@ -66,30 +72,45 @@ belong to Compose and androidx, and are offered here only as a policy flag rathe
 
 ## Cutting a release
 
-**Bump the version before the tag, in both build files.** `hardware-insets/build.gradle.kts` and
-`sample/build.gradle.kts` each declare it, and a workflow checks all three agree. It checks after the
-release is published, because that is the first moment it can run, so a disagreement is reported and
-not prevented: the release sits there with no assets until the versions are corrected and the tag
-re-cut.
+**One pull request, then one tag.** Nothing else is manual.
 
-**The tag carries no `v`.** JitPack's coordinate is the tag itself, so `v0.2.0` would be served as
-version `v0.2.0` while every file and the README say `0.2.0`.
+1. Open an ordinary pull request against `main` that sets `VERSION_NAME` in
+   `gradle.properties` and dates the `CHANGELOG.md` heading for that version.
+   Both modules read `VERSION_NAME`, so it is the only place a version is
+   declared.
+2. Merge it, then push the tag on the resulting commit:
+   `git tag 0.3.0 && git push origin refs/tags/0.3.0`.
 
-**Promote to `main` before tagging there.** A workflow run uses the file present at the ref the event
-carries, and for a release that ref is the tag, with no fall back to the default branch. So a tag whose
-commit predates `.github/workflows/release.yml` publishes a release that attaches nothing, and no check
-goes red to say so.
+That is the whole procedure. The tag push runs two workflows, and both create
+what they publish rather than reacting to something a person made.
 
-Then publish a release for the tag. Attaching the artifacts is automatic from there, and two of them
-come with caveats worth knowing before anyone relies on them.
+**The tag carries no `v`.** JitPack's coordinate *is* the tag, so `v0.3.0` is
+served as version `v0.3.0` while every file says `0.3.0`.
 
-**Publishing the API reference is automatic too, and rests on two repository settings** that no
-workflow can set for itself. Both are set; they are recorded here because nothing in the build fails if
-one is undone, and a fork starts with neither. Pages is enabled with "GitHub Actions" as its source, and
-the `github-pages` environment carries a `tag: *` deployment rule beside the default-branch one, because
-a release run's ref is a tag and GitHub creates that environment limited to the default branch. Without
-the rule the deploy is refused with a message naming a branch for a tag. A manual run of the workflow
-from a branch is how to prove the setup without cutting a release.
+**The tag cannot be moved or deleted.** A ruleset blocks both on anything
+matching `[0-9]*`, because a moved tag serves different bytes under one
+coordinate to anyone whose build service caches per tag, and JitPack does.
+`non_fast_forward` alone does not stop a move: the rule that does is `update`.
+The admin role bypasses, so a genuinely mis-cut tag can still be corrected
+deliberately.
+
+**`release.yml` refuses a tag that disagrees with `VERSION_NAME`, before
+publishing anything.** It also stops if `CHANGELOG.md` has no section for the
+version, because the release notes are built from it. Both happen before the
+release object exists, so the only thing to undo is the tag.
+
+**Publishing the API reference rests on two repository settings** that no
+workflow can set for itself. Both are set; they are recorded here because
+nothing in the build fails if one is undone, and a fork starts with neither.
+Pages is enabled with "GitHub Actions" as its source, and the `github-pages`
+environment carries a `tag: *` deployment rule beside the default-branch one,
+because the run's ref is a tag and GitHub creates that environment limited to
+the default branch. Without the rule the deploy is refused with a message
+naming a branch for a tag. A manual run of `docs.yml` from a branch proves the
+setup without cutting a release.
+
+Two of the five attached files come with caveats worth knowing before anyone
+relies on them.
 
 - **The aar is for reading and archiving. JitPack is how you depend on this.** The aar's own
   coordinates are `com.devddagnet:hardware-insets`, which resolves nowhere, and JitPack serves

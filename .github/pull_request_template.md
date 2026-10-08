@@ -1,6 +1,6 @@
 <!--
-Work into `develop`, which is almost all of it. A promotion to `main` or a hotfix
-has its own template, and CONTRIBUTING.md says how to reach them.
+Work into `main`, which is almost all of it. A version bump before a tag, or a
+backport on a `release/<x.y>` branch, has its own template named in the URL.
 
 Every example below is from this repository's own history. Delete any heading that
 would be empty rather than writing "n/a" under it.
