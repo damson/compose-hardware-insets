@@ -1,15 +1,22 @@
 [versions]
-# Kept deliberately behind the newest where a cap has a reason; each such line
-# says why, so the next person raising it knows what they are taking on.
-agp = "8.13.2"
-kotlin = "2.2.21"
-# AGP 8.x reads an internal API that Gradle 9.6 removed, so the wrapper stays
-# at 9.5 until AGP 9. See the wrapper properties.
-binaryCompatibility = "0.18.1"
+# Nothing is capped. If a version has to be held back, say why on the line itself,
+# so the next person raising it knows what they are taking on, and add the matching
+# `ignore` to .github/dependabot.yml so it stops arriving weekly.
+agp = "9.4.1"
+kotlin = "2.4.20"
+binaryCompatibility = "0.18.2"
+kover = "0.9.11"
+dokka = "2.2.0"
 
 activity = "1.13.0"
-appcompat = "1.7.1"
+# Held, and not for this repository's sake: 2026.09.00 brings foundation-layout
+# 1.12.1, which declares `minCompileSdk=37` and AGP 9.1, and this library exports
+# Compose as `api`, so both land on every consumer. Nothing here uses an API past
+# 30. Raise it when requiring compileSdk 37 of consumers is acceptable, which
+# issue #39 holds the threshold for.
 composeBom = "2026.06.01"
+# Held with the Compose line: 1.19.1 declares `minCompileSdk=37` and AGP 9.1 too,
+# so raising it alone reimposes exactly what holding Compose avoids.
 coreKtx = "1.18.0"
 
 assertj = "3.27.7"
@@ -19,7 +26,6 @@ robolectric = "4.17"
 [libraries]
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -43,5 +49,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 binary-compatibility = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryCompatibility" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

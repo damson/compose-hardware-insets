@@ -1,13 +1,17 @@
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.kover)
     alias(libs.plugins.kotlin.compose)
     `maven-publish`
 }
 
 android {
     namespace = "com.devddagnet.hardwareinsets.lib"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         // 23 is Compose's own floor, not this library's: the cutout API arrives
@@ -15,6 +19,15 @@ android {
         // nothing and this reports zero. Lowering it fails the manifest merge
         // against foundation-layout rather than failing at runtime.
         minSdk = 23
+
+        // AGP 9 defaults this to the module's own `compileSdk`, so leaving it out
+        // tells every consumer to compile against 37 because this build happens
+        // to. 30 is what the code needs: the highest platform API it touches is
+        // LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS, added in R. The floor consumers
+        // actually meet is AndroidX's, which is higher, and theirs to state.
+        aarMetadata {
+            minCompileSdk = 30
+        }
     }
 
     compileOptions {
@@ -77,12 +90,69 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
+kover {
+    reports {
+        verify {
+            rule("The library overall") {
+                // 90 where it measures 97, which leaves room for the platform
+                // edges that need a real window and none for a slide. The gap is
+                // `platform` and the composable entry points, where the uncovered
+                // lines are the ones Robolectric cannot reach. The pure geometry is
+                // gated separately, at 100%, from the root build file.
+                bound {
+                    minValue = 90
+                    coverageUnits = CoverageUnit.LINE
+                }
+                // Branches too, or `platform` can take new conditional code at
+                // zero while the line bound stays satisfied. 85 against a measured
+                // 89.7, which is the same kind of margin for the same reason.
+                bound {
+                    minValue = 85
+                    coverageUnits = CoverageUnit.BRANCH
+                }
+            }
+        }
+    }
+}
+
+dokka {
+    // The name a reader sees at the top of the page, which is the artifact rather
+    // than the Gradle path.
+    moduleName.set("compose-hardware-insets")
+
+    dokkaSourceSets.configureEach {
+        // Fourteen source sets reach Dokka under AGP 9, one per Android source
+        // set, and `main`, `debug` and `release` share every source root, which
+        // Dokka refuses outright. `main` is the one that holds the published API,
+        // and documenting the test and variant sets would be wrong anyway.
+        suppress.set(name != "main")
+
+        // Every link in the docs points at the tag, not at a branch: a page
+        // published for 0.1.0 has to keep pointing at the code it documented
+        // after develop has moved on. The workflow passes the tag in; locally it
+        // falls back to the default branch, where a stale link costs nothing.
+        val ref = providers.gradleProperty("dokkaSourceRef").orElse("develop")
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://github.com/damson/compose-hardware-insets/blob/${ref.get()}/hardware-insets/src/main/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+
+        // Android and Compose types resolve to their own documentation instead of
+        // rendering as bare names.
+        externalDocumentationLinks.register("androidx") {
+            url("https://developer.android.com/reference/kotlin/")
+            packageListUrl("https://developer.android.com/reference/kotlin/androidx/package-list")
+        }
+    }
+}
+
 publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.devddagnet"
             artifactId = "hardware-insets"
-            version = "0.1.0"
+            version = "0.2.0"
             afterEvaluate { from(components["release"]) }
 
             // Without this block the POM carries coordinates and dependencies
@@ -120,3 +190,4 @@ publishing {
         }
     }
 }
+

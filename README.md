@@ -1,5 +1,11 @@
 # compose-hardware-insets
 
+[![JitPack](https://jitpack.io/v/damson/compose-hardware-insets.svg)](https://jitpack.io/#damson/compose-hardware-insets)
+[![CI](https://github.com/damson/compose-hardware-insets/actions/workflows/ci.yml/badge.svg)](https://github.com/damson/compose-hardware-insets/actions/workflows/ci.yml)
+[![API 23+](https://img.shields.io/badge/API-23%2B-brightgreen)](#supported)
+[![Licence](https://img.shields.io/github/license/damson/compose-hardware-insets)](LICENSE)
+[![API reference](https://img.shields.io/badge/API-reference-blue)](https://damson.github.io/compose-hardware-insets/)
+
 Compose tells you how deep the display cutout goes into each edge. It does not tell you **where**
 the camera is, so there is no supported way to ask whether the hardware is actually in the way of
 one particular control.
@@ -30,7 +36,7 @@ dependencyResolutionManagement {
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.damson:compose-hardware-insets:0.1.0")
+    implementation("com.github.damson:compose-hardware-insets:0.2.0")
 }
 ```
 
@@ -118,14 +124,12 @@ rectangles it actually overlaps. Two controls, two policies, one screen.
 
 It depends on the library as a Gradle project, so an API change breaks it in the same build.
 
-Three things writing it proved:
+Two things writing it proved:
 
 - **Reading the cutout in a Compose-only app costs twelve lines of `View` code.** You need a sibling
   view for the listener, which means a `FrameLayout`, which means building the content view by hand.
   `ViewerActivity` does it with the reason written down. That is what `rememberCutoutShape()` is for,
   and the sample is why it is the first roadmap item rather than a nice-to-have.
-- **`ScreenEdge` will not lay anything out for you.** The sample writes its own four-case mapping to
-  an `Alignment`. Every caller would write the same one.
 - **The bar icons are a parameter of `drawBehindTheHardware`, not something to set after it.** It
   goes through `enableEdgeToEdge`, which re-picks light or dark icons on every call, so an
   appearance set separately is undone by the next one. Pass `statusBarStyle` and
@@ -133,24 +137,46 @@ Three things writing it proved:
   those calls, as a viewer deciding per picture does, still has to set it again after each one, and
   the only symptom of getting that wrong is a clock nobody can read.
 
-The first two are on the roadmap. The third is what those two parameters are for.
+The first is on the roadmap. The second is why those two parameters exist.
+
+## API reference
+
+[The generated documentation](https://damson.github.io/compose-hardware-insets/). Published on every
+release and pinned to that release's tag, so the "source" link beside a declaration points at the code
+that version shipped rather than at whatever `develop` holds now.
 
 ## Supported
 
 - `minSdk 23`, which is Compose's floor rather than this library's. The cutout API arrives at API
   28 and the waterfall at API 30; below each, the platform reports nothing and this reports zero, so
   there is nothing to branch on in your code.
+- **`compileSdk 36` or later in your project, and AGP 8.9.1 or later.** Neither is this library's
+  floor. `androidx.activity` 1.13 and `androidx.core` 1.18 each declare both in their aar metadata,
+  and they reach you because this exports Compose and Activity and carries `core` on the runtime
+  classpath. This library's own aar asks for `compileSdk 30`, the highest platform API its code
+  touches. Below either floor the dependency resolves and then `checkDebugAarMetadata`, or
+  `checkReleaseAarMetadata` for a release build, fails with a message naming the artifact that
+  wants more and the `compileSdk` your module is on.
+- **Kotlin 2.3.0 or later in your project.** This is built with 2.4.20, and a Kotlin compiler reads
+  metadata from its own version and one minor back, so a 2.2 compiler cannot read it:
+
+  ```
+  Module was compiled with an incompatible version of Kotlin.
+  The binary version of its metadata is 2.4.0, expected version is 2.2.0.
+  ```
+
+  What that asks of you is the Kotlin plugin version in your build, and nothing in your code.
+  `0.1.0` was built with 2.2.21, so this is the only requirement that moved.
 
 ## Status
 
-`0.1.0` generalises code that has been in production in one app. The API is expected to move before
+This generalises code that has been in production in one app. The API is expected to move before
 `1.0`; see [CHANGELOG.md](CHANGELOG.md) and the roadmap below.
 
 ## Roadmap
 
 - `rememberCutoutShape()` and a `LocalCutoutShape`, so a Compose-only app never touches a `View`.
   The sample shows what this costs today.
-- An edge to `Alignment` mapping, so `ScreenEdge` can place something and not only name it.
 - Rounded-corner insets. The platform reports corners as a radius from API 31 rather than as an
   inset, and Compose does not expose them either.
 - A safest-edge chooser: given the shape, which edge has the least hardware in it.
