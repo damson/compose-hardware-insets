@@ -1,61 +1,67 @@
 <!--
-A fix that cannot wait for the next release, cut from `main` and going back to it.
+A fix for an already released version, on a `release/<x.y>` branch cut from that
+version's tag. If the fix belongs in the next release and nothing is urgent, it
+is ordinary work into `main` and uses the default template.
 
-Open it with ?template=hotfix.md on the compare URL. If the fix can wait, it is
-ordinary work into `develop` and uses the default template.
+Open this with ?template=hotfix.md on the compare URL, with the base set to the
+`release/<x.y>` branch rather than to `main`.
 -->
 
 ## Summary
 
-What is broken for someone using a released version, and what is true after this.
-Say which released version is affected.
-
-## Why this is not ordinary work into `develop`
-
-A hotfix skips `develop`, so it needs a reason: what a consumer cannot do until this
-ships, and why waiting for the next release is not an answer.
-
-<!--
-The shape, using the one real near-miss this repository has had:
-
-  Anyone following the README cannot resolve the dependency at all: the install line
-  names a coordinate that returns 404, so the first thing a visitor copies fails.
-  Waiting means every visitor between now and the next release hits it.
-
-A weak version of the same thing, which is ordinary work rather than a hotfix:
-
-  The install line is formatted inconsistently with the rest of the README.
--->
-
-## What changed
-
-Keep it to the fix. A hotfix is the worst branch to carry a tidy-up on, because it is
-the one reviewed in a hurry and released without soaking.
-
-## Test plan
-
-- [ ] `./gradlew check apiCheck koverVerify :hardware-insets:koverVerify` green, on JDK 21
-- [ ] A test that fails without the fix, seen failing
-- [ ] The released version reproduced the fault first, so this is known to fix the
-      thing that was reported rather than something adjacent
-
-## It has to reach `develop` too
-
-`main` is not merged back automatically, and a fix that lands only on `main` is
-reverted by the next promotion without anything failing.
+What a consumer cannot do until this ships, and why it cannot wait for the next
+ordinary release. Two or three sentences.
 
 <!--
 Example:
 
-  Follow-up #41 carries this onto `develop`. Without it the next promotion of
-  `develop` to `main` reverts the fix, and nothing fails: the tree simply goes back to
-  what `develop` has, which is the broken version.
+  0.2.0's aar resolves on a consumer at compileSdk 36 and then fails the AAR
+  metadata check, because the published metadata demands 37. Nobody on 36 can
+  build against the release at all, and that is every consumer who has not
+  already moved.
 -->
 
-- [ ] A follow-up is open, or named here, that gets this onto `develop`
-- [ ] `CHANGELOG.md` records it under the patch version being cut
+## Why it is a backport and not the next release
 
-## Review
+- [ ] `main` has moved on in ways a consumer on this version should not be made
+      to take
+- [ ] The fix applies to the released tree without carrying anything else
 
-Say what was not done because this was urgent, so the follow-up is explicit rather
-than remembered.
+If neither is true, close this and open the fix against `main`.
+
+## The branch
+
+- [ ] Cut from the tag, not from `main`:
+      `git switch -c release/<x.y> <x.y.z>`
+- [ ] Contains this fix and nothing else
+
+## It has to reach `main` too
+
+A backport branch is not merged into `main`; it is tagged and left to go stale.
+So the fix lands on `main` separately, or the next release silently ships without
+it and nothing fails.
+
+- [ ] The same fix is on `main`, or a follow-up is open and named here
+
+<!--
+Example:
+
+  Landed on `main` as #44 before this was opened, so `main` already carries it and
+  this branch exists only to get it to consumers on 0.2.x.
+-->
+
+## Verification
+
+- [ ] The gate green on this branch
+- [ ] The failure reproduced against the released version first, so the fix is
+      known to address what consumers are actually hitting
+- [ ] A test that fails without the fix
+
+## After merging
+
+Bump `VERSION_NAME` on this branch and tag the patch version from it. The tag
+push publishes it exactly as it would from `main`.
+
+```sh
+git tag <x.y.z> && git push origin refs/tags/<x.y.z>
+```

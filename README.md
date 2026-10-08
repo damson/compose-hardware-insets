@@ -143,7 +143,7 @@ The first is on the roadmap. The second is why those two parameters exist.
 
 [The generated documentation](https://damson.github.io/compose-hardware-insets/). Published on every
 release and pinned to that release's tag, so the "source" link beside a declaration points at the code
-that version shipped rather than at whatever `develop` holds now.
+that version shipped rather than at whatever `main` holds now.
 
 ## Supported
 
