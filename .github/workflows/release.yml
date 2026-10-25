@@ -27,13 +27,20 @@ on:
 # without cancel-in-progress: two near-simultaneous ones would otherwise race
 # each other through `--clobber`.
 #
-# The group deliberately carries no ref. Keyed by tag it serialises a tag
-# against itself, which is the re-run case and not the one that bites: two
-# different tags published at once both read the same latest release before
-# either creates one, and both then claim `--latest`. Releases are rare enough
-# that queueing one behind another costs nothing.
+# Keyed by tag on purpose, having been workflow-wide briefly. A shared group
+# would serialise two tags published at once, which closes a narrow race on the
+# latest-release decision below, and it opens a worse hole: GitHub keeps one
+# pending run per group and cancels the previous pending one when a newer
+# arrives, whatever `cancel-in-progress` says. Three tags in quick succession
+# would lose the middle one's release entirely, and a tag cannot be re-pushed.
+#
+# So the race is accepted. It needs two tags inside the seconds between reading
+# the latest release and creating one, both of them newer than it, and it costs
+# a wrong Latest badge that `gh release edit --latest` fixes. A lost release
+# costs the release. `queue: max` would allow both, once it is confirmed
+# available here; it is not worth finding out on a path that only runs on a tag.
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: false
 
 # Read-only here so a second job added later inherits this rather than the
@@ -177,9 +184,28 @@ jobs:
           # latest release, pointing the latest-release link at the older version
           # line. It is passed explicitly either way, so what the default would
           # have been does not come into it.
-          previous=$(gh release view --repo "$GITHUB_REPOSITORY" \
-                       --json tagName --jq .tagName 2>/dev/null || true)
+          # A failed read must not look like "no releases yet". Swallowing the
+          # error there would make a backport the latest release on a transient
+          # 5xx, which is the one thing this is here to stop.
+          set +e
+          previous=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2>err.txt)
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            if grep -q '404' err.txt; then
+              previous=
+            else
+              echo "Could not read the latest release:" >&2
+              cat err.txt >&2
+              echo "Refusing to guess whether $TAG is the latest release." >&2
+              exit 1
+            fi
+          fi
+          # Compared against released versions only, and only plain X.Y.Z ones:
+          # `sort -V` puts `0.3.0-rc1` after `0.3.0`, so a pre-release left in
+          # the list would make every final release look like a backport.
           if [ -z "$previous" ] \
+             || ! printf '%s\n' "$previous" | grep -qxE '[0-9]+\.[0-9]+\.[0-9]+' \
              || [ "$(printf '%s\n%s\n' "$previous" "$TAG" | sort -V | tail -1)" = "$TAG" ]; then
             latest=true
           else

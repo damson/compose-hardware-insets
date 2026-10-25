@@ -42,14 +42,17 @@ concurrency:
 
 jobs:
   # Whether this ref should become the published site at all, which is a
-  # question only a tag raises. The site holds one version and keeps no
+  # question only a tag push raises. The site holds one version and keeps no
   # history, so a backport tag pushed after a newer release would replace the
-  # current reference with an older one. `release.yml` already refuses to call
-  # such a tag the latest release; this is the same decision for the docs.
+  # current reference with an older one.
   #
-  # Decided against the tags rather than against the releases, because both
-  # workflows run on the same push and the release object may not exist yet.
-  # The tag ruleset makes tags immutable, so they are the release record.
+  # Decided against the tags, where `release.yml` decides from the releases.
+  # Not the same source and so not always the same answer: both workflows run
+  # on this push, so the release object may not exist yet when this reads it,
+  # while the tag ruleset makes tags immutable and therefore readable now. The
+  # cost of the difference is that a tag whose release was refused still counts
+  # here, and until it is removed through the admin bypass the site stays where
+  # it is. A manual run republishes in the meantime.
   decide:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -66,11 +69,14 @@ jobs:
       - id: newest
         env:
           TAG: ${{ github.ref_name }}
-          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
+          # The event, not the shape of the ref. `workflow_dispatch` can be run
+          # on a tag, and gating that on the ref would remove the one path that
+          # republishes an older ref deliberately.
+          IS_TAG_PUSH: ${{ github.event_name == 'push' }}
         run: |
           set -eu
-          if [ "$IS_TAG" != "true" ]; then
-            echo 'A manual run publishes whatever ref it was given.'
+          if [ "$IS_TAG_PUSH" != "true" ]; then
+            echo "A manual run publishes whatever ref it was given, here $TAG."
             echo 'publish=true' >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -80,9 +86,18 @@ jobs:
             echo 'Nothing has been published. See CONTRIBUTING.md, "Cutting a release".' >&2
             exit 1
           fi
-          newest=$(git tag --list '[0-9]*' | sort -V | tail -1)
+          # Plain X.Y.Z only. The trigger's `[0-9]*` also matches `0.3.0-rc1`
+          # and `2024-backup`, and `sort -V` ranks `0.3.0-rc1` above `0.3.0`,
+          # so either would sit at the top of this list for good. A side effect
+          # worth knowing: a pre-release tag is never the newest by this test,
+          # so it publishes no documentation and leaves the stable reference up.
+          newest=$(git tag --list | grep -xE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1)
           if [ "$newest" != "$TAG" ]; then
-            echo "$TAG is behind $newest, so the site stays on $newest."
+            # Said where a reader looks. Skipped and refused both leave the
+            # deploy unrun, and only this separates them from the Actions tab.
+            echo "::notice title=Documentation unchanged::$TAG is behind $newest, so the site stays on $newest."
+            echo "\`$TAG\` is behind \`$newest\`, so the published reference stays on \`$newest\`." \
+              >> "$GITHUB_STEP_SUMMARY"
             echo 'publish=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
