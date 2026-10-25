@@ -157,7 +157,7 @@ that version shipped rather than at whatever `main` holds now.
   touches. Below either floor the dependency resolves and then `checkDebugAarMetadata`, or
   `checkReleaseAarMetadata` for a release build, fails with a message naming the artifact that
   wants more and the `compileSdk` your module is on.
-- **Kotlin 2.3.0 or later in your project.** This is built with 2.4.20, and a Kotlin compiler reads
+- **Kotlin 2.3.0 or later in your project.** This is built with 2.4.21, and a Kotlin compiler reads
   metadata from its own version and one minor back, so a 2.2 compiler cannot read it:
 
   ```
