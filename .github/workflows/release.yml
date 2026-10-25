@@ -26,8 +26,14 @@ on:
 # Uploading is not a thing to cancel halfway, so the group serialises publishes
 # without cancel-in-progress: two near-simultaneous ones would otherwise race
 # each other through `--clobber`.
+#
+# The group deliberately carries no ref. Keyed by tag it serialises a tag
+# against itself, which is the re-run case and not the one that bites: two
+# different tags published at once both read the same latest release before
+# either creates one, and both then claim `--latest`. Releases are rare enough
+# that queueing one behind another costs nothing.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref_name }}
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 # Read-only here so a second job added later inherits this rather than the
