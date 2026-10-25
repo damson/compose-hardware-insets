@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    # Both long-lived branches: develop integrates, main carries releases.
-    branches: [develop, main]
+    # The only long-lived branch. Work lands here and releases are tagged from
+    # here, which is what keeps a release workflow from being absent at its tag.
+    branches: [main]
   pull_request:
 
 concurrency:

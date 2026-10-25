@@ -13,7 +13,7 @@ android {
         minSdk = 23
         targetSdk = 36
         versionCode = 1
-        versionName = "0.2.0"
+        versionName = providers.gradleProperty("VERSION_NAME").get()
     }
 
     compileOptions {

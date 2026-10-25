@@ -129,9 +129,9 @@ dokka {
 
         // Every link in the docs points at the tag, not at a branch: a page
         // published for 0.1.0 has to keep pointing at the code it documented
-        // after develop has moved on. The workflow passes the tag in; locally it
-        // falls back to the default branch, where a stale link costs nothing.
-        val ref = providers.gradleProperty("dokkaSourceRef").orElse("develop")
+        // after `main` has moved on. The workflow passes the tag in; locally it
+        // falls back to the trunk, where a stale link costs nothing.
+        val ref = providers.gradleProperty("dokkaSourceRef").orElse("main")
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
             remoteUrl("https://github.com/damson/compose-hardware-insets/blob/${ref.get()}/hardware-insets/src/main/kotlin")
@@ -152,7 +152,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.devddagnet"
             artifactId = "hardware-insets"
-            version = "0.2.0"
+            version = providers.gradleProperty("VERSION_NAME").get()
             afterEvaluate { from(components["release"]) }
 
             // Without this block the POM carries coordinates and dependencies
