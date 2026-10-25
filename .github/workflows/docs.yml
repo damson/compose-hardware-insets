@@ -62,6 +62,24 @@ jobs:
           ref: ${{ github.ref_name }}
           persist-credentials: false
 
+      - name: The tag and the declared version agree
+        # Only on a tag. `release.yml` runs the same check on the same push, and
+        # the two are independent: a tag it rejects would otherwise still replace
+        # the published site, which holds one version and keeps no history. A
+        # manual run is exempt, because publishing an arbitrary ref is what it is
+        # for.
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -eu
+          declared=$(sed -n 's/^VERSION_NAME=//p' gradle.properties)
+          if [ "$declared" != "$TAG" ]; then
+            echo "Tag $TAG disagrees with VERSION_NAME=$declared in gradle.properties." >&2
+            echo "Nothing has been published. See CONTRIBUTING.md, \"Cutting a release\"." >&2
+            exit 1
+          fi
+
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin

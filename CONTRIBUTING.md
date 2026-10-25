@@ -94,9 +94,9 @@ coordinate to anyone whose build service caches per tag, and JitPack does.
 The admin role bypasses, so a genuinely mis-cut tag can still be corrected
 deliberately.
 
-**`release.yml` refuses a tag that disagrees with `VERSION_NAME`, before
-publishing anything.** It also stops if `CHANGELOG.md` has no section for the
-version, because the release notes are built from it. Both happen before the
+**A tag that disagrees with `VERSION_NAME` is refused by both workflows, before
+either publishes anything.** `release.yml` also stops if `CHANGELOG.md` has no
+section for the version, because the release notes are built from it. Both happen before the
 release object exists, so the only thing to undo is the tag.
 
 **Publishing the API reference rests on two repository settings** that no

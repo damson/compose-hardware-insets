@@ -33,7 +33,15 @@ If neither is true, close this and open the fix against `main`.
 
 - [ ] Cut from the tag, not from `main`:
       `git switch -c release/<x.y> <x.y.z>`
-- [ ] Contains this fix and nothing else
+- [ ] Contains this fix and nothing else, beside the workflows below
+- [ ] Carries the tag-push `release.yml` and `docs.yml`, taken from `main` where
+      the tag predates them
+
+A run uses the workflows in the commit the tag points at, not the ones on
+`main`. A branch cut from a tag whose `release.yml` still triggers on
+`release: published` therefore gets tagged and nothing starts: no release, no
+assets, no API reference, and no failure either. `0.1.0` and `0.2.0` are both
+such tags, so for now this applies to every branch this template describes.
 
 ## It has to reach `main` too
 
@@ -59,8 +67,9 @@ Example:
 
 ## After merging
 
-Bump `VERSION_NAME` on this branch and tag the patch version from it. The tag
-push publishes it exactly as it would from `main`.
+Bump `VERSION_NAME` on this branch and tag the patch version from it. With the
+workflows above on the branch, the tag push publishes it exactly as it would
+from `main`.
 
 ```sh
 git tag <x.y.z> && git push origin refs/tags/<x.y.z>
