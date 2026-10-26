@@ -12,6 +12,9 @@ import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
  * on screen. [isAtTheEnd] uses Compose's logical end, so the alignment follows
  * the current layout direction.
  *
+ * @param isAtTheEnd whether the content sits at the edge's end corner rather
+ *   than its start one, in Compose's logical sense.
+ * @return the alignment that puts content in that corner of the edge.
  * @throws IllegalArgumentException when this is a vertical device edge rather
  *   than a horizontal screen edge.
  */

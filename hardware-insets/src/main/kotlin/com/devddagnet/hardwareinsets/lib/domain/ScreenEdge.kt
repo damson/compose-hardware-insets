@@ -21,8 +21,13 @@ enum class ScreenEdge {
     RIGHT,
     ;
 
+    /**
+     * Whether this is one of the screen's own edges, [TOP] or [BOTTOM], rather
+     * than a device edge that has still to be put on screen by [onScreenAt].
+     */
     val isHorizontalEdge: Boolean get() = this == TOP || this == BOTTOM
 
+    /** The edge across the window from this one. */
     val opposite: ScreenEdge
         get() = when (this) {
             TOP -> BOTTOM
