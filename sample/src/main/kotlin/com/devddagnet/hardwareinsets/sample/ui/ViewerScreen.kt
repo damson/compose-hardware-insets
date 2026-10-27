@@ -53,9 +53,9 @@ import kotlinx.coroutines.launch
  * @param rotation where the display is turned to now, watched by the activity
  *   for the same reason. A landscape flip fires no configuration change, so a
  *   screen that read this once would go on laying out for the old one.
- * @param onPalenessChange called with how pale the plate now showing is at the
- *   top and at the bottom. The system bars draw their icons over it, and with a
- *   transparent bar the platform has no idea what is underneath.
+ * @param onPlatePalenessChange called with how pale the plate now showing is
+ *   at the top and at the bottom. The system bars draw their icons over it,
+ *   and with a transparent bar the platform has no idea what is underneath.
  * @param onShareClick called with the line that introduces the library. Sending
  *   it anywhere is an `Intent`, which is the activity's business and not this
  *   function's.
@@ -66,7 +66,7 @@ fun ViewerScreen(
     options: ViewerOptions,
     rotation: ScreenRotation,
     onOptionsChange: (ViewerOptions) -> Unit,
-    onPalenessChange: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
+    onPlatePalenessChange: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
     onShareClick: (String) -> Unit,
 ) {
     var isSheetOpen by remember { mutableStateOf(false) }
@@ -91,7 +91,7 @@ fun ViewerScreen(
     val shake = rememberLabelShake(shakes)
     val corner = rememberCornerMovement(cutout, edge, options.isCornerAtTheEnd)
 
-    LaunchedEffect(plate) { onPalenessChange(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
+    LaunchedEffect(plate) { onPlatePalenessChange(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
 
     Box(
         Modifier
@@ -250,7 +250,7 @@ private fun ViewerScreenPreview() = SampleTheme {
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
         onOptionsChange = {},
-        onPalenessChange = { _, _ -> },
+        onPlatePalenessChange = { _, _ -> },
         onShareClick = {},
     )
 }
@@ -263,7 +263,7 @@ private fun ViewerScreenCentredHolePreview() = SampleTheme {
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
         onOptionsChange = {},
-        onPalenessChange = { _, _ -> },
+        onPlatePalenessChange = { _, _ -> },
         onShareClick = {},
     )
 }
@@ -276,7 +276,7 @@ private fun ViewerScreenCurvedPreview() = SampleTheme {
         options = ViewerOptions(anchor = ScreenEdge.BOTTOM),
         rotation = ScreenRotation.NONE,
         onOptionsChange = {},
-        onPalenessChange = { _, _ -> },
+        onPlatePalenessChange = { _, _ -> },
         onShareClick = {},
     )
 }
@@ -289,7 +289,7 @@ private fun ViewerScreenWithoutHardwarePreview() = SampleTheme {
         options = ViewerOptions(areMarkersShown = false),
         rotation = ScreenRotation.NONE,
         onOptionsChange = {},
-        onPalenessChange = { _, _ -> },
+        onPlatePalenessChange = { _, _ -> },
         onShareClick = {},
     )
 }

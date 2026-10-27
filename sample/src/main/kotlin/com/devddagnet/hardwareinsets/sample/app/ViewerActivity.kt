@@ -193,7 +193,7 @@ class ViewerActivity : ComponentActivity() {
                             // where a bare rotation is the View's own Float.
                             rotation = this@ViewerActivity.rotation,
                             onOptionsChange = ::applyOptions,
-                            onPalenessChange = ::applyBarIconsFor,
+                            onPlatePalenessChange = ::applyBarIconsFor,
                             onShareClick = ::share,
                         )
                     }
