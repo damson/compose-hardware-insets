@@ -22,12 +22,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +44,38 @@ import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
 import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
+
+/**
+ * The sheet the controls arrive on, which is a window of its own and so carries
+ * its own colours rather than the screen's.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ControlSheet(
+    cutout: CutoutShape,
+    options: ViewerOptions,
+    onOptionsChange: (ViewerOptions) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        // Half height first, so a change to a top-anchored control is visible
+        // while it is being made. Drag up for the rest.
+        sheetState = rememberModalBottomSheetState(),
+        // No scrim: every control on this sheet changes the screen behind it,
+        // so dimming the plate to ask about the plate hides the answer.
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
+        // `contentColorFor` answers `Unspecified` for a colour that is not a
+        // scheme role, and the text would then take whatever is ambient.
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        scrimColor = Color.Transparent,
+    ) {
+        ControlSheetContent(cutout, options, onOptionsChange)
+    }
+}
+
+/** How solid the sheet's frame is. It can be glass because no text sits on it. */
+private const val SHEET_ALPHA = 0.55f
 
 /**
  * Every parameter the library takes, as a Material control, over a readout of

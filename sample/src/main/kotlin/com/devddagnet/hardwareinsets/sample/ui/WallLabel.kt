@@ -68,29 +68,7 @@ internal fun WallLabel(
     modifier: Modifier = Modifier,
 ) {
     val swing = with(LocalDensity.current) { SHAKE_SWING.toPx() }
-
-    val density = LocalDensity.current
-    val bars = WindowInsets.systemBars.asPaddingValues()
-    val applied = with(density) {
-        hardwareInsets(edge, options.policy, options.isFarEdgeIgnored).let {
-            if (edge.isPlacedAtTheTop) it.getTop(density).toDp() else it.getBottom(density).toDp()
-        }
-    }
-    val fromTheEdge =
-        if (edge.isPlacedAtTheTop) bars.calculateTopPadding() else bars.calculateBottomPadding()
-    // The two corner controls do not sit off the same thing. The row clears the
-    // bars; the settings button clears everything, so with the bars hidden and
-    // a cutout on this edge it is the one standing further in.
-    //
-    // The button stays on the bottom edge whatever the label does, so it only
-    // competes with a label anchored there. Counting it at the top reserved
-    // room for a control that is not on that edge, and the label answered a
-    // policy change it had no business answering.
-    val settingsButton = settingsButtonReachOn(
-        edge,
-        with(density) { hardwareInsets(edge, EverythingPolicy).getBottom(density).toDp() },
-    )
-    val reserved = reservedForTheCornerControls(fromTheEdge, settingsButton, rowMoved, applied)
+    val reserved = reservedForTheCorner(edge, options, rowMoved)
 
     Box(
         modifier
@@ -112,45 +90,88 @@ internal fun WallLabel(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Column(
-            Modifier
-                .widthIn(max = 460.dp)
-                .plaque(MaterialTheme.shapes.large)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-        ) {
+        Plaque(plate = plate, number = number, total = total, readout = anchorReadout(options, edge))
+    }
+}
+
+/**
+ * What is written on the label: the plate above the rule, where the library has
+ * put the label below it.
+ *
+ * @param readout the library's half, which belongs to no plate and changes when
+ *   the device turns rather than when the gallery moves on.
+ */
+@Composable
+private fun Plaque(plate: Plate, number: Int, total: Int, readout: String) {
+    Column(
+        Modifier
+            .widthIn(max = 460.dp)
+            .plaque(MaterialTheme.shapes.large)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+    ) {
+        Text(
+            stringResource(plate.title),
+            color = MaterialTheme.onPlaque,
+            style = MaterialTheme.typography.headlineSmall,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            stringResource(plate.maker),
+            color = MaterialTheme.onPlaqueVariant,
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            stringResource(plate.medium),
+            color = MaterialTheme.onPlaqueVariant.copy(alpha = 0.82f),
+            style = MaterialTheme.typography.bodySmall,
+        )
+        HorizontalDivider(
+            Modifier.padding(vertical = 12.dp),
+            color = MaterialTheme.onPlaque.copy(alpha = 0.22f),
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            PlateRail(number = number, total = total)
             Text(
-                stringResource(plate.title),
-                color = MaterialTheme.onPlaque,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(plate.maker),
+                readout,
                 color = MaterialTheme.onPlaqueVariant,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f).padding(start = 16.dp),
             )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                stringResource(plate.medium),
-                color = MaterialTheme.onPlaqueVariant.copy(alpha = 0.82f),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            HorizontalDivider(
-                Modifier.padding(vertical = 12.dp),
-                color = MaterialTheme.onPlaque.copy(alpha = 0.22f),
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                PlateRail(number = number, total = total)
-                Text(
-                    anchorReadout(options, edge),
-                    color = MaterialTheme.onPlaqueVariant,
-                    style = MaterialTheme.typography.labelMedium,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f).padding(start = 16.dp),
-                )
-            }
         }
     }
+}
+
+/**
+ * How much of the anchored edge the corner controls have already taken, which
+ * is room this label has to leave them.
+ *
+ * The two corner controls do not sit off the same thing. The row clears the
+ * bars; the settings button clears everything, so with the bars hidden and a
+ * cutout on this edge it is the one standing further in.
+ *
+ * The button stays on the bottom edge whatever the label does, so it only
+ * competes with a label anchored there. Counting it at the top reserved room
+ * for a control that is not on that edge, and the label answered a policy
+ * change it had no business answering.
+ */
+@Composable
+private fun reservedForTheCorner(edge: ScreenEdge, options: ViewerOptions, rowMoved: Dp): Dp {
+    val density = LocalDensity.current
+    val bars = WindowInsets.systemBars.asPaddingValues()
+    val applied = with(density) {
+        hardwareInsets(edge, options.policy, options.isFarEdgeIgnored).let {
+            if (edge.isPlacedAtTheTop) it.getTop(density).toDp() else it.getBottom(density).toDp()
+        }
+    }
+    val fromTheEdge =
+        if (edge.isPlacedAtTheTop) bars.calculateTopPadding() else bars.calculateBottomPadding()
+    val settingsButton = settingsButtonReachOn(
+        edge,
+        with(density) { hardwareInsets(edge, EverythingPolicy).getBottom(density).toDp() },
+    )
+    return reservedForTheCornerControls(fromTheEdge, settingsButton, rowMoved, applied)
 }
 
 /**
