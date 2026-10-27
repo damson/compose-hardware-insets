@@ -22,9 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import com.devddagnet.hardwareinsets.sample.R
-import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 
 /**
  * The corner control: favourite this plate, or send it on.
@@ -40,8 +38,6 @@ import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 @Composable
 internal fun CornerActions(
     moved: IntOffset,
-    edge: ScreenEdge,
-    options: ViewerOptions,
     isFavourite: Boolean,
     onFavouriteChange: (Boolean) -> Unit,
     onShareClick: () -> Unit,
@@ -88,8 +84,6 @@ internal val CORNER_PADDING = 16.dp
 private fun CornerActionsPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset.Zero,
-        edge = ScreenEdge.TOP,
-        options = ViewerOptions(),
         isFavourite = false,
         onFavouriteChange = {},
         onShareClick = {},
@@ -101,8 +95,6 @@ private fun CornerActionsPreview() = SamplePreview {
 private fun CornerActionsClearPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset(x = 0, y = 126),
-        edge = ScreenEdge.TOP,
-        options = ViewerOptions(),
         isFavourite = true,
         onFavouriteChange = {},
         onShareClick = {},

@@ -129,8 +129,6 @@ fun ViewerScreen(
         ) {
             CornerActions(
                 moved = corner.sliding,
-                edge = edge,
-                options = options,
                 isFavourite = pager.currentPage in favourites,
                 onFavouriteChange = { isOn ->
                     favourites =
