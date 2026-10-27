@@ -1,6 +1,7 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -211,17 +212,17 @@ private fun BoxScope.PlateSteps(pager: PagerState, isVisible: Boolean) {
  * reads as a separate thing happening.
  */
 @Composable
-private fun BoxScope.Fading(
+private fun Fading(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn(),
         exit = fadeOut(),
         modifier = modifier,
-        content = { content() },
+        content = content,
     )
 }
 
