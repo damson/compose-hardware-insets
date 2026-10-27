@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.devddagnet.hardwareinsets.sample.R
 import androidx.compose.ui.tooling.preview.Preview
+import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.Plate
 import com.devddagnet.hardwareinsets.sample.model.Plates
 
