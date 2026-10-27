@@ -1,5 +1,6 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +56,7 @@ import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 fun ControlSheetContent(
     cutout: CutoutShape,
     options: ViewerOptions,
-    onOptions: (ViewerOptions) -> Unit,
+    onOptionsChange: (ViewerOptions) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -69,29 +70,32 @@ fun ControlSheetContent(
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp),
     ) {
-    // Scrollable because at a large font setting the last switches fall past
-    // the bottom of a half-height sheet, out of reach with nothing to say so.
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp)
-    ) {
-        Text(
-            stringResource(R.string.controls),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp),
-        )
-        Text(
-            stringResource(R.string.controls_intro),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 12.dp),
-        )
-        Legend(cutout)
-        Sections(options, onOptions)
-    }
+        // Scrollable because at a large font setting the last switches fall
+        // past the bottom of a half-height sheet, out of reach with nothing to
+        // say so.
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                stringResource(R.string.controls),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 8.dp),
+            )
+            Text(
+                stringResource(R.string.controls_intro),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 12.dp),
+            )
+            Legend(cutout)
+            LabelSettings(options, onOptionsChange)
+            HardwareSettings(options, onOptionsChange)
+            WindowSettings(options, onOptionsChange)
+        }
     }
 }
 
@@ -149,54 +153,86 @@ private fun Swatch(color: Color, label: String, value: String) {
     }
 }
 
+/** Where the label goes, and whether the hardware is drawn over the plate. */
 @Composable
-private fun Sections(options: ViewerOptions, onOptions: (ViewerOptions) -> Unit) {
+private fun LabelSettings(options: ViewerOptions, onOptionsChange: (ViewerOptions) -> Unit) {
     Setting(
         R.string.markers, R.string.markers_detail, options.areMarkersShown,
-    ) { onOptions(options.copy(areMarkersShown = it)) }
+    ) { onOptionsChange(options.copy(areMarkersShown = it)) }
 
     Choice(
         label = stringResource(R.string.anchor),
         detail = stringResource(R.string.anchor_detail),
-        entries = ScreenEdge.entries.map { it.name.take(1) + it.name.drop(1).lowercase() },
+        entries = ScreenEdge.entries.map { stringResource(it.label) },
         selectedIndex = ScreenEdge.entries.indexOf(options.anchor),
-        onSelect = { onOptions(options.copy(anchor = ScreenEdge.entries[it])) },
+        onSelect = { onOptionsChange(options.copy(anchor = ScreenEdge.entries[it])) },
     )
     Choice(
         label = stringResource(R.string.corner),
         detail = stringResource(R.string.corner_detail),
         entries = listOf(stringResource(R.string.start), stringResource(R.string.end)),
         selectedIndex = if (options.isCornerAtTheEnd) 1 else 0,
-        onSelect = { onOptions(options.copy(isCornerAtTheEnd = it == 1)) },
+        onSelect = { onOptionsChange(options.copy(isCornerAtTheEnd = it == 1)) },
     )
+}
 
+/** Which of the four things in the way the label is asked to clear. */
+@Composable
+private fun HardwareSettings(options: ViewerOptions, onOptionsChange: (ViewerOptions) -> Unit) {
     Label(stringResource(R.string.counts_as_hardware))
     val policy = options.policy
     Setting(
         R.string.cutout, R.string.cutout_detail, policy.isCutoutIncluded,
-    ) { onOptions(options.copy(policy = policy.copy(isCutoutIncluded = it))) }
+    ) { onOptionsChange(options.copy(policy = policy.copy(isCutoutIncluded = it))) }
     Setting(
         R.string.waterfall, R.string.waterfall_detail, policy.isWaterfallIncluded,
-    ) { onOptions(options.copy(policy = policy.copy(isWaterfallIncluded = it))) }
+    ) { onOptionsChange(options.copy(policy = policy.copy(isWaterfallIncluded = it))) }
     Setting(
         R.string.system_bars, R.string.system_bars_detail, policy.areSystemBarsIncluded,
-    ) { onOptions(options.copy(policy = policy.copy(areSystemBarsIncluded = it))) }
+    ) { onOptionsChange(options.copy(policy = policy.copy(areSystemBarsIncluded = it))) }
     Setting(
         R.string.far_edge_ignored, R.string.far_edge_detail, options.isFarEdgeIgnored,
-    ) { onOptions(options.copy(isFarEdgeIgnored = it)) }
+    ) { onOptionsChange(options.copy(isFarEdgeIgnored = it)) }
+}
 
+/** The two the window owns rather than the layout: the cutout mode and the bars. */
+@Composable
+private fun WindowSettings(options: ViewerOptions, onOptionsChange: (ViewerOptions) -> Unit) {
     Label(stringResource(R.string.window))
     Choice(
         label = stringResource(R.string.cutout_mode),
         detail = stringResource(R.string.cutout_mode_detail),
-        entries = listOf("Always", "Short", "Default", "Never"),
+        entries = CutoutMode.entries.map { stringResource(it.label) },
         selectedIndex = CutoutMode.entries.indexOf(options.cutoutMode),
-        onSelect = { onOptions(options.copy(cutoutMode = CutoutMode.entries[it])) },
+        onSelect = { onOptionsChange(options.copy(cutoutMode = CutoutMode.entries[it])) },
     )
     Setting(
         R.string.hide_bars, R.string.hide_bars_detail, options.areBarsHidden,
-    ) { onOptions(options.copy(areBarsHidden = it)) }
+    ) { onOptionsChange(options.copy(areBarsHidden = it)) }
 }
+
+/**
+ * The label for a segmented button, read from the constant rather than from its
+ * position. A hand-written list beside `entries` is correct only while nobody
+ * reorders the enum, and a `when` over it stops compiling instead.
+ */
+@get:StringRes
+private val ScreenEdge.label: Int
+    get() = when (this) {
+        ScreenEdge.TOP -> R.string.edge_top
+        ScreenEdge.BOTTOM -> R.string.edge_bottom
+        ScreenEdge.LEFT -> R.string.edge_left
+        ScreenEdge.RIGHT -> R.string.edge_right
+    }
+
+@get:StringRes
+private val CutoutMode.label: Int
+    get() = when (this) {
+        CutoutMode.ALWAYS -> R.string.cutout_mode_always
+        CutoutMode.SHORT_EDGES -> R.string.cutout_mode_short
+        CutoutMode.DEFAULT -> R.string.cutout_mode_default
+        CutoutMode.NEVER -> R.string.cutout_mode_never
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -237,7 +273,12 @@ private fun Choice(
 }
 
 @Composable
-private fun Setting(label: Int, detail: Int, isOn: Boolean, onChange: (Boolean) -> Unit) {
+private fun Setting(
+    @StringRes label: Int,
+    @StringRes detail: Int,
+    isOn: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
     ListItem(
         headlineContent = { Text(stringResource(label)) },
         supportingContent = { Text(stringResource(detail)) },
@@ -246,7 +287,7 @@ private fun Setting(label: Int, detail: Int, isOn: Boolean, onChange: (Boolean) 
         modifier = Modifier.toggleable(
             value = isOn,
             role = Role.Switch,
-            onValueChange = onChange,
+            onValueChange = onCheckedChange,
         ),
     )
 }
@@ -270,7 +311,7 @@ private fun ControlSheetPreview() = SamplePreview(alignment = Alignment.BottomSt
     ControlSheetContent(
         cutout = PreviewHardware.cameraInTheCorner,
         options = ViewerOptions(),
-        onOptions = {},
+        onOptionsChange = {},
     )
 }
 
@@ -280,6 +321,6 @@ private fun ControlSheetWithoutHardwarePreview() = SamplePreview(alignment = Ali
     ControlSheetContent(
         cutout = PreviewHardware.none,
         options = ViewerOptions(),
-        onOptions = {},
+        onOptionsChange = {},
     )
 }
