@@ -2,13 +2,13 @@ package com.devddagnet.hardwareinsets.lib
 
 import android.graphics.Rect
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import com.devddagnet.hardwareinsets.lib.domain.WindowCorner
+import com.devddagnet.hardwareinsets.lib.domain.cornerClearanceFor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import androidx.compose.ui.unit.IntSize
-import com.devddagnet.hardwareinsets.lib.domain.WindowCorner
-import com.devddagnet.hardwareinsets.lib.domain.cornerClearanceFor
 
 /**
  * A corner control sits in the corner of whichever edge it is anchored to, and
@@ -137,8 +137,12 @@ class CornerClearanceTest {
         val deepBottom = Rect(0, WINDOW_HEIGHT - 160, CONTROL_WIDTH, WINDOW_HEIGHT)
         val shallowBottom = Rect(0, WINDOW_HEIGHT - 40, CONTROL_WIDTH, WINDOW_HEIGHT)
 
-        assertThat(clearanceFor(listOf(deepBottom, shallowBottom), isAtTop = false).y).isEqualTo(160)
-        assertThat(clearanceFor(listOf(shallowBottom, deepBottom), isAtTop = false).y).isEqualTo(160)
+        assertThat(
+            clearanceFor(listOf(deepBottom, shallowBottom), isAtTop = false).y,
+        ).isEqualTo(160)
+        assertThat(
+            clearanceFor(listOf(shallowBottom, deepBottom), isAtTop = false).y,
+        ).isEqualTo(160)
     }
 
     @Test

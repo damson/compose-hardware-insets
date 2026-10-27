@@ -96,5 +96,6 @@ private fun StepButtonPreview() = SamplePreview {
 @Preview(name = "Step, at the end of the gallery")
 @Composable
 private fun StepButtonDisabledPreview() = SamplePreview {
-    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onClick = {})
+    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onClick = {
+    })
 }

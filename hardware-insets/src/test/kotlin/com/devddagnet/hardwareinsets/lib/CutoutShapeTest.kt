@@ -7,14 +7,14 @@ import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ApplicationProvider
+import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
+import com.devddagnet.hardwareinsets.lib.platform.cutoutShape
+import com.devddagnet.hardwareinsets.lib.platform.stopReportingCutoutShape
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
-import com.devddagnet.hardwareinsets.lib.platform.cutoutShape
-import com.devddagnet.hardwareinsets.lib.platform.stopReportingCutoutShape
 
 /**
  * The handle avoids a camera by its shape rather than by its inset, so where the
@@ -100,7 +100,7 @@ class CutoutShapeTest {
         dispatch(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.statusBars(), statusBar)
-                .build()
+                .build(),
         )
 
         // Consuming here would starve the composition, and anything behind
@@ -133,9 +133,9 @@ class CutoutShapeTest {
                         null,
                         chin,
                         Insets.NONE,
-                    )
+                    ),
                 )
-                .build()
+                .build(),
         )
 
         assertThat(shape.value.topInset).isZero()
@@ -158,7 +158,7 @@ class CutoutShapeTest {
                 null,
                 null,
                 Insets.NONE,
-            )
+            ),
         )
         .build()
 }

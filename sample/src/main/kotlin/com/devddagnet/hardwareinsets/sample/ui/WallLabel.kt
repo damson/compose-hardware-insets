@@ -90,7 +90,12 @@ internal fun WallLabel(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Plaque(plate = plate, number = number, total = total, readout = anchorReadout(options, edge))
+        Plaque(
+            plate = plate,
+            number = number,
+            total = total,
+            readout = anchorReadout(options, edge),
+        )
     }
 }
 
@@ -197,7 +202,7 @@ private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
                             if (isCurrent) MaterialTheme.accent
                             else MaterialTheme.onPlaqueVariant.copy(alpha = 0.45f),
                         shape = CircleShape,
-                    )
+                    ),
             )
         }
     }

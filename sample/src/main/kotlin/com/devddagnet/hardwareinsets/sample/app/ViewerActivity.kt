@@ -17,9 +17,9 @@ import androidx.core.view.WindowInsetsCompat
 import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
 import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
 import com.devddagnet.hardwareinsets.lib.platform.cutoutShape
-import com.devddagnet.hardwareinsets.lib.platform.screenRotation
 import com.devddagnet.hardwareinsets.lib.platform.drawBehindTheHardware
 import com.devddagnet.hardwareinsets.lib.platform.hideTheSystemBars
+import com.devddagnet.hardwareinsets.lib.platform.screenRotation
 import com.devddagnet.hardwareinsets.lib.platform.stopReportingCutoutShape
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
@@ -44,6 +44,7 @@ class ViewerActivity : ComponentActivity() {
     private lateinit var insetHost: View
     private lateinit var cutout: State<CutoutShape>
     private var options by mutableStateOf(ViewerOptions())
+
     // This activity declares the orientation config changes itself, so it is
     // not recreated when the device turns and nothing re-reads the rotation on
     // its own. Held as state and refreshed where the change arrives.
@@ -198,7 +199,7 @@ class ViewerActivity : ComponentActivity() {
                         )
                     }
                 }
-            }
+            },
         )
     }
 }

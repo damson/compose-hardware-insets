@@ -87,10 +87,9 @@ class ArchitectureTest {
     private fun layer(prefix: String): List<File> =
         sources.filter { it.relativeTo(sourceRoot).path.startsWith(prefix) }
 
-    private fun imports(file: File): List<String> =
-        file.readLines()
-            .filter { it.startsWith("import ") }
-            .map { it.removePrefix("import ").substringBefore(" as ").trim() }
+    private fun imports(file: File): List<String> = file.readLines()
+        .filter { it.startsWith("import ") }
+        .map { it.removePrefix("import ").substringBefore(" as ").trim() }
 
     private fun assertNoImports(
         importedFrom: String,

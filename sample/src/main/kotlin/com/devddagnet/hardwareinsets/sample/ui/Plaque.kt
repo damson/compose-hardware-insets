@@ -39,7 +39,9 @@ internal fun Modifier.plaque(shape: Shape): Modifier = this
 internal fun Modifier.lifted(shape: Shape): Modifier {
     val ink = MaterialTheme.plaqueShadow
     return drawBehind {
-        val path = Path().apply { addOutline(shape.createOutline(size, layoutDirection, this@drawBehind)) }
+        val path = Path().apply {
+            addOutline(shape.createOutline(size, layoutDirection, this@drawBehind))
+        }
         clipPath(path, ClipOp.Difference) {
             translate(top = LIFT_DROP.toPx()) {
                 repeat(LIFT_STEPS) { step ->

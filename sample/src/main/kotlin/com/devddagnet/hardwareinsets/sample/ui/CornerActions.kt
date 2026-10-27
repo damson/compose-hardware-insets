@@ -65,7 +65,7 @@ internal fun CornerActions(
                         if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = stringResource(
                         if (isFavourite) R.string.remove_from_favourites
-                        else R.string.add_to_favourites
+                        else R.string.add_to_favourites,
                     ),
                     tint =
                         if (isFavourite) MaterialTheme.accent

@@ -111,7 +111,7 @@ fun ControlSheetContent(
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp),
         ) {
             Text(
                 stringResource(R.string.controls),
@@ -191,7 +191,9 @@ private fun Swatch(color: Color, label: String, value: String) {
 @Composable
 private fun LabelSettings(options: ViewerOptions, onOptionsChange: (ViewerOptions) -> Unit) {
     Setting(
-        R.string.markers, R.string.markers_detail, options.areMarkersShown,
+        R.string.markers,
+        R.string.markers_detail,
+        options.areMarkersShown,
     ) { onOptionsChange(options.copy(areMarkersShown = it)) }
 
     Choice(
@@ -216,16 +218,24 @@ private fun HardwareSettings(options: ViewerOptions, onOptionsChange: (ViewerOpt
     Label(stringResource(R.string.counts_as_hardware))
     val policy = options.policy
     Setting(
-        R.string.cutout, R.string.cutout_detail, policy.isCutoutIncluded,
+        R.string.cutout,
+        R.string.cutout_detail,
+        policy.isCutoutIncluded,
     ) { onOptionsChange(options.copy(policy = policy.copy(isCutoutIncluded = it))) }
     Setting(
-        R.string.waterfall, R.string.waterfall_detail, policy.isWaterfallIncluded,
+        R.string.waterfall,
+        R.string.waterfall_detail,
+        policy.isWaterfallIncluded,
     ) { onOptionsChange(options.copy(policy = policy.copy(isWaterfallIncluded = it))) }
     Setting(
-        R.string.system_bars, R.string.system_bars_detail, policy.areSystemBarsIncluded,
+        R.string.system_bars,
+        R.string.system_bars_detail,
+        policy.areSystemBarsIncluded,
     ) { onOptionsChange(options.copy(policy = policy.copy(areSystemBarsIncluded = it))) }
     Setting(
-        R.string.far_edge_ignored, R.string.far_edge_detail, options.isFarEdgeIgnored,
+        R.string.far_edge_ignored,
+        R.string.far_edge_detail,
+        options.isFarEdgeIgnored,
     ) { onOptionsChange(options.copy(isFarEdgeIgnored = it)) }
 }
 
@@ -241,7 +251,9 @@ private fun WindowSettings(options: ViewerOptions, onOptionsChange: (ViewerOptio
         onSelect = { onOptionsChange(options.copy(cutoutMode = CutoutMode.entries[it])) },
     )
     Setting(
-        R.string.hide_bars, R.string.hide_bars_detail, options.areBarsHidden,
+        R.string.hide_bars,
+        R.string.hide_bars_detail,
+        options.areBarsHidden,
     ) { onOptionsChange(options.copy(areBarsHidden = it)) }
 }
 
@@ -351,10 +363,11 @@ private fun ControlSheetPreview() = SamplePreview(alignment = Alignment.BottomSt
 
 @Preview(name = "Controls, on a phone with nothing in the way", heightDp = 900)
 @Composable
-private fun ControlSheetWithoutHardwarePreview() = SamplePreview(alignment = Alignment.BottomStart) {
-    ControlSheetContent(
-        cutout = PreviewHardware.none,
-        options = ViewerOptions(),
-        onOptionsChange = {},
-    )
-}
+private fun ControlSheetWithoutHardwarePreview() =
+    SamplePreview(alignment = Alignment.BottomStart) {
+        ControlSheetContent(
+            cutout = PreviewHardware.none,
+            options = ViewerOptions(),
+            onOptionsChange = {},
+        )
+    }

@@ -1,9 +1,9 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
 import androidx.compose.ui.unit.IntOffset
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 
 /**
  * The clearance arrives as distances inward from the control's own corner, and

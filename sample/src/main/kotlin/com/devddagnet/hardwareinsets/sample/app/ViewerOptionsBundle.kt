@@ -1,10 +1,10 @@
 package com.devddagnet.hardwareinsets.sample.app
 
 import android.os.Bundle
-import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
 import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
 import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
+import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 
 /**
  * Writes the options into a `Bundle`, for the activity to carry across its own
