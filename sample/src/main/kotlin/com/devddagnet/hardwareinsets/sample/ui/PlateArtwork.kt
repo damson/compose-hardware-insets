@@ -10,8 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.Plate
+import com.devddagnet.hardwareinsets.sample.model.Plates
 
 /**
  * A plate, full bleed, under everything else on the screen.
@@ -44,7 +46,7 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
 @Composable
 internal fun Modifier.togglingTheControls(
     areControlsShown: Boolean,
-    onToggle: () -> Unit,
+    onClick: () -> Unit,
 ): Modifier {
     val label =
         stringResource(if (areControlsShown) R.string.hide_the_label else R.string.show_the_label)
@@ -52,6 +54,22 @@ internal fun Modifier.togglingTheControls(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onClickLabel = label,
-        onClick = onToggle,
+        onClick = onClick,
     )
+}
+
+/**
+ * The two a plate has to be, because the bars draw over it and the library
+ * does not: one the status bar needs dark icons for, one it does not.
+ */
+@Preview(name = "A plate that is pale at the top", showSystemUi = true)
+@Composable
+private fun PlateArtworkPalePreview() = SampleTheme {
+    PlateArtwork(Plates.first { it.isPaleAtTheTop })
+}
+
+@Preview(name = "A plate that is dark at the top", showSystemUi = true)
+@Composable
+private fun PlateArtworkDarkPreview() = SampleTheme {
+    PlateArtwork(Plates.first { !it.isPaleAtTheTop })
 }

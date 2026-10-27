@@ -1,5 +1,6 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
@@ -24,9 +25,9 @@ import com.devddagnet.hardwareinsets.sample.R
 
 /** The way into the sheet: the only control here that demonstrates nothing. */
 @Composable
-internal fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+internal fun OpenControls(onClick: () -> Unit, modifier: Modifier = Modifier) {
     FloatingActionButton(
-        onClick = onOpen,
+        onClick = onClick,
         shape = CircleShape,
         containerColor = MaterialTheme.accent,
         contentColor = MaterialTheme.onAccent,
@@ -56,9 +57,9 @@ internal fun OpenControls(onOpen: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 internal fun StepButton(
     icon: ImageVector,
-    label: Int,
+    @StringRes label: Int,
     isEnabled: Boolean,
-    onStep: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -70,7 +71,7 @@ internal fun StepButton(
             .padding(16.dp)
             .lifted(CircleShape),
     ) {
-        IconButton(onClick = onStep, enabled = isEnabled) {
+        IconButton(onClick = onClick, enabled = isEnabled) {
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
@@ -84,16 +85,16 @@ internal fun StepButton(
 
 @Preview(name = "Settings trigger")
 @Composable
-private fun OpenControlsPreview() = SamplePreview { OpenControls(onOpen = {}) }
+private fun OpenControlsPreview() = SamplePreview { OpenControls(onClick = {}) }
 
 @Preview(name = "Step, enabled")
 @Composable
 private fun StepButtonPreview() = SamplePreview {
-    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = true, onStep = {})
+    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = true, onClick = {})
 }
 
 @Preview(name = "Step, at the end of the gallery")
 @Composable
 private fun StepButtonDisabledPreview() = SamplePreview {
-    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onStep = {})
+    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onClick = {})
 }

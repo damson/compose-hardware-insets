@@ -54,6 +54,10 @@
     <string name="corner_detail">Start is the left corner of that edge in a left-to-right language, and the right one in Arabic or Hebrew</string>
     <string name="start">Start</string>
     <string name="end">End</string>
+    <string name="edge_top">Top</string>
+    <string name="edge_bottom">Bottom</string>
+    <string name="edge_left">Left</string>
+    <string name="edge_right">Right</string>
 
     <string name="counts_as_hardware">What the label moves out of the way of</string>
     <string name="cutout">The camera</string>
@@ -68,6 +72,10 @@
     <string name="window">The window itself</string>
     <string name="cutout_mode">How far the picture may go under the camera</string>
     <string name="cutout_mode_detail">Always fills the whole screen, which is what a viewer wants. Never keeps the picture clear of the camera entirely</string>
+    <string name="cutout_mode_always">Always</string>
+    <string name="cutout_mode_short">Short</string>
+    <string name="cutout_mode_default">Default</string>
+    <string name="cutout_mode_never">Never</string>
     <string name="hide_bars">Hide the clock and the gesture bar</string>
     <string name="hide_bars_detail">Swipe in from an edge to bring them back</string>
 </resources>

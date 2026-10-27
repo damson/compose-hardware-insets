@@ -1,21 +1,21 @@
 package com.devddagnet.hardwareinsets.sample.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,7 +28,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,22 +54,21 @@ import kotlinx.coroutines.launch
  * @param rotation where the display is turned to now, watched by the activity
  *   for the same reason. A landscape flip fires no configuration change, so a
  *   screen that read this once would go on laying out for the old one.
- * @param onBarsOver called with how pale the plate now showing is at the top
- *   and at the bottom. The system bars draw their icons over it, and with a
- *   transparent bar the platform has no idea what is underneath.
- * @param onShare called with the line that introduces the library. Sending it
- *   anywhere is an `Intent`, which is the activity's business and not this
+ * @param onPlatePalenessChange called with how pale the plate now showing is
+ *   at the top and at the bottom. The system bars draw their icons over it,
+ *   and with a transparent bar the platform has no idea what is underneath.
+ * @param onShareClick called with the line that introduces the library. Sending
+ *   it anywhere is an `Intent`, which is the activity's business and not this
  *   function's.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewerScreen(
     cutout: CutoutShape,
     options: ViewerOptions,
     rotation: ScreenRotation,
-    onOptions: (ViewerOptions) -> Unit,
-    onBarsOver: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
-    onShare: (String) -> Unit,
+    onOptionsChange: (ViewerOptions) -> Unit,
+    onPlatePalenessChange: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
+    onShareClick: (String) -> Unit,
 ) {
     var isSheetOpen by remember { mutableStateOf(false) }
     // The label, the step buttons, the corner row and the trigger, which go
@@ -91,11 +89,10 @@ fun ViewerScreen(
     val plate = Plates[pager.currentPage]
     val repoPitch = stringResource(R.string.share_repo)
     var shakes by remember { mutableIntStateOf(0) }
-    val steps = rememberCoroutineScope()
     val shake = rememberLabelShake(shakes)
     val corner = rememberCornerMovement(cutout, edge, options.isCornerAtTheEnd)
 
-    LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
+    LaunchedEffect(plate) { onPlatePalenessChange(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
 
     Box(
         Modifier
@@ -112,12 +109,7 @@ fun ViewerScreen(
             )
         }
 
-        AnimatedVisibility(
-            visible = areControlsShown,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(edge.toAlignment()).fillMaxWidth(),
-        ) {
+        Fading(areControlsShown, Modifier.align(edge.toAlignment()).fillMaxWidth()) {
             WallLabel(
                 plate = plate,
                 number = pager.currentPage + 1,
@@ -128,38 +120,9 @@ fun ViewerScreen(
                 rowMoved = with(LocalDensity.current) { corner.reach.toDp() },
             )
         }
-        // A half-height sheet's top edge lands exactly where these sit, so
-        // leaving them up gets you two buttons sawn in half.
-        AnimatedVisibility(
-            visible = areControlsShown && !isSheetOpen,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.CenterStart).clearOfEverything(),
-        ) {
-            StepButton(
-                icon = Icons.Filled.KeyboardArrowLeft,
-                label = R.string.previous_plate,
-                isEnabled = pager.currentPage > 0,
-                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
-            )
-        }
-        AnimatedVisibility(
-            visible = areControlsShown && !isSheetOpen,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.CenterEnd).clearOfEverything(),
-        ) {
-            StepButton(
-                icon = Icons.Filled.KeyboardArrowRight,
-                label = R.string.next_plate,
-                isEnabled = pager.currentPage < Plates.size - 1,
-                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
-            )
-        }
-        AnimatedVisibility(
-            visible = areControlsShown,
-            enter = fadeIn(),
-            exit = fadeOut(),
+        PlateSteps(pager, isVisible = areControlsShown && !isSheetOpen)
+        Fading(
+            isVisible = areControlsShown,
             modifier = Modifier
                 .align(edge.toAlignment(options.isCornerAtTheEnd))
                 .clearOfTheBars(),
@@ -169,7 +132,7 @@ fun ViewerScreen(
                 edge = edge,
                 options = options,
                 isFavourite = pager.currentPage in favourites,
-                onFavourite = { isOn ->
+                onFavouriteChange = { isOn ->
                     favourites =
                         if (isOn) favourites + pager.currentPage
                         else favourites - pager.currentPage
@@ -177,15 +140,13 @@ fun ViewerScreen(
                     // has to shake twice.
                     shakes++
                 },
-                onShare = { onShare(repoPitch) },
+                onShareClick = { onShareClick(repoPitch) },
             )
         }
-        AnimatedVisibility(
+        Fading(
             // Gone while the sheet is open: it is the thing that opened it,
             // and a see-through sheet would show it sitting behind itself.
-            visible = areControlsShown && !isSheetOpen,
-            enter = fadeIn(),
-            exit = fadeOut(),
+            isVisible = areControlsShown && !isSheetOpen,
             // The demo puts its own control in a corner of whichever edge you
             // pick, so a fixed trigger collides in exactly one configuration.
             //
@@ -201,31 +162,69 @@ fun ViewerScreen(
                 )
                 .clearOfEverything(),
         ) {
-            OpenControls(onOpen = { isSheetOpen = true })
+            OpenControls(onClick = { isSheetOpen = true })
         }
     }
 
     if (isSheetOpen) {
-        ModalBottomSheet(
+        ControlSheet(
+            cutout = cutout,
+            options = options,
+            onOptionsChange = onOptionsChange,
             onDismissRequest = { isSheetOpen = false },
-            // Half height first, so a change to a top-anchored control is visible
-            // while it is being made. Drag up for the rest.
-            sheetState = rememberModalBottomSheetState(),
-            // No scrim: every control on this sheet changes the screen behind
-            // it, so dimming the plate to ask about the plate hides the answer.
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = SHEET_ALPHA),
-            // `contentColorFor` answers `Unspecified` for a colour that is not
-            // a scheme role, and the text would then take whatever is ambient.
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            scrimColor = Color.Transparent,
-        ) {
-            ControlSheetContent(cutout, options, onOptions)
-        }
+        )
     }
 }
 
-/** How solid the sheet's frame is. It can be glass because no text sits on it. */
-internal const val SHEET_ALPHA = 0.55f
+/**
+ * Previous and next, halfway down each side.
+ *
+ * Hidden while the sheet is open as well as with the controls: a half-height
+ * sheet's top edge lands exactly where these sit, so leaving them up gets you
+ * two buttons sawn in half.
+ */
+@Composable
+private fun BoxScope.PlateSteps(pager: PagerState, isVisible: Boolean) {
+    val steps = rememberCoroutineScope()
+    Fading(isVisible, Modifier.align(Alignment.CenterStart).clearOfEverything()) {
+        StepButton(
+            icon = Icons.Filled.KeyboardArrowLeft,
+            label = R.string.previous_plate,
+            isEnabled = pager.currentPage > 0,
+            onClick = { steps.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
+        )
+    }
+    Fading(isVisible, Modifier.align(Alignment.CenterEnd).clearOfEverything()) {
+        StepButton(
+            icon = Icons.Filled.KeyboardArrowRight,
+            label = R.string.next_plate,
+            isEnabled = pager.currentPage < Plates.size - 1,
+            onClick = { steps.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
+        )
+    }
+}
+
+/**
+ * A control that fades rather than appearing, which is how every control on
+ * this screen comes and goes.
+ *
+ * One tap on the plate hides the lot, so a control arriving with its own timing
+ * reads as a separate thing happening.
+ */
+@Composable
+private fun Fading(
+    isVisible: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier,
+        content = content,
+    )
+}
 
 /**
  * A [Set] is not one of the types a `Bundle` carries, so the favourites travel
@@ -251,9 +250,9 @@ private fun ViewerScreenPreview() = SampleTheme {
         cutout = PreviewHardware.cameraInTheCorner,
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPlatePalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -264,9 +263,9 @@ private fun ViewerScreenCentredHolePreview() = SampleTheme {
         cutout = PreviewHardware.centredPunchHole,
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPlatePalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -277,9 +276,9 @@ private fun ViewerScreenCurvedPreview() = SampleTheme {
         cutout = PreviewHardware.curvedEdges,
         options = ViewerOptions(anchor = ScreenEdge.BOTTOM),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPlatePalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -290,8 +289,8 @@ private fun ViewerScreenWithoutHardwarePreview() = SampleTheme {
         cutout = PreviewHardware.none,
         options = ViewerOptions(areMarkersShown = false),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPlatePalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
