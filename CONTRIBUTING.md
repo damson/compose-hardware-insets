@@ -18,6 +18,32 @@ overall at 90% of lines and 85% of branches.
 the API 36 jar refuses to load under anything earlier. On JDK 17 every test fails in setup with
 `Failed to create a Robolectric sandbox`, which reads like broken tests rather than a wrong JDK.
 
+## Style
+
+```
+./gradlew formatKotlin
+```
+
+ktlint and detekt run inside `check`, so the command above is the whole of the
+fix for anything ktlint reports. detekt findings are not auto-fixable and are
+meant to be read.
+
+The rules live in two files, and in neither plugin block: `.editorconfig` for
+formatting, which Android Studio and IntelliJ read too, and
+`config/detekt/detekt.yml` for the static analysis, which states only where
+this project differs from detekt's defaults. Both carry the reason for each
+deviation on the line that sets it.
+
+```
+./gradlew installGitHooks
+```
+
+Once per checkout, and optional. It points git at `.githooks`, whose
+`pre-commit` runs both tools when a commit touches Kotlin, so a formatting fix
+never has to become a second commit on a pull request. `SKIP_HOOKS=1 git commit`
+goes past it. Hooks are not cloned, so without that command nothing runs locally
+and `check` is still the gate.
+
 ## Branches and pull requests
 
 **One long-lived branch, `main`.** Cut a short-lived branch from it, open a pull
