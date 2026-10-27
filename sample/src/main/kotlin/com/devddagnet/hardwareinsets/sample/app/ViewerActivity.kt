@@ -118,7 +118,7 @@ class ViewerActivity : ComponentActivity() {
      * composable that asked for it. Text, because what is on screen is painted
      * at the window's size and there is no file to attach.
      */
-    private fun onShare(line: String) {
+    private fun share(line: String) {
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, line)
@@ -126,7 +126,7 @@ class ViewerActivity : ComponentActivity() {
         startActivity(Intent.createChooser(send, getString(R.string.share)))
     }
 
-    private fun onOptions(next: ViewerOptions) {
+    private fun applyOptions(next: ViewerOptions) {
         applyWindow(next)
         options = next
     }
@@ -136,7 +136,7 @@ class ViewerActivity : ComponentActivity() {
      * what colour that is: with no theme attribute and no listener for it, the
      * icons stay whatever they were until something says otherwise.
      */
-    private fun onBarsOver(isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) {
+    private fun applyBarIconsFor(isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) {
         isPlatePaleAtTheTop = isPaleAtTheTop
         isPlatePaleAtTheBottom = isPaleAtTheBottom
         applyBarIcons()
@@ -192,9 +192,9 @@ class ViewerActivity : ComponentActivity() {
                             // Qualified: this sits inside ComposeView.apply,
                             // where a bare rotation is the View's own Float.
                             rotation = this@ViewerActivity.rotation,
-                            onOptions = ::onOptions,
-                            onBarsOver = ::onBarsOver,
-                            onShare = ::onShare,
+                            onOptionsChange = ::applyOptions,
+                            onPalenessChange = ::applyBarIconsFor,
+                            onShareClick = ::share,
                         )
                     }
                 }

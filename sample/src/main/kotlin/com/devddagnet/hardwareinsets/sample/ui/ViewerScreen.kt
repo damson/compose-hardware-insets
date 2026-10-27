@@ -55,11 +55,11 @@ import kotlinx.coroutines.launch
  * @param rotation where the display is turned to now, watched by the activity
  *   for the same reason. A landscape flip fires no configuration change, so a
  *   screen that read this once would go on laying out for the old one.
- * @param onBarsOver called with how pale the plate now showing is at the top
- *   and at the bottom. The system bars draw their icons over it, and with a
+ * @param onPalenessChange called with how pale the plate now showing is at the
+ *   top and at the bottom. The system bars draw their icons over it, and with a
  *   transparent bar the platform has no idea what is underneath.
- * @param onShare called with the line that introduces the library. Sending it
- *   anywhere is an `Intent`, which is the activity's business and not this
+ * @param onShareClick called with the line that introduces the library. Sending
+ *   it anywhere is an `Intent`, which is the activity's business and not this
  *   function's.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,9 +68,9 @@ fun ViewerScreen(
     cutout: CutoutShape,
     options: ViewerOptions,
     rotation: ScreenRotation,
-    onOptions: (ViewerOptions) -> Unit,
-    onBarsOver: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
-    onShare: (String) -> Unit,
+    onOptionsChange: (ViewerOptions) -> Unit,
+    onPalenessChange: (isPaleAtTheTop: Boolean, isPaleAtTheBottom: Boolean) -> Unit,
+    onShareClick: (String) -> Unit,
 ) {
     var isSheetOpen by remember { mutableStateOf(false) }
     // The label, the step buttons, the corner row and the trigger, which go
@@ -95,7 +95,7 @@ fun ViewerScreen(
     val shake = rememberLabelShake(shakes)
     val corner = rememberCornerMovement(cutout, edge, options.isCornerAtTheEnd)
 
-    LaunchedEffect(plate) { onBarsOver(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
+    LaunchedEffect(plate) { onPalenessChange(plate.isPaleAtTheTop, plate.isPaleAtTheBottom) }
 
     Box(
         Modifier
@@ -140,7 +140,7 @@ fun ViewerScreen(
                 icon = Icons.Filled.KeyboardArrowLeft,
                 label = R.string.previous_plate,
                 isEnabled = pager.currentPage > 0,
-                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
+                onClick = { steps.launch { pager.animateScrollToPage(pager.currentPage - 1) } },
             )
         }
         AnimatedVisibility(
@@ -153,7 +153,7 @@ fun ViewerScreen(
                 icon = Icons.Filled.KeyboardArrowRight,
                 label = R.string.next_plate,
                 isEnabled = pager.currentPage < Plates.size - 1,
-                onStep = { steps.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
+                onClick = { steps.launch { pager.animateScrollToPage(pager.currentPage + 1) } },
             )
         }
         AnimatedVisibility(
@@ -169,7 +169,7 @@ fun ViewerScreen(
                 edge = edge,
                 options = options,
                 isFavourite = pager.currentPage in favourites,
-                onFavourite = { isOn ->
+                onFavouriteChange = { isOn ->
                     favourites =
                         if (isOn) favourites + pager.currentPage
                         else favourites - pager.currentPage
@@ -177,7 +177,7 @@ fun ViewerScreen(
                     // has to shake twice.
                     shakes++
                 },
-                onShare = { onShare(repoPitch) },
+                onShareClick = { onShareClick(repoPitch) },
             )
         }
         AnimatedVisibility(
@@ -201,7 +201,7 @@ fun ViewerScreen(
                 )
                 .clearOfEverything(),
         ) {
-            OpenControls(onOpen = { isSheetOpen = true })
+            OpenControls(onClick = { isSheetOpen = true })
         }
     }
 
@@ -219,7 +219,7 @@ fun ViewerScreen(
             contentColor = MaterialTheme.colorScheme.onSurface,
             scrimColor = Color.Transparent,
         ) {
-            ControlSheetContent(cutout, options, onOptions)
+            ControlSheetContent(cutout, options, onOptionsChange)
         }
     }
 }
@@ -251,9 +251,9 @@ private fun ViewerScreenPreview() = SampleTheme {
         cutout = PreviewHardware.cameraInTheCorner,
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -264,9 +264,9 @@ private fun ViewerScreenCentredHolePreview() = SampleTheme {
         cutout = PreviewHardware.centredPunchHole,
         options = ViewerOptions(),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -277,9 +277,9 @@ private fun ViewerScreenCurvedPreview() = SampleTheme {
         cutout = PreviewHardware.curvedEdges,
         options = ViewerOptions(anchor = ScreenEdge.BOTTOM),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }
 
@@ -290,8 +290,8 @@ private fun ViewerScreenWithoutHardwarePreview() = SampleTheme {
         cutout = PreviewHardware.none,
         options = ViewerOptions(areMarkersShown = false),
         rotation = ScreenRotation.NONE,
-        onOptions = {},
-        onBarsOver = { _, _ -> },
-        onShare = {},
+        onOptionsChange = {},
+        onPalenessChange = { _, _ -> },
+        onShareClick = {},
     )
 }

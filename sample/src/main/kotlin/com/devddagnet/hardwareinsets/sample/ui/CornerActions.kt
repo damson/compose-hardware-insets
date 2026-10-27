@@ -43,8 +43,8 @@ internal fun CornerActions(
     edge: ScreenEdge,
     options: ViewerOptions,
     isFavourite: Boolean,
-    onFavourite: (Boolean) -> Unit,
-    onShare: () -> Unit,
+    onFavouriteChange: (Boolean) -> Unit,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -59,7 +59,7 @@ internal fun CornerActions(
             .sizeIn(minWidth = ACTIONS_WIDTH, minHeight = 48.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconToggleButton(checked = isFavourite, onCheckedChange = onFavourite) {
+            IconToggleButton(checked = isFavourite, onCheckedChange = onFavouriteChange) {
                 Icon(
                     imageVector =
                         if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
@@ -72,7 +72,7 @@ internal fun CornerActions(
                         else MaterialTheme.onPlaque.copy(alpha = 0.78f),
                 )
             }
-            IconButton(onClick = onShare) {
+            IconButton(onClick = onShareClick) {
                 Icon(Icons.Filled.Share, contentDescription = stringResource(R.string.share))
             }
         }
@@ -91,8 +91,8 @@ private fun CornerActionsPreview() = SamplePreview {
         edge = ScreenEdge.TOP,
         options = ViewerOptions(),
         isFavourite = false,
-        onFavourite = {},
-        onShare = {},
+        onFavouriteChange = {},
+        onShareClick = {},
     )
 }
 
@@ -104,7 +104,7 @@ private fun CornerActionsClearPreview() = SamplePreview {
         edge = ScreenEdge.TOP,
         options = ViewerOptions(),
         isFavourite = true,
-        onFavourite = {},
-        onShare = {},
+        onFavouriteChange = {},
+        onShareClick = {},
     )
 }

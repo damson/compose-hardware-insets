@@ -44,7 +44,7 @@ internal fun PlateArtwork(plate: Plate, modifier: Modifier = Modifier) {
 @Composable
 internal fun Modifier.togglingTheControls(
     areControlsShown: Boolean,
-    onToggle: () -> Unit,
+    onClick: () -> Unit,
 ): Modifier {
     val label =
         stringResource(if (areControlsShown) R.string.hide_the_label else R.string.show_the_label)
@@ -52,6 +52,6 @@ internal fun Modifier.togglingTheControls(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onClickLabel = label,
-        onClick = onToggle,
+        onClick = onClick,
     )
 }
