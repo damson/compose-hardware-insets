@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.waterfall
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -85,6 +84,31 @@ fun Modifier.clearOfTheHardware(
     isFarEdgeIgnored: Boolean = false,
 ): Modifier = windowInsetsPadding(hardwareInsets(position, policy, isFarEdgeIgnored))
 
+/** The window corner an edge and a side pick out. */
+private fun cornerAt(position: ScreenEdge, isAtTheRight: Boolean): WindowCorner = when {
+    position == ScreenEdge.TOP && isAtTheRight -> WindowCorner.TOP_RIGHT
+    position == ScreenEdge.TOP -> WindowCorner.TOP_LEFT
+    isAtTheRight -> WindowCorner.BOTTOM_RIGHT
+    else -> WindowCorner.BOTTOM_LEFT
+}
+
+/**
+ * How far in from one side the hardware reaches, cutout or curve, whichever is
+ * deeper.
+ */
+@Composable
+private fun nearSideInset(isAtTheRight: Boolean): Int {
+    val density = LocalDensity.current
+    val direction = LocalLayoutDirection.current
+    val cutout = WindowInsets.displayCutout
+    val waterfall = WindowInsets.waterfall
+    return if (isAtTheRight) {
+        maxOf(cutout.getRight(density, direction), waterfall.getRight(density, direction))
+    } else {
+        maxOf(cutout.getLeft(density, direction), waterfall.getLeft(density, direction))
+    }
+}
+
 /**
  * How far a control tucked into the corner of the anchored edge has to move to
  * clear the hardware *there*, given how wide it is.
@@ -120,27 +144,14 @@ fun cornerClearance(
 ): (controlWidth: Int) -> IntOffset {
     if (!position.isHorizontalEdge) return { IntOffset.Zero }
 
-    val density = LocalDensity.current
     val direction = LocalLayoutDirection.current
     val view = LocalView.current
     // Which corner this is takes the layout direction as well as the choice:
     // the end corner is the visual right under LTR and the visual left under
     // RTL, and a cutout is on one side or the other regardless.
     val isAtTheRight = (direction == LayoutDirection.Rtl) != isAtTheEnd
-    val corner = when {
-        position == ScreenEdge.TOP && isAtTheRight -> WindowCorner.TOP_RIGHT
-        position == ScreenEdge.TOP -> WindowCorner.TOP_LEFT
-        isAtTheRight -> WindowCorner.BOTTOM_RIGHT
-        else -> WindowCorner.BOTTOM_LEFT
-    }
-    val cutout = WindowInsets.displayCutout
-    val waterfall = WindowInsets.waterfall
-
-    val side = if (isAtTheRight) {
-        maxOf(cutout.getRight(density, direction), waterfall.getRight(density, direction))
-    } else {
-        maxOf(cutout.getLeft(density, direction), waterfall.getLeft(density, direction))
-    }
+    val corner = cornerAt(position, isAtTheRight)
+    val side = nearSideInset(isAtTheRight)
 
     return { controlWidth ->
         cornerClearanceFor(

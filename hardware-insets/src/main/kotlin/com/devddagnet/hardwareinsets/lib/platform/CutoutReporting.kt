@@ -1,6 +1,5 @@
 package com.devddagnet.hardwareinsets.lib.platform
 
-import android.graphics.Rect
 import android.view.View
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
