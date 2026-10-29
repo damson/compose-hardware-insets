@@ -32,7 +32,7 @@ class ArchitectureTest {
     @Test
     fun `Should be reading the sample's sources`() {
         assertThat(sources).isNotEmpty
-        assertThat(layer(MODEL).map { it.name }).contains("ViewerOptions.kt", "Gallery.kt")
+        assertThat(layer(MODEL).map { it.name }).contains("ViewerOptions.kt", "Plate.kt")
         assertThat(layer(UI).map { it.name }).contains("ViewerScreen.kt")
         assertThat(layer(APP).map { it.name }).contains("ViewerActivity.kt")
     }
