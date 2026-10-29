@@ -21,7 +21,9 @@ import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
 fun ScreenEdge.toAlignment(isAtTheEnd: Boolean = false): Alignment = when (this) {
     ScreenEdge.TOP -> if (isAtTheEnd) Alignment.TopEnd else Alignment.TopStart
     ScreenEdge.BOTTOM -> if (isAtTheEnd) Alignment.BottomEnd else Alignment.BottomStart
-    ScreenEdge.LEFT, ScreenEdge.RIGHT -> throw IllegalArgumentException(
-        "Map a device edge with onScreenAt() before converting it to an alignment",
-    )
+    ScreenEdge.LEFT, ScreenEdge.RIGHT -> {
+        throw IllegalArgumentException(
+            "Map a device edge with onScreenAt() before converting it to an alignment",
+        )
+    }
 }
