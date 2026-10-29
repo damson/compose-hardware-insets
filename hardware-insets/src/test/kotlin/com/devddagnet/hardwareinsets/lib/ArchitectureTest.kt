@@ -52,7 +52,10 @@ class ArchitectureTest {
         assertNoImports(
             importedFrom = "androidx.compose",
             inLayer = DOMAIN,
-            except = { it.startsWith("androidx.compose.ui.unit.") || it == "androidx.compose.runtime.Immutable" },
+            except = {
+                it.startsWith("androidx.compose.ui.unit.") ||
+                    it == "androidx.compose.runtime.Immutable"
+            },
         )
     }
 
@@ -119,7 +122,10 @@ class ArchitectureTest {
             .replace(Regex("""/\*.*?\*/""", RegexOption.DOT_MATCHES_ALL), " ")
             .replace(Regex("//.*"), " ")
             .lines()
-            .filterNot { it.trimStart().startsWith("import ") || it.trimStart().startsWith("package ") }
+            .filterNot {
+                it.trimStart().startsWith("import ") ||
+                    it.trimStart().startsWith("package ")
+            }
             .joinToString("\n")
         val qualified = QUALIFIED.findAll(code).map { it.value }.toList()
         return imports + qualified
@@ -155,7 +161,10 @@ class ArchitectureTest {
 
     private companion object {
         /** A name spelled out in code rather than imported, of the roots that matter here. */
-        val QUALIFIED = Regex("""\b(?:android|androidx|io\.github\.damson\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""")
+        val QUALIFIED =
+            Regex(
+                """\b(?:android|androidx|io\.github\.damson\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""",
+            )
 
         const val LIBRARY = "com.devddagnet.hardwareinsets.lib"
         const val DOMAIN = "com/devddagnet/hardwareinsets/lib/domain"

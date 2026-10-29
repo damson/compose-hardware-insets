@@ -11,6 +11,9 @@ import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.core.view.WindowInsetsCompat.Type.statusBars
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
+import com.devddagnet.hardwareinsets.lib.platform.drawBehindTheHardware
+import com.devddagnet.hardwareinsets.lib.platform.hideTheSystemBars
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.Test
@@ -18,9 +21,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import com.devddagnet.hardwareinsets.lib.domain.CutoutMode
-import com.devddagnet.hardwareinsets.lib.platform.drawBehindTheHardware
-import com.devddagnet.hardwareinsets.lib.platform.hideTheSystemBars
 
 /**
  * Two decisions that arrive together and are not the same one.

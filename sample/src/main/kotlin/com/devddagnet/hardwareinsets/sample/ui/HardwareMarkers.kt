@@ -16,36 +16,42 @@ import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
  * and they are drawn beside them because the difference is the whole argument:
  * a centred punch-hole reports a depth across the entire width.
  */
-internal fun Modifier.markers(cutout: CutoutShape, isShowing: Boolean): Modifier =
-    drawWithContent {
-        drawContent()
-        if (!isShowing) return@drawWithContent
+internal fun Modifier.markers(cutout: CutoutShape, isShowing: Boolean): Modifier = drawWithContent {
+    drawContent()
+    if (!isShowing) return@drawWithContent
 
-        val depths = listOf(
-            Offset(0f, 0f) to Size(size.width, cutout.topInset.toFloat()),
-            Offset(0f, size.height - cutout.bottomInset) to Size(size.width, cutout.bottomInset.toFloat()),
-            Offset(0f, 0f) to Size(cutout.leftInset.toFloat(), size.height),
-            Offset(size.width - cutout.rightInset, 0f) to Size(cutout.rightInset.toFloat(), size.height),
+    val depths = listOf(
+        Offset(0f, 0f) to Size(size.width, cutout.topInset.toFloat()),
+        Offset(0f, size.height - cutout.bottomInset) to
+            Size(size.width, cutout.bottomInset.toFloat()),
+        Offset(0f, 0f) to Size(cutout.leftInset.toFloat(), size.height),
+        Offset(size.width - cutout.rightInset, 0f) to
+            Size(cutout.rightInset.toFloat(), size.height),
+    )
+    depths.filter { it.second.width > 0f && it.second.height > 0f }.forEach { (at, of) ->
+        drawRect(InsetMarker.copy(alpha = 0.10f), topLeft = at, size = of)
+        drawRect(
+            InsetMarker.copy(alpha = 0.85f),
+            topLeft = at,
+            size = of,
+            style = Stroke(width = 2.dp.toPx()),
         )
-        depths.filter { it.second.width > 0f && it.second.height > 0f }.forEach { (at, of) ->
-            drawRect(InsetMarker.copy(alpha = 0.10f), topLeft = at, size = of)
-            drawRect(
-                InsetMarker.copy(alpha = 0.85f),
-                topLeft = at,
-                size = of,
-                style = Stroke(width = 2.dp.toPx()),
-            )
-        }
-
-        // A `for` loop rather than `forEach`: on a list reaching here from the
-        // library, Kotlin 2.4 resolves `forEach` to `java.lang.Iterable#forEach`,
-        // which arrives at API 24 where this sample declares 23. Lint catches it,
-        // but only on the Kotlin version that changes the resolution, so the
-        // version bump reads as the fault rather than the call.
-        for (rect in cutout.bounds) {
-            val topLeft = Offset(rect.left.toFloat(), rect.top.toFloat())
-            val of = Size(rect.width().toFloat(), rect.height().toFloat())
-            drawRect(CutoutMarker.copy(alpha = 0.45f), topLeft = topLeft, size = of)
-            drawRect(CutoutMarker, topLeft = topLeft, size = of, style = Stroke(width = 3.dp.toPx()))
-        }
     }
+
+    // A `for` loop rather than `forEach`: on a list reaching here from the
+    // library, Kotlin 2.4 resolves `forEach` to `java.lang.Iterable#forEach`,
+    // which arrives at API 24 where this sample declares 23. Lint catches it,
+    // but only on the Kotlin version that changes the resolution, so the
+    // version bump reads as the fault rather than the call.
+    for (rect in cutout.bounds) {
+        val topLeft = Offset(rect.left.toFloat(), rect.top.toFloat())
+        val of = Size(rect.width().toFloat(), rect.height().toFloat())
+        drawRect(CutoutMarker.copy(alpha = 0.45f), topLeft = topLeft, size = of)
+        drawRect(
+            CutoutMarker,
+            topLeft = topLeft,
+            size = of,
+            style = Stroke(width = 3.dp.toPx()),
+        )
+    }
+}

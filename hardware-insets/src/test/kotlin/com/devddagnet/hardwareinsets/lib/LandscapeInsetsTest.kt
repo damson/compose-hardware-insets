@@ -55,7 +55,7 @@ class LandscapeInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(INSET_PX, 0, 0, 0))
-                .build()
+                .build(),
         )
 
         assertThat(boundsOf(PANEL).left).isEqualTo(INSET_PX)
@@ -69,7 +69,7 @@ class LandscapeInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(INSET_PX, 0, 0, 0))
-                .build()
+                .build(),
         )
 
         // Wider screen, same rule: the slab is not a control and does not move.
@@ -88,7 +88,7 @@ class LandscapeInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(INSET_PX, 0, 0, 0))
-                .build()
+                .build(),
         )
 
         // The side inset carries it clear; the rectangle does not reach the top
@@ -104,7 +104,7 @@ class LandscapeInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setDisplayCutout(DisplayCutoutCompat(curve, null, null, null, null, curve))
-                .build()
+                .build(),
         )
 
         assertThat(boundsOf(PANEL).left).isEqualTo(INSET_PX)

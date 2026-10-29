@@ -31,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.devddagnet.hardwareinsets.lib.toAlignment
 import com.devddagnet.hardwareinsets.lib.domain.CutoutShape
 import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import com.devddagnet.hardwareinsets.lib.domain.ScreenRotation
 import com.devddagnet.hardwareinsets.lib.domain.onScreenAt
+import com.devddagnet.hardwareinsets.lib.toAlignment
 import com.devddagnet.hardwareinsets.sample.R
 import com.devddagnet.hardwareinsets.sample.model.Plates
 import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
@@ -98,7 +98,7 @@ fun ViewerScreen(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .markers(cutout, options.areMarkersShown)
+            .markers(cutout, options.areMarkersShown),
     ) {
         HorizontalPager(state = pager, modifier = Modifier.fillMaxSize()) { page ->
             PlateArtwork(
@@ -158,7 +158,7 @@ fun ViewerScreen(
             modifier = Modifier
                 .align(
                     if (edge == ScreenEdge.BOTTOM && options.isCornerAtTheEnd) Alignment.BottomStart
-                    else Alignment.BottomEnd
+                    else Alignment.BottomEnd,
                 )
                 .clearOfEverything(),
         ) {
