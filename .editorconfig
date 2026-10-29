@@ -1,8 +1,8 @@
-# The Android Kotlin style guide, in the one file every tool here reads:
-# ktlint takes its rules from this, IntelliJ and Android Studio take their
-# formatting from it, and detekt reads the line length from it too. Changing a
-# number here changes all three, which is the point of putting it here rather
-# than in three plugin blocks.
+# The Android Kotlin style guide, in the one file both ktlint and the IDE read:
+# ktlint takes its rules from here, and IntelliJ and Android Studio take their
+# formatting from here, so a hand reformat in the IDE agrees with the build.
+# detekt reads none of this, which is why `config/detekt/detekt.yml` switches
+# its `MaxLineLength` off and leaves the number below as the only one.
 #
 # https://developer.android.com/kotlin/style-guide
 root = true
@@ -33,31 +33,34 @@ ij_kotlin_allow_trailing_comma_on_call_site = true
 # sorted", with no blank-line groups.
 ij_kotlin_imports_layout = *
 # A composable is PascalCase by Compose's own convention, and so is a preview.
-# ktlint carries this exemption for `Composable` by default; naming it here
-# keeps it true if a future default drops it, and adds the two others this
-# project uses.
+# Load-bearing, not belt and braces: ktlint 1.8.0 defaults this property to
+# unset and the string `Composable` appears nowhere in its jars, so without
+# this line every composable in the sample is a naming violation.
 ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
 # A `when` reads as a table, and a blank line between every arm turns a short
 # one into a page. The rule exists for arms with multi-line bodies, which these
 # are not: the longest here is a two-line `if`.
 ktlint_standard_blank-line-between-when-conditions = disabled
-# Brace-less is permitted for an `if` whose condition is single-line, which is
-# every one here: the branches wrap, the condition does not. Braces come back
-# the moment the condition goes multiline. ktlint's rule does not draw that
-# line, so it is off and the rule is stated here instead.
+# A deliberate departure from the guide this file cites, worth stating plainly
+# rather than leaving the header to imply otherwise. The guide allows a
+# brace-less `if` expression "only if the entire expression fits on one line",
+# and marks the wrapped brace-less form WRONG. This project is looser: an `if`
+# whose branches wrap keeps its bare form inside a call's parentheses and as a
+# `when` branch body, and takes braces where it is assigned to something with
+# `=`, which is where the missing brackets cost a reader the most.
 #
-# `when` is the other way round. Its body always takes braces, and a branch
-# takes them in two cases: when the branch runs past one line, and when its
-# body sits on the line after the arrow rather than beside it. A branch that
-# fits beside its arrow stays bare, including when a sibling is braced.
+# ktlint's `multiline-if-else` is the rule closest to the guide and would brace
+# all three positions, so it is off and the narrower rule is enforced by review.
 #
-# Enforced by review, because no tool draws that line. ktlint's
-# `when-entry-bracing` is experimental and enforces consistency instead: brace
-# one branch and it braces every sibling, which turned a five-line `when` into
-# eleven and `isHorizontalEdge -> this` into three lines holding one word.
-# detekt's `BracesOnWhenStatements` governs statements only, and this repo has
-# one statement against ten expressions, so it could never reach most of them;
-# detekt 2.0 ships it under no ruleset in any case.
+# `when`: the body always takes braces, and a branch takes them when it runs
+# past one line or when its body sits on the line after the arrow. A branch
+# that fits beside its arrow stays bare, even where a sibling is braced.
+# Enforced by review too. ktlint's `when-entry-bracing` enforces sibling
+# consistency rather than the branch, and runs only under `ktlint_official`
+# rather than the `android_studio` style selected above. detekt does ship
+# `BracesOnWhenStatements` and `BracesOnIfStatements`, both off by default and
+# neither yet tried here; whether either expresses the rules above, and whether
+# they reach `when` expressions rather than only statements, is open.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
