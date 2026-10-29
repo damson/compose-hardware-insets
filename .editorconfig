@@ -41,10 +41,11 @@ ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
 # one into a page. The rule exists for arms with multi-line bodies, which these
 # are not: the longest here is a two-line `if`.
 ktlint_standard_blank-line-between-when-conditions = disabled
-# Kotlin's coding conventions say braces are optional when `if` is used as an
-# expression, and this codebase uses that form for values that need two lines.
-# Wrapping a returned expression in braces to satisfy a rule the language guide
-# does not ask for makes the value harder to read, not easier.
+# A house choice, not something a guide grants. Kotlin's coding conventions
+# require braces only when the *condition* is multiline, which these are not,
+# and are silent on an `if` expression whose branches wrap; they do ask for the
+# expression form of `if` in general. ktlint's rule is stricter than either
+# guide, and this codebase wraps two-line values rather than bracing them.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
