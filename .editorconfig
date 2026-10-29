@@ -46,17 +46,18 @@ ktlint_standard_blank-line-between-when-conditions = disabled
 # the moment the condition goes multiline. ktlint's rule does not draw that
 # line, so it is off and the rule is stated here instead.
 #
-# `when` is the other way round: its body always takes braces, and a branch
-# takes them once the branch runs past one line. Three branches here qualify,
-# all of them in `when` expressions rather than statements, which is the
-# distinction that decides whether this is enforceable at all.
+# `when` is the other way round. Its body always takes braces, and a branch
+# takes them in two cases: when the branch runs past one line, and when its
+# body sits on the line after the arrow rather than beside it. A branch that
+# fits beside its arrow stays bare, including when a sibling is braced.
 #
-# No tool here expresses it. ktlint's `when-entry-bracing` is experimental and
-# triggers on a body wrapped onto its own line rather than on a body that is
-# long, so it braces one-line siblings for consistency and still misses all
-# three. detekt's `BracesOnWhenStatements` governs statements only by design,
-# and this repo has exactly one of those, which already complies; it is absent
-# from 2.0 in any case. Written down, enforced by review.
+# Enforced by review, because no tool draws that line. ktlint's
+# `when-entry-bracing` is experimental and enforces consistency instead: brace
+# one branch and it braces every sibling, which turned a five-line `when` into
+# eleven and `isHorizontalEdge -> this` into three lines holding one word.
+# detekt's `BracesOnWhenStatements` governs statements only, and this repo has
+# one statement against ten expressions, so it could never reach most of them;
+# detekt 2.0 ships it under no ruleset in any case.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
