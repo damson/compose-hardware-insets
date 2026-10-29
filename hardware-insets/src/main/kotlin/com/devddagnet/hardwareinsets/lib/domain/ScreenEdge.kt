@@ -49,15 +49,11 @@ fun ScreenEdge.onScreenAt(rotation: ScreenRotation): ScreenEdge = when {
     isHorizontalEdge -> this
     // Turned anticlockwise: the phone's bottom edge is on the right, so its
     // left edge is along the bottom of what the user sees.
-    rotation == ScreenRotation.QUARTER -> if (this == ScreenEdge.LEFT) {
-        ScreenEdge.BOTTOM
-    } else {
-        ScreenEdge.TOP
+    rotation == ScreenRotation.QUARTER -> {
+        if (this == ScreenEdge.LEFT) ScreenEdge.BOTTOM else ScreenEdge.TOP
     }
-    rotation == ScreenRotation.THREE_QUARTERS -> if (this == ScreenEdge.LEFT) {
-        ScreenEdge.TOP
-    } else {
-        ScreenEdge.BOTTOM
+    rotation == ScreenRotation.THREE_QUARTERS -> {
+        if (this == ScreenEdge.LEFT) ScreenEdge.TOP else ScreenEdge.BOTTOM
     }
     // Upright or upside down, where a side edge is still a side. A horizontal
     // edge rather than the side it is, because a caller laying out along this
