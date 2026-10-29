@@ -7,6 +7,8 @@ kotlin = "2.4.21"
 binaryCompatibility = "0.18.2"
 kover = "0.9.11"
 dokka = "2.2.0"
+kotlinter = "5.7.0"
+detekt = "2.0.0-alpha.6"
 
 activity = "1.13.0"
 # Held, and not for this repository's sake: 2026.09.00 brings foundation-layout
@@ -53,3 +55,5 @@ kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }

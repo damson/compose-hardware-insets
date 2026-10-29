@@ -1,0 +1,51 @@
+# The Android Kotlin style guide, in the one file every tool here reads:
+# ktlint takes its rules from this, IntelliJ and Android Studio take their
+# formatting from it, and detekt reads the line length from it too. Changing a
+# number here changes all three, which is the point of putting it here rather
+# than in three plugin blocks.
+#
+# https://developer.android.com/kotlin/style-guide
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+# "Code has a column limit of 100 characters", and `import` and `package` lines
+# are exempt, which ktlint already honours.
+max_line_length = 100
+# Android Studio's style rather than ktlint's own `ktlint_official`, because
+# this is an Android library and the guide above is the one it follows. The two
+# differ on more than the line length: `ktlint_official` adds wrapping and
+# blank-line rules that Android Studio does not produce when you reformat.
+ktlint_code_style = android_studio
+# The guide is silent on trailing commas and this codebase uses them
+# throughout. Left enabled on purpose: without these two, ktlint deletes every
+# one of them, and a parameter added later shows up as a two-line diff.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# "Import statements ... are grouped together in a single list and ASCII
+# sorted", with no blank-line groups.
+ij_kotlin_imports_layout = *
+# A composable is PascalCase by Compose's own convention, and so is a preview.
+# ktlint carries this exemption for `Composable` by default; naming it here
+# keeps it true if a future default drops it, and adds the two others this
+# project uses.
+ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
+# Kotlin's coding conventions say braces are optional when `if` is used as an
+# expression, and this codebase uses that form for values that need two lines.
+# Wrapping a returned expression in braces to satisfy a rule the language guide
+# does not ask for makes the value harder to read, not easier.
+ktlint_standard_multiline-if-else = disabled
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+[*.md]
+# Two trailing spaces are a hard line break in Markdown.
+trim_trailing_whitespace = false
