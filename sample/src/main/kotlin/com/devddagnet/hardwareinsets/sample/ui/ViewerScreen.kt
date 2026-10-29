@@ -114,6 +114,8 @@ fun ViewerScreen(
                 plate = plate,
                 number = pager.currentPage + 1,
                 total = Plates.size,
+                edge = edge,
+                options = options,
                 shake = shake,
                 rowMoved = with(LocalDensity.current) { corner.reach.toDp() },
             )
@@ -127,8 +129,6 @@ fun ViewerScreen(
         ) {
             CornerActions(
                 moved = corner.sliding,
-                edge = edge,
-                options = options,
                 isFavourite = pager.currentPage in favourites,
                 onFavouriteChange = { isOn ->
                     favourites =
