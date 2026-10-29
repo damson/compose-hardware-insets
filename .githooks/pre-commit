@@ -1,0 +1,74 @@
+#!/bin/sh
+# Style and static analysis before the commit, so a formatting fix never has to
+# be a second commit on a pull request.
+#
+# Installed by pointing git at this directory, which `./gradlew installGitHooks`
+# does and `git config core.hooksPath .githooks` does by hand. Hooks are not
+# cloned, so a fresh checkout runs nothing until one of those is run.
+#
+# Set SKIP_HOOKS=1 to commit past it: `SKIP_HOOKS=1 git commit ...`.
+
+[ -n "$SKIP_HOOKS" ] && exit 0
+
+# Nothing Kotlin in this commit means nothing for either tool to say.
+staged=$(git diff --cached --name-only --diff-filter=ACMR -- '*.kt' '*.kts')
+[ -z "$staged" ] && exit 0
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+# A JAVA_HOME left over from an older Android Studio points at `Contents/jre`,
+# which that app renamed to `jbr`, so it names a directory that is not there.
+# Gradle then stops with a message about Java and the hook would read as the
+# commit being rejected on its contents.
+if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ]; then
+    if [ -x /usr/libexec/java_home ]; then
+        JAVA_HOME=$(/usr/libexec/java_home -v 21 2>/dev/null)
+        export JAVA_HOME
+    fi
+fi
+if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ]; then
+    echo "pre-commit: no JDK 21 found. Set JAVA_HOME, or SKIP_HOOKS=1 to commit without the checks." >&2
+    exit 1
+fi
+
+# Both tools read the working tree, not the index, so a file staged in part is
+# judged on what is on disk rather than on what is about to be committed. Worth
+# a word rather than a stash: a hook that moves the user's uncommitted work to
+# get a cleaner answer is how a hook loses their work.
+partial=$(git diff --name-only -- $staged)
+if [ -n "$partial" ]; then
+    echo "note: these are staged in part, and the checks below read the file on disk:"
+    echo "$partial" | sed 's/^/      /'
+fi
+
+output=$(./gradlew --quiet lintKotlin detekt 2>&1)
+status=$?
+[ "$status" -eq 0 ] && exit 0
+
+echo "$output"
+
+# A check that could not run is not a check that passed, so the hook stops
+# either way. Which of the two it was decides what the reader should do next,
+# so it never guesses: a Gradle failure before any rule ran says nothing about
+# the code.
+if echo "$output" | grep -q "Lint error\|\[[A-Z][A-Za-z]*\]$"; then
+    cat <<'MESSAGE'
+
+Commit stopped by the style checks. Formatting is fixable in one command:
+
+    ./gradlew formatKotlin
+
+A detekt finding is not auto-fixable. Read it above, or read
+config/detekt/detekt.yml if the rule is wrong rather than the code.
+MESSAGE
+else
+    cat <<'MESSAGE'
+
+Commit stopped because the checks could not run, which is not the same as the
+code being wrong. The build output is above. This needs JDK 21.
+MESSAGE
+fi
+
+echo "Commit anyway with SKIP_HOOKS=1."
+exit 1
