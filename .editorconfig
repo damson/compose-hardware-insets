@@ -46,8 +46,13 @@ ktlint_standard_blank-line-between-when-conditions = disabled
 # the moment the condition goes multiline. ktlint's rule does not draw that
 # line, so it is off and the rule is stated here instead.
 #
-# `when` is the other way round and always takes braces. Nothing enforces that
-# yet: 72 arrow branches across 17 files predate the rule.
+# `when` is the other way round: its body always takes braces, and a branch
+# takes them once the branch runs past one line. No tool here expresses that.
+# ktlint's `when-entry-bracing` is experimental and triggers on a body wrapped
+# onto its own line rather than on a body that is long, so it braces one-line
+# siblings for consistency and still misses the five branches that start on
+# the arrow and run on. detekt 2.0 ships no `BracesOnWhenStatements`. Written
+# down and enforced by review until one of them can express it.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
