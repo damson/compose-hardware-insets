@@ -21,6 +21,31 @@ subprojects {
     apply(plugin = "org.jmailen.kotlinter")
     apply(plugin = "dev.detekt")
 
+    // The pre-commit hook judges what is being committed, not the whole tree,
+    // so a file someone is still editing elsewhere does not block a commit
+    // that has nothing to do with it. Neither plugin offers a per-file entry
+    // point, so these two take the list and narrow it to this module's own
+    // files; `check` still runs the whole-project tasks.
+    val staged = providers.gradleProperty("stagedFiles").orElse("")
+    val mine = staged.map { list ->
+        list.split(",")
+            .filter { it.isNotBlank() }
+            .map { rootProject.file(it) }
+            .filter { it.exists() && it.startsWith(projectDir) }
+    }
+
+    tasks.register<org.jmailen.gradle.kotlinter.tasks.LintTask>("lintStaged") {
+        ktlintClasspath.from(configurations.named("ktlint"))
+        source(mine)
+    }
+
+    tasks.register<dev.detekt.gradle.Detekt>("detektStaged") {
+        detektClasspath.from(configurations.named("detekt"))
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+        buildUponDefaultConfig.set(true)
+        source(mine)
+    }
+
     extensions.configure<DetektExtension> {
         config.setFrom(rootProject.file("config/detekt/detekt.yml"))
         // The shipped defaults stay in force under the file above, which says
@@ -31,21 +56,25 @@ subprojects {
     }
 }
 
-// Hooks are not cloned, so this is opt-in per checkout and stays a task rather
+// Hooks are not cloned, so this is opt-in per clone and stays a task rather
 // than something the build does on configuration: a build that rewrites git
 // config behind you is worse than a hook nobody installed.
 tasks.register("installGitHooks") {
     group = "verification"
     description = "Points git at .githooks, so the pre-commit style check runs."
-    val hooks = layout.projectDirectory.dir(".githooks").asFile
-    val gitDir = layout.projectDirectory.dir(".git").asFile
-    outputs.upToDateWhen { false }
+    notCompatibleWithConfigurationCache("Writes git config, which is not a build output.")
     doLast {
-        require(gitDir.exists()) { "Not a git checkout: ${gitDir.parent}" }
-        providers.exec {
-            commandLine("git", "config", "core.hooksPath", hooks.relativeTo(gitDir.parentFile).path)
-        }.result.get().assertNormalExitValue()
-        logger.lifecycle("git hooks installed: ${hooks.name}/pre-commit will run on commit")
+        // ProcessBuilder rather than the exec providers: those capture the
+        // project, which a task action may not hold.
+        val run = ProcessBuilder("git", "config", "core.hooksPath", ".githooks")
+            .directory(File(System.getProperty("user.dir")))
+            .redirectErrorStream(true)
+            .start()
+        val said = run.inputStream.bufferedReader().readText().trim()
+        check(run.waitFor() == 0) { "git config failed: $said" }
+        logger.lifecycle("git hooks installed: .githooks/pre-commit runs on commit")
+        logger.lifecycle("This is per clone, shared by every worktree, and it takes")
+        logger.lifecycle("precedence over a global core.hooksPath and over .git/hooks.")
     }
 }
 
