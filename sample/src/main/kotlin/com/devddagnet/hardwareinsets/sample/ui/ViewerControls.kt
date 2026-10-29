@@ -75,9 +75,11 @@ internal fun StepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
-                tint =
-                    if (isEnabled) MaterialTheme.onPlaque
-                    else MaterialTheme.onPlaque.copy(alpha = 0.34f),
+                tint = if (isEnabled) {
+                    MaterialTheme.onPlaque
+                } else {
+                    MaterialTheme.onPlaque.copy(alpha = 0.34f)
+                },
             )
         }
     }
