@@ -63,9 +63,11 @@ internal fun CornerActions(
                         if (isFavourite) R.string.remove_from_favourites
                         else R.string.add_to_favourites,
                     ),
-                    tint =
-                        if (isFavourite) MaterialTheme.accent
-                        else MaterialTheme.onPlaque.copy(alpha = 0.78f),
+                    tint = if (isFavourite) {
+                        MaterialTheme.accent
+                    } else {
+                        MaterialTheme.onPlaque.copy(alpha = 0.78f)
+                    },
                 )
             }
             IconButton(onClick = onShareClick) {

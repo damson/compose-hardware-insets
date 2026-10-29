@@ -131,9 +131,11 @@ fun ViewerScreen(
                 moved = corner.sliding,
                 isFavourite = pager.currentPage in favourites,
                 onFavouriteChange = { isOn ->
-                    favourites =
-                        if (isOn) favourites + pager.currentPage
-                        else favourites - pager.currentPage
+                    favourites = if (isOn) {
+                        favourites + pager.currentPage
+                    } else {
+                        favourites - pager.currentPage
+                    }
                     // A counter rather than a flag: pressed twice quickly, it
                     // has to shake twice.
                     shakes++
