@@ -55,12 +55,20 @@ ktlint_standard_blank-line-between-when-conditions = disabled
 # `when`: the body always takes braces, and a branch takes them when it runs
 # past one line or when its body sits on the line after the arrow. A branch
 # that fits beside its arrow stays bare, even where a sibling is braced.
-# Enforced by review too. ktlint's `when-entry-bracing` enforces sibling
-# consistency rather than the branch, and runs only under `ktlint_official`
-# rather than the `android_studio` style selected above. detekt does ship
-# `BracesOnWhenStatements` and `BracesOnIfStatements`, both off by default and
-# neither yet tried here; whether either expresses the rules above, and whether
-# they reach `when` expressions rather than only statements, is open.
+# Enforced by review, and that is settled rather than pending: every candidate
+# was switched on and measured against this codebase, and none can say it.
+#
+# ktlint's `when-entry-bracing` keys on sibling consistency rather than on the
+# branch, and runs only under `ktlint_official` rather than the
+# `android_studio` style selected above.
+#
+# detekt's `BracesOnWhenStatements` does reach `when` expressions, not only
+# statements, but its `multiLine` setting describes the `when` rather than the
+# branch, so all three values miss. `always` braces every branch of every
+# multi-line `when`, 11 findings. `consistent` demands all or none, 5 findings,
+# which is the same cascade ktlint produces. `necessary` reports the six
+# branches braced here as "extra braces ... remove them", which is this rule
+# exactly inverted.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
