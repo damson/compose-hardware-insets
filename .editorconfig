@@ -37,6 +37,10 @@ ij_kotlin_imports_layout = *
 # keeps it true if a future default drops it, and adds the two others this
 # project uses.
 ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
+# A `when` reads as a table, and a blank line between every arm turns a short
+# one into a page. The rule exists for arms with multi-line bodies, which these
+# are not: the longest here is a two-line `if`.
+ktlint_standard_blank-line-between-when-conditions = disabled
 # Kotlin's coding conventions say braces are optional when `if` is used as an
 # expression, and this codebase uses that form for values that need two lines.
 # Wrapping a returned expression in braces to satisfy a rule the language guide
