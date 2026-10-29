@@ -1,8 +1,3 @@
-// The file is named for what it holds, which is the gallery: the type of a
-// work and the works themselves. detekt sees one top-level class and asks for
-// `Plate.kt`, which would name the file after half of it.
-@file:Suppress("MatchingDeclarationName")
-
 package com.devddagnet.hardwareinsets.sample.model
 
 import androidx.annotation.DrawableRes
