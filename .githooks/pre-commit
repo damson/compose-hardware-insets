@@ -2,14 +2,8 @@
 # Style and static analysis on what is being committed, so a formatting fix
 # never has to be a second commit on a pull request.
 #
-# Installed with `./gradlew installGitHooks`, or by hand with
-# `git config core.hooksPath .githooks`. That setting lives in the clone's
-# config and is shared by every worktree of it, so a worktree on a branch
-# without this directory runs nothing and says nothing. It also takes
-# precedence over a global `core.hooksPath` and over `.git/hooks`, which is
-# worth knowing if you keep hooks of your own.
-#
-# Set SKIP_HOOKS to any non-empty value to commit past it.
+# Installed with `./gradlew installGitHooks`. What that changes, and the
+# traps: docs/kotlin-style.md. SKIP_HOOKS=1 commits past it.
 
 [ -n "$SKIP_HOOKS" ] && exit 0
 
@@ -19,10 +13,8 @@
 staged=$(git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' | tr '\0' ',')
 [ -z "$staged" ] && exit 0
 
-# The list reaches Gradle through a file rather than a property, because a
-# comma is legal in a filename and splitting on one turned `a,b.kt` into two
-# paths that do not exist, which the build then dropped in silence: an empty
-# source set is a green run.
+# The list reaches Gradle through a file rather than a comma-separated
+# property, because a comma is legal in a filename.
 list=$(mktemp) || exit 1
 trap 'rm -f "$list"' EXIT INT TERM
 git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' > "$list"

@@ -14,22 +14,16 @@ plugins {
     alias(libs.plugins.detekt) apply false
 }
 
-// Style and static analysis are applied here rather than per module, because a
-// rule that holds in one module and not the other is worse than no rule: the
-// next module added would start unchecked and nothing would say so.
+// Applied here rather than per module, so a module added later starts checked.
 subprojects {
     apply(plugin = "org.jmailen.kotlinter")
     apply(plugin = "dev.detekt")
 
-    // The pre-commit hook judges what is being committed, not the whole tree,
-    // so a file someone is still editing elsewhere does not block a commit
-    // that has nothing to do with it. Neither plugin offers a per-file entry
-    // point, so these two take the list and narrow it to this module's own
-    // files; `check` still runs the whole-project tasks.
-    // NUL-separated, through a file: a comma is legal in a filename, and
-    // splitting the list on one produced paths that do not exist, which this
-    // then dropped without a word. An empty source set is a green run, which
-    // is the worst shape a check can fail in.
+    // The pre-commit hook's tasks. Neither plugin has a per-file entry point,
+    // so these take the staged list and keep this module's own files; `check`
+    // still runs the whole-project tasks. NUL-separated, through a file,
+    // because a comma is legal in a filename, and a list that resolves to
+    // nothing is an empty source set, which runs green.
     val mine = providers.gradleProperty("stagedList").map { path ->
         rootProject.file(path).readText()
             .split('\u0000')
@@ -60,16 +54,14 @@ subprojects {
     }
 }
 
-// Hooks are not cloned, so this is opt-in per clone and stays a task rather
-// than something the build does on configuration: a build that rewrites git
-// config behind you is worse than a hook nobody installed.
+// A task rather than configuration-time work, so the build never rewrites git
+// config behind you.
 tasks.register("installGitHooks") {
     group = "verification"
     description = "Points git at .githooks, so the pre-commit style check runs."
     notCompatibleWithConfigurationCache("Writes git config, which is not a build output.")
-    // Captured here rather than read in the action: `user.dir` under the
-    // daemon is the directory gradlew was launched from, so `-p` elsewhere
-    // would have written the setting into whichever repo the shell was in.
+    // Captured here: in the action, `user.dir` is wherever gradlew was launched
+    // from, so `-p` would write the setting into whichever repo the shell is in.
     val here = layout.projectDirectory.asFile
     doLast {
         // ProcessBuilder rather than the exec providers: those capture the

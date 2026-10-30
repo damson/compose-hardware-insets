@@ -24,34 +24,9 @@ the API 36 jar refuses to load under anything earlier. On JDK 17 every test fail
 ./gradlew formatKotlin
 ```
 
-ktlint and detekt run inside `check`. The command above fixes the formatting
-findings, which is most of what ktlint reports but not all of them: a rule with
-no auto-correction, such as a line over 100 columns inside a string, still
-wants an edit. detekt findings are never auto-fixable and are meant to be read.
-
-The rules live in two files, and in neither plugin block: `.editorconfig` for
-formatting, which Android Studio and IntelliJ read too, and
-`config/detekt/detekt.yml` for the static analysis, which states only where
-this project differs from detekt's defaults. Both carry the reason for each
-deviation on the line that sets it.
-
-```
-./gradlew installGitHooks
-```
-
-Once per clone, and optional. It points git at `.githooks`, whose `pre-commit`
-runs both tools over the Kotlin files you staged, so a formatting fix never has
-to become a second commit on a pull request, and a file you are still editing
-elsewhere does not block an unrelated commit. It reads those files as they are
-on disk, so a file staged in part is judged whole, and the hook says when that
-happens. `SKIP_HOOKS=1 git commit` goes past it.
-
-Three things worth knowing before you run it. The setting lives in the clone's
-config, so it is shared by every worktree, and a worktree on a branch without
-`.githooks` runs nothing and says nothing. It takes precedence over a global
-`core.hooksPath` and over `.git/hooks`, so it will quietly replace hooks of
-your own. And hooks are not cloned, so without this command nothing runs
-locally and `check` is still the gate.
+ktlint and detekt run inside `check`, and the command above fixes most of what ktlint reports.
+Where the rules live, the brace rules review enforces, and an optional pre-commit hook that checks
+what you stage: [`docs/kotlin-style.md`](docs/kotlin-style.md).
 
 ## Branches and pull requests
 
