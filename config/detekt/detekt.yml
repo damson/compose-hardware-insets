@@ -1,47 +1,33 @@
-# Only where this project differs from detekt's shipped defaults. Everything
-# not named here keeps its default, which `buildUponDefaultConfig` in the root
-# build file is what makes true: without that flag this file would be the whole
-# ruleset and every rule missing from it would be off. Nothing applies detekt
-# yet, so that wiring arrives with the pull request that turns the gate on.
-#
-# Each entry below says why. A rule relaxed without a reason is a rule nobody
-# can put back.
+# Only where this project differs from detekt's shipped defaults, which stay in
+# force only under `buildUponDefaultConfig`: without it, every rule this file
+# does not name is off. Each entry says why, so it can be put back.
 
 complexity:
   LongMethod:
-    # A composable is a tree of children, not a sequence of steps, so its line
-    # count measures how much is on the screen rather than how much is going
-    # on. `CyclomaticComplexMethod` stays on for them, which is the half of
-    # this that does catch logic hiding in a layout.
+    # A composable's line count measures what is on the screen, not what is
+    # going on. `CyclomaticComplexMethod` stays on for them and catches logic
+    # hiding in a layout.
     ignoreAnnotated: ['Composable']
   LongParameterList:
-    # Compose hoists state, so a parameter list is this component's whole
-    # contract: a long one is the API being honest rather than a smell.
+    # Compose hoists state, so a composable's parameters are its whole contract.
     ignoreAnnotated: ['Composable', 'Preview']
   TooManyFunctions:
     # An Activity's overrides are the platform's list, not this class's.
     ignoreOverridden: true
-    # A Compose file holds a component, its parts and its previews. Counting
-    # them together says a file is doing too much when it is doing one thing in
-    # the idiom the framework asks for.
+    # A Compose file holds one component, its parts and its previews.
     ignoreAnnotatedFunctions: ['Composable', 'Preview']
 
 naming:
   FunctionNaming:
-    # A composable is PascalCase by Compose's own convention: it names a thing
-    # on the screen rather than an action. Same exemption as ktlint's
-    # `ktlint_function_naming_ignore_when_annotated_with` in `.editorconfig`.
+    # A composable is PascalCase, as in ktlint's setting in `.editorconfig`.
     ignoreAnnotated: ['Composable']
 
 style:
   MagicNumber:
-    # Numbers inside a composable are dimensions, alphas and keyframe
-    # positions: a literal at the point of use is more readable than a constant
-    # named for the one line that reads it. Outside a composable the rule
-    # stands, which is where a derived number actually needs its name.
+    # Inside a composable, numbers are dimensions, alphas and keyframe
+    # positions, clearer as literals. Outside one the rule stands.
     ignoreAnnotated: ['Composable', 'Preview']
   MaxLineLength:
-    # ktlint owns the line length, at 100, from `.editorconfig`, where the IDE
-    # reads it too. Two tools enforcing one number is how they end up
-    # disagreeing.
+    # ktlint owns the line length, from `.editorconfig`, where the IDE reads it
+    # too. detekt reads no `.editorconfig`, so two limits would drift apart.
     active: false
