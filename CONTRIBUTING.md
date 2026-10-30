@@ -18,6 +18,16 @@ overall at 90% of lines and 85% of branches.
 the API 36 jar refuses to load under anything earlier. On JDK 17 every test fails in setup with
 `Failed to create a Robolectric sandbox`, which reads like broken tests rather than a wrong JDK.
 
+## Style
+
+```
+./gradlew formatKotlin
+```
+
+ktlint and detekt run inside `check`, and the command above fixes most of what ktlint reports.
+[`docs/kotlin-style.md`](docs/kotlin-style.md) says where the rules live, which brace rules review
+enforces, and how to install an optional pre-commit hook that checks what you stage.
+
 ## Branches and pull requests
 
 **One long-lived branch, `main`.** Cut a short-lived branch from it, open a pull

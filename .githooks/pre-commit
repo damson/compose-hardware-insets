@@ -1,0 +1,92 @@
+#!/bin/sh
+# Style and static analysis on what is being committed, so a formatting fix
+# never has to be a second commit on a pull request.
+#
+# Installed with `./gradlew installGitHooks`. What that changes, and the
+# traps: docs/kotlin-style.md. SKIP_HOOKS=1 commits past it.
+
+[ -n "$SKIP_HOOKS" ] && exit 0
+
+# Only Kotlin sources: neither tool looks at a `.kts` build script here, so a
+# commit touching one of those has nothing to say and should not pay for a
+# Gradle run. -z protects filenames with spaces or newlines.
+staged=$(git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' | tr '\0' ',')
+[ -z "$staged" ] && exit 0
+
+# The list reaches Gradle through a file rather than a comma-separated
+# property, because a comma is legal in a filename.
+list=$(mktemp) || exit 1
+trap 'rm -f "$list"' EXIT INT TERM
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' > "$list"
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+# A JAVA_HOME left over from an older Android Studio points at `Contents/jre`,
+# which that app renamed to `jbr`, so it names a directory that is not there.
+# Gradle then stops with a message about Java and this would read as the commit
+# being rejected on its contents.
+if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ]; then
+    unset JAVA_HOME
+    if [ -x /usr/libexec/java_home ]; then
+        resolved=$(/usr/libexec/java_home -v 21 2>/dev/null)
+        [ -n "$resolved" ] && JAVA_HOME=$resolved && export JAVA_HOME
+    fi
+fi
+# No JAVA_HOME is not an error: Gradle finds a JDK on PATH, and on Linux there
+# is no java_home to ask. Only say something when there is no java at all, and
+# say only that: nothing here checks the version, and the tests' JDK 21
+# requirement is Robolectric's rather than the linters'.
+if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ] && ! command -v java >/dev/null 2>&1; then
+    printf '%s\n' "pre-commit: no java found at all. SKIP_HOOKS=1 commits without the checks." >&2
+    exit 1
+fi
+
+# Both tools read the file on disk rather than the staged copy, so a file
+# staged in part is judged on what is in the editor. Worth a word rather than
+# a stash: a hook that moves uncommitted work to get a cleaner answer is a
+# hook that loses it.
+partial=$(git diff --name-only -z -- '*.kt' | tr '\0' '\n' | while IFS= read -r f; do
+    case ",$staged," in
+        (*",$f,"*) printf '%s\n' "$f" ;;
+    esac
+done)
+if [ -n "$partial" ]; then
+    printf '%s\n' "note: staged in part, and the checks below read the file on disk:"
+    printf '%s\n' "$partial" | sed 's/^/      /'
+fi
+
+# Both tasks every time: without --continue Gradle stops at the first failure,
+# so a ktlint error would hide every detekt finding and cost a second round,
+# which is the thing this hook exists to prevent.
+output=$(./gradlew --quiet --continue lintStaged detektStaged -PstagedList="$list" 2>&1)
+status=$?
+[ "$status" -eq 0 ] && exit 0
+
+printf '%s\n' "$output"
+
+# A check that could not run is not a check that passed, so this stops either
+# way. Which of the two decides what the reader should do next, and a Gradle
+# failure before any rule ran says nothing about the code.
+if printf '%s\n' "$output" | grep -q 'Lint error\|\[[A-Z][A-Za-z]*\]$'; then
+    cat <<'MESSAGE'
+
+Commit stopped by the style checks, on the files you staged as they are on
+disk. Most formatting is fixable in one command:
+
+    ./gradlew formatKotlin
+
+That formats the whole project, not only what you staged. A detekt finding is
+not auto-fixable: read it above, or read config/detekt/detekt.yml if the rule
+is wrong rather than the code.
+MESSAGE
+else
+    cat <<'MESSAGE'
+
+Commit stopped because the checks could not run, which is not the same as the
+code being wrong. The build output above says why.
+MESSAGE
+fi
+
+printf '%s\n' "Commit anyway with SKIP_HOOKS=1."
+exit 1

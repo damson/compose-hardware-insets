@@ -1,0 +1,8 @@
+# Commits that only reformat, which `git blame` steps over. GitHub reads this
+# file on its own; a clone needs `git config blame.ignoreRevsFile
+# .git-blame-ignore-revs` once.
+
+# Reformat every Kotlin file to the style written down last commit
+38e761a15dc0e5b4d3710a82cf5fb92f766bff03
+# Take the two corrections to the rules back into the reformat
+6aa1e2c4a179606e32ae826800890f380def24ed

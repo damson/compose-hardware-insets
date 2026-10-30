@@ -1,3 +1,4 @@
+import dev.detekt.gradle.extensions.DetektExtension
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
@@ -9,6 +10,72 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.binary.compatibility)
     alias(libs.plugins.kover)
+    alias(libs.plugins.kotlinter) apply false
+    alias(libs.plugins.detekt) apply false
+}
+
+// Applied here rather than per module, so a module added later starts checked.
+subprojects {
+    apply(plugin = "org.jmailen.kotlinter")
+    apply(plugin = "dev.detekt")
+
+    // The pre-commit hook's tasks. Neither plugin has a per-file entry point,
+    // so these take the staged list and keep this module's own files; `check`
+    // still runs the whole-project tasks. NUL-separated, through a file,
+    // because a comma is legal in a filename, and a list that resolves to
+    // nothing is an empty source set, which runs green.
+    val mine = providers.gradleProperty("stagedList").map { path ->
+        rootProject.file(path).readText()
+            .split('\u0000')
+            .filter { it.isNotBlank() }
+            .map { rootProject.file(it) }
+            .filter { it.exists() && it.startsWith(projectDir) }
+    }.orElse(emptyList())
+
+    tasks.register<org.jmailen.gradle.kotlinter.tasks.LintTask>("lintStaged") {
+        ktlintClasspath.from(configurations.named("ktlint"))
+        source(mine)
+    }
+
+    tasks.register<dev.detekt.gradle.Detekt>("detektStaged") {
+        detektClasspath.from(configurations.named("detekt"))
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+        buildUponDefaultConfig.set(true)
+        source(mine)
+    }
+
+    extensions.configure<DetektExtension> {
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+        // The shipped defaults stay in force under the file above, which says
+        // only where this project differs. Without this, every rule that file
+        // does not mention is switched off.
+        buildUponDefaultConfig.set(true)
+        parallel.set(true)
+    }
+}
+
+// A task rather than configuration-time work, so the build never rewrites git
+// config behind you.
+tasks.register("installGitHooks") {
+    group = "verification"
+    description = "Points git at .githooks, so the pre-commit style check runs."
+    notCompatibleWithConfigurationCache("Writes git config, which is not a build output.")
+    // Captured here: in the action, `user.dir` is wherever gradlew was launched
+    // from, so `-p` would write the setting into whichever repo the shell is in.
+    val here = layout.projectDirectory.asFile
+    doLast {
+        // ProcessBuilder rather than the exec providers: those capture the
+        // project, which a task action may not hold.
+        val run = ProcessBuilder("git", "config", "core.hooksPath", ".githooks")
+            .directory(here)
+            .redirectErrorStream(true)
+            .start()
+        val said = run.inputStream.bufferedReader().readText().trim()
+        check(run.waitFor() == 0) { "git config failed: $said" }
+        logger.lifecycle("git hooks installed: .githooks/pre-commit runs on commit")
+        logger.lifecycle("This is per clone, shared by every worktree, and it takes")
+        logger.lifecycle("precedence over a global core.hooksPath and over .git/hooks.")
+    }
 }
 
 apiValidation {

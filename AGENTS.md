@@ -1,6 +1,6 @@
 # Working on this library
 
-One Gradle module, `hardware-insets`. Four source files, and the tests are larger than the sources
+One Gradle module, `hardware-insets`. Thirteen source files, and the tests are larger than the sources
 on purpose.
 
 ## The one command
@@ -13,6 +13,13 @@ JAVA_HOME=<a JDK 21> ./gradlew check apiCheck koverVerify :hardware-insets:kover
 refuses to load under anything earlier. Under JDK 17 every test fails in setup with `Failed to
 create a Robolectric sandbox`, reported as `classMethod FAILED`, which looks like broken tests
 rather than a wrong JDK.
+
+## Style
+
+`./gradlew formatKotlin` fixes most of what ktlint reports; detekt findings want a hand edit. The
+rules are in `.editorconfig` and `config/detekt/detekt.yml`, and the `if` and `when` brace rules,
+which no tool enforces, are in the comment above `ktlint_standard_multiline-if-else`. The optional
+pre-commit hook and its traps: [`docs/kotlin-style.md`](docs/kotlin-style.md).
 
 ## What each file answers
 
