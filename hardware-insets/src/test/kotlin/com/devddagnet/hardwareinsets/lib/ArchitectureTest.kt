@@ -163,7 +163,7 @@ class ArchitectureTest {
         /** A name spelled out in code rather than imported, of the roots that matter here. */
         val QUALIFIED =
             Regex(
-                """\b(?:android|androidx|io\.github\.damson\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""",
+                """\b(?:android|androidx|com\.devddagnet\.hardwareinsets)(?:\.[A-Za-z0-9_]+)+""",
             )
 
         const val LIBRARY = "com.devddagnet.hardwareinsets.lib"
