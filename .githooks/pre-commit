@@ -79,8 +79,8 @@ printf '%s\n' "$output"
 if printf '%s\n' "$output" | grep -q 'Lint error\|\[[A-Z][A-Za-z]*\]$'; then
     cat <<'MESSAGE'
 
-Commit stopped by the style checks, on the files you staged. Formatting is
-fixable in one command:
+Commit stopped by the style checks, on the files you staged as they are on
+disk. Most formatting is fixable in one command:
 
     ./gradlew formatKotlin
 
@@ -92,7 +92,7 @@ else
     cat <<'MESSAGE'
 
 Commit stopped because the checks could not run, which is not the same as the
-code being wrong. The build output is above. This needs JDK 21.
+code being wrong. The build output above says why.
 MESSAGE
 fi
 
