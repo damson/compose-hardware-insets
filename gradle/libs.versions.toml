@@ -2,7 +2,7 @@
 # Nothing is capped. If a version has to be held back, say why on the line itself,
 # so the next person raising it knows what they are taking on, and add the matching
 # `ignore` to .github/dependabot.yml so it stops arriving weekly.
-agp = "9.4.1"
+agp = "9.5.0"
 kotlin = "2.4.21"
 binaryCompatibility = "0.18.2"
 kover = "0.9.11"
