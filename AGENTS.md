@@ -20,9 +20,10 @@ rather than a wrong JDK.
 ./gradlew formatKotlin
 ```
 
-ktlint and detekt run inside `check`, so the command above is the whole of the
-fix for anything ktlint reports. detekt findings are not auto-fixable and are
-meant to be read.
+ktlint and detekt run inside `check`. The command above fixes the formatting
+findings, which is most of what ktlint reports but not all of them: a rule with
+no auto-correction, such as a line over 100 columns inside a string, still
+wants an edit. detekt findings are never auto-fixable and are meant to be read.
 
 The rules live in two files, and in neither plugin block: `.editorconfig` for
 formatting, which Android Studio and IntelliJ read too, and
@@ -44,8 +45,7 @@ Three things worth knowing before you run it. The setting lives in the clone's
 config, so it is shared by every worktree, and a worktree on a branch without
 `.githooks` runs nothing and says nothing. It takes precedence over a global
 `core.hooksPath` and over `.git/hooks`, so it will quietly replace hooks of
-your own, kotlinter's `installKotlinterPreCommitHook` among them. And hooks are
-not cloned, so without this command nothing runs locally and `check` is still
+your own. And hooks are not cloned, so without this command nothing runs locally and `check` is still
 the gate.
 
 ## What each file answers

@@ -26,13 +26,17 @@ subprojects {
     // that has nothing to do with it. Neither plugin offers a per-file entry
     // point, so these two take the list and narrow it to this module's own
     // files; `check` still runs the whole-project tasks.
-    val staged = providers.gradleProperty("stagedFiles").orElse("")
-    val mine = staged.map { list ->
-        list.split(",")
+    // NUL-separated, through a file: a comma is legal in a filename, and
+    // splitting the list on one produced paths that do not exist, which this
+    // then dropped without a word. An empty source set is a green run, which
+    // is the worst shape a check can fail in.
+    val mine = providers.gradleProperty("stagedList").map { path ->
+        rootProject.file(path).readText()
+            .split('\u0000')
             .filter { it.isNotBlank() }
             .map { rootProject.file(it) }
             .filter { it.exists() && it.startsWith(projectDir) }
-    }
+    }.orElse(emptyList())
 
     tasks.register<org.jmailen.gradle.kotlinter.tasks.LintTask>("lintStaged") {
         ktlintClasspath.from(configurations.named("ktlint"))
@@ -63,11 +67,15 @@ tasks.register("installGitHooks") {
     group = "verification"
     description = "Points git at .githooks, so the pre-commit style check runs."
     notCompatibleWithConfigurationCache("Writes git config, which is not a build output.")
+    // Captured here rather than read in the action: `user.dir` under the
+    // daemon is the directory gradlew was launched from, so `-p` elsewhere
+    // would have written the setting into whichever repo the shell was in.
+    val here = layout.projectDirectory.asFile
     doLast {
         // ProcessBuilder rather than the exec providers: those capture the
         // project, which a task action may not hold.
         val run = ProcessBuilder("git", "config", "core.hooksPath", ".githooks")
-            .directory(File(System.getProperty("user.dir")))
+            .directory(here)
             .redirectErrorStream(true)
             .start()
         val said = run.inputStream.bufferedReader().readText().trim()

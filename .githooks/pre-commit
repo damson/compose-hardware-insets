@@ -19,6 +19,14 @@
 staged=$(git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' | tr '\0' ',')
 [ -z "$staged" ] && exit 0
 
+# The list reaches Gradle through a file rather than a property, because a
+# comma is legal in a filename and splitting on one turned `a,b.kt` into two
+# paths that do not exist, which the build then dropped in silence: an empty
+# source set is a green run.
+list=$(mktemp) || exit 1
+trap 'rm -f "$list"' EXIT INT TERM
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' > "$list"
+
 root=$(git rev-parse --show-toplevel) || exit 1
 cd "$root" || exit 1
 
@@ -34,9 +42,11 @@ if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ]; then
     fi
 fi
 # No JAVA_HOME is not an error: Gradle finds a JDK on PATH, and on Linux there
-# is no java_home to ask. Only say something when there is no java at all.
+# is no java_home to ask. Only say something when there is no java at all, and
+# say only that: nothing here checks the version, and the tests' JDK 21
+# requirement is Robolectric's rather than the linters'.
 if [ ! -x "${JAVA_HOME:-/nonexistent}/bin/java" ] && ! command -v java >/dev/null 2>&1; then
-    printf '%s\n' "pre-commit: no JDK found. This needs 21. SKIP_HOOKS=1 commits without the checks." >&2
+    printf '%s\n' "pre-commit: no java found at all. SKIP_HOOKS=1 commits without the checks." >&2
     exit 1
 fi
 
@@ -57,7 +67,7 @@ fi
 # Both tasks every time: without --continue Gradle stops at the first failure,
 # so a ktlint error would hide every detekt finding and cost a second round,
 # which is the thing this hook exists to prevent.
-output=$(./gradlew --quiet --continue lintStaged detektStaged -PstagedFiles="$staged" 2>&1)
+output=$(./gradlew --quiet --continue lintStaged detektStaged -PstagedList="$list" 2>&1)
 status=$?
 [ "$status" -eq 0 ] && exit 0
 
