@@ -1,8 +1,5 @@
-# The Android Kotlin style guide, in the one file both ktlint and the IDE read:
-# ktlint takes its rules from here, and IntelliJ and Android Studio take their
-# formatting from here, so a hand reformat in the IDE agrees with the build.
-# detekt reads none of this, which is why `config/detekt/detekt.yml` switches
-# its `MaxLineLength` off and leaves the number below as the only one.
+# The Android Kotlin style guide, in the one file both ktlint and the IDE's
+# formatter read, so a reformat in the IDE agrees with the build.
 #
 # https://developer.android.com/kotlin/style-guide
 root = true
@@ -16,62 +13,42 @@ indent_style = space
 indent_size = 4
 
 [*.{kt,kts}]
-# "Code has a column limit of 100 characters", and `import` and `package` lines
-# are exempt, which ktlint already honours.
+# The guide's column limit. ktlint already exempts `import` and `package` lines.
 max_line_length = 100
-# Android Studio's style rather than ktlint's own `ktlint_official`, because
-# this is an Android library and the guide above is the one it follows. The two
-# differ on more than the line length: `ktlint_official` adds wrapping and
-# blank-line rules that Android Studio does not produce when you reformat.
+# The style the guide describes. `ktlint_official` adds wrapping and blank-line
+# rules that Android Studio's reformat does not produce.
 ktlint_code_style = android_studio
-# The guide is silent on trailing commas and this codebase uses them
-# throughout. Left enabled on purpose: without these two, ktlint deletes every
-# one of them, and a parameter added later shows up as a two-line diff.
+# The guide is silent on trailing commas and this codebase uses them. Without
+# these two, ktlint deletes every one.
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
-# "Import statements ... are grouped together in a single list and ASCII
-# sorted", with no blank-line groups.
+# The guide: imports in a single ASCII-sorted list, with no blank-line groups.
 ij_kotlin_imports_layout = *
-# A composable is PascalCase by Compose's own convention, and so is a preview.
-# Load-bearing, not belt and braces: ktlint 1.8.0 defaults this property to
-# unset and the string `Composable` appears nowhere in its jars, so without
-# this line every composable in the sample is a naming violation.
+# Composables and previews are PascalCase. ktlint 1.8.0 leaves this unset and
+# its jars never mention `Composable`, so without it every composable fails.
 ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
-# A `when` reads as a table, and a blank line between every arm turns a short
-# one into a page. Load-bearing rather than cosmetic: the rule fires once any
-# arm is multi-line, and several here are, so leaving it on would space out
-# every arm of five `when`s to separate the one that is long.
+# A `when` reads as a table. The rule fires once any arm is multi-line, and
+# would space out every arm of five `when`s here to separate the long one.
 ktlint_standard_blank-line-between-when-conditions = disabled
-# A deliberate departure from the guide this file cites, worth stating plainly
-# rather than leaving the header to imply otherwise. The guide allows a
-# brace-less `if` expression "only if the entire expression fits on one line",
-# and marks the wrapped brace-less form WRONG. This project is looser: an `if`
-# whose branches wrap takes braces where it is assigned to a name, which covers
-# a named argument (`tint = if ...`), a property, a local and an expression
-# body, and that is where the missing brackets cost a reader the most. It keeps
-# its bare form as a positional argument (`stringResource(if ...)`) and as a
-# `when` branch body.
+# Both brace rules below are enforced by review.
 #
-# ktlint's `multiline-if-else` is the rule closest to the guide and would brace
-# all three positions, so it is off and the narrower rule is enforced by review.
+# `if`: a deliberate departure from the guide, which allows a brace-less `if`
+# expression "only if the entire expression fits on one line". Here an `if`
+# whose branches wrap takes braces where it is assigned to a name (a named
+# argument such as `tint = if ...`, a property, a local, an expression body),
+# and stays bare as a positional argument and as a `when` branch body. ktlint's
+# `multiline-if-else` braces all three positions.
 #
 # `when`: a branch takes braces when it runs past one line, or when its body
 # sits on the line after the arrow. A branch that fits beside its arrow stays
-# bare, even where a sibling is braced.
-# Enforced by review, and that is settled rather than pending: every candidate
-# was switched on and measured against this codebase, and none can say it.
-#
-# ktlint's `when-entry-bracing` keys on sibling consistency rather than on the
-# branch, and runs only under `ktlint_official` rather than the
-# `android_studio` style selected above.
-#
-# detekt's `BracesOnWhenStatements` does reach `when` expressions, not only
-# statements, but its `multiLine` setting describes the `when` rather than the
-# branch, so all three values miss. `always` braces every branch of every
-# multi-line `when`, 11 findings. `consistent` demands all or none, 5 findings,
-# which is the same cascade ktlint produces. `necessary` reports the six
-# branches braced here as "extra braces ... remove them", which is this rule
-# exactly inverted.
+# bare, even where a sibling is braced. Every candidate was measured here:
+# - ktlint's `when-entry-bracing` keys on sibling consistency, and runs only
+#   under `ktlint_official`.
+# - detekt's `BracesOnWhenStatements` reaches `when` expressions too, but its
+#   `multiLine` setting describes the `when`, not the branch. `always` braces
+#   every branch of every multi-line `when` (11 findings), `consistent` demands
+#   all or none (5), and `necessary` reports the six braced branches here as
+#   extra braces to remove.
 ktlint_standard_multiline-if-else = disabled
 
 [*.{yml,yaml,json}]
