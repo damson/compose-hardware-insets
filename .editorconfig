@@ -1,0 +1,59 @@
+# The Android Kotlin style guide, in the one file both ktlint and the IDE's
+# formatter read, so a reformat in the IDE agrees with the build.
+#
+# https://developer.android.com/kotlin/style-guide
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+# The guide's column limit. ktlint already exempts `import` and `package` lines.
+max_line_length = 100
+# The style the guide describes. `ktlint_official` adds wrapping and blank-line
+# rules that Android Studio's reformat does not produce.
+ktlint_code_style = android_studio
+# The guide is silent on trailing commas and this codebase uses them. Without
+# these two, ktlint deletes every one.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# The guide: imports in a single ASCII-sorted list, with no blank-line groups.
+ij_kotlin_imports_layout = *
+# Composables and previews are PascalCase. ktlint 1.8.0 leaves this unset and
+# its jars never mention `Composable`, so without it every composable fails.
+ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
+# A `when` reads as a table. The rule fires once any arm is multi-line, and
+# would space out every arm of five `when`s here to separate the long one.
+ktlint_standard_blank-line-between-when-conditions = disabled
+# Both brace rules below are enforced by review.
+#
+# `if`: a deliberate departure from the guide, which allows a brace-less `if`
+# expression "only if the entire expression fits on one line". Here an `if`
+# whose branches wrap takes braces where it is assigned to a name (a named
+# argument such as `tint = if ...`, a property, a local, an expression body),
+# and stays bare as a positional argument and as a `when` branch body. ktlint's
+# `multiline-if-else` braces all three positions.
+#
+# `when`: a branch takes braces when it runs past one line, or when its body
+# sits on the line after the arrow. A branch that fits beside its arrow stays
+# bare, even where a sibling is braced. Every candidate was measured here:
+# - ktlint's `when-entry-bracing` keys on sibling consistency, and runs only
+#   under `ktlint_official`.
+# - detekt's `BracesOnWhenStatements` reaches `when` expressions too, but its
+#   `multiLine` setting describes the `when`, not the branch. `always` braces
+#   every branch of every multi-line `when` (11 findings), `consistent` demands
+#   all or none (5), and `necessary` reports the six braced branches here as
+#   extra braces to remove.
+ktlint_standard_multiline-if-else = disabled
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+[*.md]
+# Two trailing spaces are a hard line break in Markdown.
+trim_trailing_whitespace = false

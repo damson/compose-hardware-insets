@@ -4,35 +4,35 @@ import android.graphics.Rect
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.Insets
 import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
+import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
-import com.devddagnet.hardwareinsets.lib.domain.HardwarePolicy
 
 /**
  * The contents' half of edge-to-edge. A surface covers the hardware and so
@@ -57,7 +57,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), topInset())
-                .build()
+                .build(),
         )
 
         assertThat(panelBounds().top).isEqualTo(INSET_PX)
@@ -71,7 +71,7 @@ class HardwareInsetsTest {
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.statusBars(), topInset())
                 .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, INSET_PX))
-                .build()
+                .build(),
         )
 
         // The default policy leaves the bars out, so they owe the panel nothing. Insetting by a
@@ -92,7 +92,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setDisplayCutout(waterfallOf(Insets.of(INSET_PX, 0, INSET_PX, 0)))
-                .build()
+                .build(),
         )
 
         assertThat(panelBounds().left).isEqualTo(INSET_PX)
@@ -105,7 +105,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setDisplayCutout(waterfallOf(Insets.of(INSET_PX, 0, INSET_PX, 0)))
-                .build()
+                .build(),
         )
 
         // The point of the split: a panel inset off the curve would leave a strip
@@ -123,7 +123,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.of(0, 0, 0, INSET_PX))
-                .build()
+                .build(),
         )
 
         // A bottom inset would grow the ComposeView hosting the panel, and a
@@ -148,7 +148,7 @@ class HardwareInsetsTest {
                     WindowInsetsCompat.Type.displayCutout(),
                     Insets.of(0, INSET_PX, 0, CHIN_PX),
                 )
-                .build()
+                .build(),
         )
 
         // The default every caller gets. Zeroing the far edge is a workaround
@@ -172,7 +172,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, CHIN_PX, 0, 0))
-                .build()
+                .build(),
         )
 
         // A hidden bar still reports an inset. Padding by it moves content off
@@ -193,7 +193,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), topInset())
-                .build()
+                .build(),
         )
 
         assertThat(insets.getTop(density)).isZero()
@@ -216,7 +216,7 @@ class HardwareInsetsTest {
                     WindowInsetsCompat.Type.displayCutout(),
                     Insets.of(0, INSET_PX, 0, CHIN_PX),
                 )
-                .build()
+                .build(),
         )
 
         // Each anchoring takes its own edge and zeroes the other. The far side
@@ -297,7 +297,7 @@ class HardwareInsetsTest {
         applyInsets(
             WindowInsetsCompat.Builder()
                 .setDisplayCutout(waterfallOf(Insets.of(INSET_PX, 0, INSET_PX, 0)))
-                .build()
+                .build(),
         )
 
         // Same curve, and only the corner control owes anything to it. A rail's
@@ -342,7 +342,9 @@ class HardwareInsetsTest {
     private fun backgroundBounds() = boundsOf(BACKGROUND)
 
     private fun rootBounds() = with(compose.density) {
-        compose.onRoot().getBoundsInRoot().let { Bounds(it.left.roundToPx(), it.top.roundToPx(), it.right.roundToPx()) }
+        compose.onRoot().getBoundsInRoot().let {
+            Bounds(it.left.roundToPx(), it.top.roundToPx(), it.right.roundToPx())
+        }
     }
 
     private fun boundsOf(tag: String) = with(compose.density) {

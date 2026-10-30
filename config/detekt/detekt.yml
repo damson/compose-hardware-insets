@@ -1,0 +1,33 @@
+# Only where this project differs from detekt's shipped defaults, which stay in
+# force only under `buildUponDefaultConfig`: without it, every rule this file
+# does not name is off. Each entry says why, so it can be put back.
+
+complexity:
+  LongMethod:
+    # A composable's line count measures what is on the screen, not what is
+    # going on. `CyclomaticComplexMethod` stays on for them and catches logic
+    # hiding in a layout.
+    ignoreAnnotated: ['Composable']
+  LongParameterList:
+    # Compose hoists state, so a composable's parameters are its whole contract.
+    ignoreAnnotated: ['Composable', 'Preview']
+  TooManyFunctions:
+    # An Activity's overrides are the platform's list, not this class's.
+    ignoreOverridden: true
+    # A Compose file holds one component, its parts and its previews.
+    ignoreAnnotatedFunctions: ['Composable', 'Preview']
+
+naming:
+  FunctionNaming:
+    # A composable is PascalCase, as in ktlint's setting in `.editorconfig`.
+    ignoreAnnotated: ['Composable']
+
+style:
+  MagicNumber:
+    # Inside a composable, numbers are dimensions, alphas and keyframe
+    # positions, clearer as literals. Outside one the rule stands.
+    ignoreAnnotated: ['Composable', 'Preview']
+  MaxLineLength:
+    # ktlint owns the line length, from `.editorconfig`, where the IDE reads it
+    # too. detekt reads no `.editorconfig`, so two limits would drift apart.
+    active: false

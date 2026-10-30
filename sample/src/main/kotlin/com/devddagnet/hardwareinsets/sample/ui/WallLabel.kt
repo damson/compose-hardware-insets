@@ -90,7 +90,12 @@ internal fun WallLabel(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Plaque(plate = plate, number = number, total = total, readout = anchorReadout(options, edge))
+        Plaque(
+            plate = plate,
+            number = number,
+            total = total,
+            readout = anchorReadout(options, edge),
+        )
     }
 }
 
@@ -193,11 +198,13 @@ private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
                 Modifier
                     .size(width = if (isCurrent) 20.dp else 8.dp, height = 8.dp)
                     .background(
-                        color =
-                            if (isCurrent) MaterialTheme.accent
-                            else MaterialTheme.onPlaqueVariant.copy(alpha = 0.45f),
+                        color = if (isCurrent) {
+                            MaterialTheme.accent
+                        } else {
+                            MaterialTheme.onPlaqueVariant.copy(alpha = 0.45f)
+                        },
                         shape = CircleShape,
-                    )
+                    ),
             )
         }
     }
@@ -212,8 +219,11 @@ private fun PlateRail(number: Int, total: Int, modifier: Modifier = Modifier) {
  */
 @Composable
 private fun anchorReadout(options: ViewerOptions, edge: ScreenEdge): String =
-    if (options.anchor == edge) stringResource(R.string.anchored_to, options.anchor.name)
-    else stringResource(R.string.anchored_to_now, options.anchor.name, edge.name)
+    if (options.anchor == edge) {
+        stringResource(R.string.anchored_to, options.anchor.name)
+    } else {
+        stringResource(R.string.anchored_to_now, options.anchor.name, edge.name)
+    }
 
 private val SHAKE_SWING = 12.dp
 

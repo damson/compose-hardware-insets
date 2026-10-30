@@ -32,7 +32,7 @@ class ArchitectureTest {
     @Test
     fun `Should be reading the sample's sources`() {
         assertThat(sources).isNotEmpty
-        assertThat(layer(MODEL).map { it.name }).contains("ViewerOptions.kt", "Gallery.kt")
+        assertThat(layer(MODEL).map { it.name }).contains("ViewerOptions.kt", "Plate.kt")
         assertThat(layer(UI).map { it.name }).contains("ViewerScreen.kt")
         assertThat(layer(APP).map { it.name }).contains("ViewerActivity.kt")
     }
@@ -87,10 +87,9 @@ class ArchitectureTest {
     private fun layer(prefix: String): List<File> =
         sources.filter { it.relativeTo(sourceRoot).path.startsWith(prefix) }
 
-    private fun imports(file: File): List<String> =
-        file.readLines()
-            .filter { it.startsWith("import ") }
-            .map { it.removePrefix("import ").substringBefore(" as ").trim() }
+    private fun imports(file: File): List<String> = file.readLines()
+        .filter { it.startsWith("import ") }
+        .map { it.removePrefix("import ").substringBefore(" as ").trim() }
 
     private fun assertNoImports(
         importedFrom: String,

@@ -37,8 +37,9 @@ fun ComponentActivity.drawBehindTheHardware(
     cutoutMode: CutoutMode = CutoutMode.ALWAYS,
 ) {
     when {
-        statusBarStyle != null && navigationBarStyle != null ->
+        statusBarStyle != null && navigationBarStyle != null -> {
             enableEdgeToEdge(statusBarStyle, navigationBarStyle)
+        }
         statusBarStyle != null -> enableEdgeToEdge(statusBarStyle = statusBarStyle)
         navigationBarStyle != null -> enableEdgeToEdge(navigationBarStyle = navigationBarStyle)
         else -> enableEdgeToEdge()
@@ -83,9 +84,10 @@ fun ComponentActivity.hideTheSystemBars(
  * from API 30, so below that it falls back to the next-widest thing.
  */
 internal fun CutoutMode.toLayoutMode(): Int = when (this) {
-    CutoutMode.ALWAYS ->
+    CutoutMode.ALWAYS -> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         else LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+    }
     CutoutMode.SHORT_EDGES -> LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
     CutoutMode.DEFAULT -> LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
     CutoutMode.NEVER -> LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
@@ -93,7 +95,8 @@ internal fun CutoutMode.toLayoutMode(): Int = when (this) {
 
 /** What the controller calls each [BarBehavior]. */
 internal fun BarBehavior.toControllerBehavior(): Int = when (this) {
-    BarBehavior.SHOW_TRANSIENT_ON_SWIPE ->
+    BarBehavior.SHOW_TRANSIENT_ON_SWIPE -> {
         WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
     BarBehavior.PLATFORM_DEFAULT -> WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
 }

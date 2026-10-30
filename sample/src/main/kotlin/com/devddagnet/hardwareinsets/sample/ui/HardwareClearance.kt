@@ -45,7 +45,8 @@ internal fun Modifier.clearOfTheBars(): Modifier = this.clearOfTheHardware(
  * gets the precise one.
  */
 @Composable
-internal fun Modifier.clearOfEverything(): Modifier = this.clearOfTheHardware(policy = EverythingPolicy)
+internal fun Modifier.clearOfEverything(): Modifier =
+    this.clearOfTheHardware(policy = EverythingPolicy)
 
 /** The policy behind [clearOfEverything], named so the label can ask about it too. */
 internal val EverythingPolicy = HardwarePolicy(

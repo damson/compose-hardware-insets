@@ -22,9 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.devddagnet.hardwareinsets.lib.domain.ScreenEdge
 import com.devddagnet.hardwareinsets.sample.R
-import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 
 /**
  * The corner control: favourite this plate, or send it on.
@@ -40,8 +38,6 @@ import com.devddagnet.hardwareinsets.sample.model.ViewerOptions
 @Composable
 internal fun CornerActions(
     moved: IntOffset,
-    edge: ScreenEdge,
-    options: ViewerOptions,
     isFavourite: Boolean,
     onFavouriteChange: (Boolean) -> Unit,
     onShareClick: () -> Unit,
@@ -65,11 +61,13 @@ internal fun CornerActions(
                         if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = stringResource(
                         if (isFavourite) R.string.remove_from_favourites
-                        else R.string.add_to_favourites
+                        else R.string.add_to_favourites,
                     ),
-                    tint =
-                        if (isFavourite) MaterialTheme.accent
-                        else MaterialTheme.onPlaque.copy(alpha = 0.78f),
+                    tint = if (isFavourite) {
+                        MaterialTheme.accent
+                    } else {
+                        MaterialTheme.onPlaque.copy(alpha = 0.78f)
+                    },
                 )
             }
             IconButton(onClick = onShareClick) {
@@ -88,8 +86,6 @@ internal val CORNER_PADDING = 16.dp
 private fun CornerActionsPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset.Zero,
-        edge = ScreenEdge.TOP,
-        options = ViewerOptions(),
         isFavourite = false,
         onFavouriteChange = {},
         onShareClick = {},
@@ -101,8 +97,6 @@ private fun CornerActionsPreview() = SamplePreview {
 private fun CornerActionsClearPreview() = SamplePreview {
     CornerActions(
         moved = IntOffset(x = 0, y = 126),
-        edge = ScreenEdge.TOP,
-        options = ViewerOptions(),
         isFavourite = true,
         onFavouriteChange = {},
         onShareClick = {},

@@ -75,9 +75,11 @@ internal fun StepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = stringResource(label),
-                tint =
-                    if (isEnabled) MaterialTheme.onPlaque
-                    else MaterialTheme.onPlaque.copy(alpha = 0.34f),
+                tint = if (isEnabled) {
+                    MaterialTheme.onPlaque
+                } else {
+                    MaterialTheme.onPlaque.copy(alpha = 0.34f)
+                },
             )
         }
     }
@@ -96,5 +98,10 @@ private fun StepButtonPreview() = SamplePreview {
 @Preview(name = "Step, at the end of the gallery")
 @Composable
 private fun StepButtonDisabledPreview() = SamplePreview {
-    StepButton(Icons.Filled.KeyboardArrowRight, R.string.next_plate, isEnabled = false, onClick = {})
+    StepButton(
+        Icons.Filled.KeyboardArrowRight,
+        R.string.next_plate,
+        isEnabled = false,
+        onClick = {},
+    )
 }
