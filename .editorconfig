@@ -38,23 +38,26 @@ ij_kotlin_imports_layout = *
 # this line every composable in the sample is a naming violation.
 ktlint_function_naming_ignore_when_annotated_with = Composable, Preview, Test
 # A `when` reads as a table, and a blank line between every arm turns a short
-# one into a page. The rule exists for arms with multi-line bodies, which these
-# are not: the longest here is a two-line `if`.
+# one into a page. Load-bearing rather than cosmetic: the rule fires once any
+# arm is multi-line, and several here are, so leaving it on would space out
+# every arm of five `when`s to separate the one that is long.
 ktlint_standard_blank-line-between-when-conditions = disabled
 # A deliberate departure from the guide this file cites, worth stating plainly
 # rather than leaving the header to imply otherwise. The guide allows a
 # brace-less `if` expression "only if the entire expression fits on one line",
 # and marks the wrapped brace-less form WRONG. This project is looser: an `if`
-# whose branches wrap keeps its bare form inside a call's parentheses and as a
-# `when` branch body, and takes braces where it is assigned to something with
-# `=`, which is where the missing brackets cost a reader the most.
+# whose branches wrap takes braces where it is assigned to a name, which covers
+# a named argument (`tint = if ...`), a property, a local and an expression
+# body, and that is where the missing brackets cost a reader the most. It keeps
+# its bare form as a positional argument (`stringResource(if ...)`) and as a
+# `when` branch body.
 #
 # ktlint's `multiline-if-else` is the rule closest to the guide and would brace
 # all three positions, so it is off and the narrower rule is enforced by review.
 #
-# `when`: the body always takes braces, and a branch takes them when it runs
-# past one line or when its body sits on the line after the arrow. A branch
-# that fits beside its arrow stays bare, even where a sibling is braced.
+# `when`: a branch takes braces when it runs past one line, or when its body
+# sits on the line after the arrow. A branch that fits beside its arrow stays
+# bare, even where a sibling is braced.
 # Enforced by review, and that is settled rather than pending: every candidate
 # was switched on and measured against this codebase, and none can say it.
 #

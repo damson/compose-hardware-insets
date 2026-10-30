@@ -1,7 +1,8 @@
 # Only where this project differs from detekt's shipped defaults. Everything
 # not named here keeps its default, which `buildUponDefaultConfig` in the root
 # build file is what makes true: without that flag this file would be the whole
-# ruleset and every rule missing from it would be off.
+# ruleset and every rule missing from it would be off. Nothing applies detekt
+# yet, so that wiring arrives with the pull request that turns the gate on.
 #
 # Each entry below says why. A rule relaxed without a reason is a rule nobody
 # can put back.
