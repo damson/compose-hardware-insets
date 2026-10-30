@@ -25,8 +25,8 @@ the API 36 jar refuses to load under anything earlier. On JDK 17 every test fail
 ```
 
 ktlint and detekt run inside `check`, and the command above fixes most of what ktlint reports.
-Where the rules live, the brace rules review enforces, and an optional pre-commit hook that checks
-what you stage: [`docs/kotlin-style.md`](docs/kotlin-style.md).
+[`docs/kotlin-style.md`](docs/kotlin-style.md) says where the rules live, which brace rules review
+enforces, and how to install an optional pre-commit hook that checks what you stage.
 
 ## Branches and pull requests
 
