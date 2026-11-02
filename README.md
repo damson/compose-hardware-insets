@@ -6,9 +6,8 @@
 [![Licence](https://img.shields.io/github/license/damson/compose-hardware-insets)](LICENSE)
 [![API reference](https://img.shields.io/badge/API-reference-blue)](https://damson.github.io/compose-hardware-insets/)
 
-Compose tells you how deep the display cutout goes into each edge. It does not tell you **where**
-the camera is, so there is no supported way to ask whether the hardware is actually in the way of
-one particular control.
+Compose tells you how deep the display cutout goes into each edge, and can give you its outline.
+Compose does not say whether the hardware is in the way of one particular control, or by how much.
 
 This answers that. It publishes the cutout's rectangles as Compose state, turns them into an offset
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
@@ -44,6 +43,29 @@ The corner control is kept off the camera by `cornerClearance` and off the syste
 `clearOfTheHardware` with a bars-only policy. Those are two different questions, and the sample
 keeps them apart.
 
+## What this adds to Compose
+
+Compose has the raw readings: each edge's depth ([`WindowInsets.displayCutout`][displayCutout],
+[`WindowInsets.waterfall`][waterfall]), the cutout's outline as one `Path` from API 31
+([`WindowInsets.cutoutPath`][cutoutPath]), and per-cutout rulers a layout reads while it places its
+children ([`getDisplayCutoutBounds()`][getDisplayCutoutBounds]). This adds:
+
+- **One rectangle per cutout area, as state**, through `cutoutShape()`, readable in composition
+  from API 28.
+- **The decision**: `cornerClearance` counts only the rectangles a control overlaps and returns the
+  offset that clears them. With Compose alone, that geometry is yours to write.
+- **Geometry you can test**: `cornerClearanceFor` is pure, so it runs against hardware no emulator
+  has.
+- **A hardware-only inset**: `clearOfTheHardware` clears the cutout and the curved edge, leaves
+  the system bars out unless asked, and can zero the far edge for a `wrap_content` `ComposeView`.
+- **Rotation**: `ScreenEdge.onScreenAt` gives the screen edge to lay out along for a device edge,
+  under the current rotation.
+
+[displayCutout]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).displayCutout()>
+[waterfall]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).waterfall()>
+[cutoutPath]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).cutoutPath()>
+[getDisplayCutoutBounds]: <https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/package-summary#(androidx.compose.ui.layout.Placeable.PlacementScope).getDisplayCutoutBounds()>
+
 ## Pad content clear of the hardware
 
 ```kotlin
@@ -75,7 +97,12 @@ width, which would drop a corner button a centimetre to avoid a camera it is now
 the rectangles and count only the ones the control overlaps:
 
 ```kotlin
-val cutout by someSiblingView.cutoutShape()          // live state, not a reading
+// Once, outside composition, as the sample does in onCreate: each call takes the
+// view's only listener slot and starts a fresh, empty state.
+val cutoutState = someSiblingView.cutoutShape()
+
+// In the composable
+val cutout by cutoutState                            // live state, not a reading
 val clearance = cornerClearance(cutout.bounds, ScreenEdge.TOP, isAtTheEnd = true)
 
 Box(Modifier.offset { clearance(buttonWidthPx) }) { CloseButton() }

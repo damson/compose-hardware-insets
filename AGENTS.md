@@ -1,7 +1,7 @@
 # Working on this library
 
-One Gradle module, `hardware-insets`. Thirteen source files, and the tests are larger than the sources
-on purpose.
+Two Gradle modules, `hardware-insets` and `sample`. Thirteen library source files, and the tests are
+larger than the sources on purpose.
 
 ## The one command
 
@@ -23,12 +23,15 @@ pre-commit hook and its traps: [`docs/kotlin-style.md`](docs/kotlin-style.md).
 
 ## What each file answers
 
+Paths are under `hardware-insets/src/main/kotlin/com/devddagnet/hardwareinsets/lib/`.
+
 | File | Question it answers |
 |---|---|
-| `ScreenEdge.kt` | Which edge, and which screen edge a device edge has become under a rotation |
-| `CutoutShape.kt` | Where the cameras are, as Compose state that follows the window |
 | `HardwareInsets.kt` | How far off each edge content must sit, and how far one corner control must move |
-| `EdgeToEdge.kt` | How the window meets the hardware, and whether the bars are on screen |
+| `domain/CornerClearance.kt` | The pure geometry under `cornerClearance` |
+| `domain/ScreenEdge.kt` | Which edge, and which screen edge a device edge has become under a rotation |
+| `platform/CutoutReporting.kt` | Where the cameras are, as Compose state that follows the window |
+| `platform/EdgeToEdge.kt` | How the window meets the hardware, and whether the bars are on screen |
 
 `cornerClearanceFor` is the pure core. Geometry goes there, where it needs no window.
 
