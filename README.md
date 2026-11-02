@@ -7,7 +7,7 @@
 [![API reference](https://img.shields.io/badge/API-reference-blue)](https://damson.github.io/compose-hardware-insets/)
 
 Compose tells you how deep the display cutout goes into each edge, and can give you its outline.
-Nothing answers whether the hardware is in the way of one particular control, or by how much.
+It does not say whether the hardware is in the way of one particular control, or by how much.
 
 This answers that. It publishes the cutout's rectangles as Compose state, turns them into an offset
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
@@ -50,8 +50,8 @@ Compose has the raw readings: each edge's depth (`WindowInsets.displayCutout`,
 and per-cutout rulers a layout reads while it places its children (`getDisplayCutoutBounds()`). This
 adds:
 
-- **One rectangle per camera, as state**, through `cutoutShape()`, readable in composition from
-  API 28.
+- **One rectangle per cutout area, as state**, through `cutoutShape()`, readable in composition
+  from API 28.
 - **The decision**: `cornerClearance` counts only the rectangles a control overlaps and returns the
   offset that clears them. With Compose alone, that geometry is yours to write.
 - **Geometry you can test**: `cornerClearanceFor` is pure, so it runs against hardware no emulator
