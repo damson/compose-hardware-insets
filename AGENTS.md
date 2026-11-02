@@ -1,7 +1,7 @@
 # Working on this library
 
-One Gradle module, `hardware-insets`. Thirteen source files, and the tests are larger than the sources
-on purpose.
+Two Gradle modules: the library, `hardware-insets`, and `sample`, which depends on it as a project.
+The library is thirteen source files, and its tests are larger than its sources on purpose.
 
 ## The one command
 
@@ -23,12 +23,21 @@ pre-commit hook and its traps: [`docs/kotlin-style.md`](docs/kotlin-style.md).
 
 ## What each file answers
 
+Under `hardware-insets/src/main/kotlin/com/devddagnet/hardwareinsets/lib/`. `domain` is pure and
+gated at 100% coverage; `platform` is what touches a `View`, a `Display` or a window.
+
 | File | Question it answers |
 |---|---|
-| `ScreenEdge.kt` | Which edge, and which screen edge a device edge has become under a rotation |
-| `CutoutShape.kt` | Where the cameras are, as Compose state that follows the window |
 | `HardwareInsets.kt` | How far off each edge content must sit, and how far one corner control must move |
-| `EdgeToEdge.kt` | How the window meets the hardware, and whether the bars are on screen |
+| `ScreenEdgeAlignment.kt` | Which Compose `Alignment` a horizontal screen edge maps to |
+| `domain/CornerClearance.kt` | The geometry under `cornerClearance`, for rectangles no emulator can produce |
+| `domain/CutoutShape.kt` | Where the cameras are, and how deep into each edge content must not go |
+| `domain/HardwarePolicy.kt` | Which of the window's insets count as hardware |
+| `domain/ScreenEdge.kt` | Which edge, and which screen edge a device edge has become under a rotation |
+| `domain/` enums | `BarBehavior`, `CutoutMode`, `ScreenRotation`, `WindowCorner`: the named values the API takes |
+| `platform/CutoutReporting.kt` | The window's `CutoutShape` as Compose state that follows every inset dispatch |
+| `platform/EdgeToEdge.kt` | How the window meets the hardware, and whether the bars are on screen |
+| `platform/ScreenRotations.kt` | Which `ScreenRotation` a `Display` is at |
 
 `cornerClearanceFor` is the pure core. Geometry goes there, where it needs no window.
 

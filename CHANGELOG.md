@@ -5,6 +5,14 @@ All notable changes to this project are documented here, in the format of
 [semantic versioning](https://semver.org/spec/v2.0.0.html) from 0.1.0, which means the public API
 may change in any 0.x release.
 
+## [Unreleased]
+
+### Changed
+
+- The build moves to AGP 9.5.0, Gradle 9.8.2 and Kotlin 2.4.21. Nothing a consumer needs moves with
+  it: the aar's contents and its pom are identical to an AGP 9.4.1 build, and Kotlin 2.4.21 writes
+  the same 2.4 metadata as 2.4.20, so Kotlin 2.3.0 remains the floor.
+
 ## [0.2.0] - 2026-10-08
 
 ### Added
@@ -59,5 +67,6 @@ app's rather than the platform's is now a parameter.
 - `HardwarePolicy` has no rounded-corner term; the platform reports corners as a radius, not an
   inset.
 
+[Unreleased]: https://github.com/damson/compose-hardware-insets/compare/0.2.0...HEAD
 [0.2.0]: https://github.com/damson/compose-hardware-insets/releases/tag/0.2.0
 [0.1.0]: https://github.com/damson/compose-hardware-insets/releases/tag/0.1.0
