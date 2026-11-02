@@ -6,9 +6,9 @@
 [![Licence](https://img.shields.io/github/license/damson/compose-hardware-insets)](LICENSE)
 [![API reference](https://img.shields.io/badge/API-reference-blue)](https://damson.github.io/compose-hardware-insets/)
 
-Compose tells you how deep the display cutout goes into each edge. It does not tell you **where**
-the camera is, so there is no supported way to ask whether the hardware is actually in the way of
-one particular control.
+Compose tells you how deep the display cutout goes into each edge, and a layout placing its
+children can read where the camera is. Nothing tells you whether the hardware is actually in the way
+of one particular control.
 
 This answers that. It publishes the cutout's rectangles as Compose state, turns them into an offset
 for a control tucked into a corner, and keeps the pure geometry public so you can test it against
@@ -43,6 +43,22 @@ dependencies {
 The corner control is kept off the camera by `cornerClearance` and off the system bars by
 `clearOfTheHardware` with a bars-only policy. Those are two different questions, and the sample
 keeps them apart.
+
+## What this adds to Compose
+
+Compose has the raw readings: each edge's depth (`WindowInsets.displayCutout`,
+`WindowInsets.waterfall`), and the cutout's rectangles as rulers (`getDisplayCutoutBounds()`), which
+only a layout can read, while it places its children. This adds:
+
+- **The rectangles as state**, through `cutoutShape()`, readable in composition rather than only
+  in a placement block.
+- **The decision**: `cornerClearance` counts only the rectangles a control overlaps and returns the
+  offset that clears them. With Compose alone, that geometry is yours to write.
+- **Geometry you can test**: `cornerClearanceFor` is pure, so it runs against hardware no emulator
+  has.
+- **A hardware-only inset**: `clearOfTheHardware` clears the cutout and the curved edge, leaves
+  the system bars out unless asked, and can zero the far edge for a `wrap_content` `ComposeView`.
+- **Rotation**: `ScreenEdge.onScreenAt` says which screen edge a device edge has become.
 
 ## Pad content clear of the hardware
 
