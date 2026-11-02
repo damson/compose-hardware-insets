@@ -45,10 +45,10 @@ keeps them apart.
 
 ## What this adds to Compose
 
-Compose has the raw readings: each edge's depth (`WindowInsets.displayCutout`,
-`WindowInsets.waterfall`), the cutout's outline as one `Path` from API 31 (`WindowInsets.cutoutPath`),
-and per-cutout rulers a layout reads while it places its children (`getDisplayCutoutBounds()`). This
-adds:
+Compose has the raw readings: each edge's depth ([`WindowInsets.displayCutout`][displayCutout],
+[`WindowInsets.waterfall`][waterfall]), the cutout's outline as one `Path` from API 31
+([`WindowInsets.cutoutPath`][cutoutPath]), and per-cutout rulers a layout reads while it places its
+children ([`getDisplayCutoutBounds()`][getDisplayCutoutBounds]). This adds:
 
 - **One rectangle per cutout area, as state**, through `cutoutShape()`, readable in composition
   from API 28.
@@ -59,6 +59,11 @@ adds:
 - **A hardware-only inset**: `clearOfTheHardware` clears the cutout and the curved edge, leaves
   the system bars out unless asked, and can zero the far edge for a `wrap_content` `ComposeView`.
 - **Rotation**: `ScreenEdge.onScreenAt` says which screen edge a device edge has become.
+
+[displayCutout]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).displayCutout()>
+[waterfall]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).waterfall()>
+[cutoutPath]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).cutoutPath()>
+[getDisplayCutoutBounds]: <https://developer.android.com/reference/kotlin/androidx/compose/ui/layout/package-summary#(androidx.compose.ui.layout.Placeable.PlacementScope).getDisplayCutoutBounds()>
 
 ## Pad content clear of the hardware
 
