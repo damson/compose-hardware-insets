@@ -58,7 +58,8 @@ children ([`getDisplayCutoutBounds()`][getDisplayCutoutBounds]). This adds:
   has.
 - **A hardware-only inset**: `clearOfTheHardware` clears the cutout and the curved edge, leaves
   the system bars out unless asked, and can zero the far edge for a `wrap_content` `ComposeView`.
-- **Rotation**: `ScreenEdge.onScreenAt` says which screen edge a device edge has become.
+- **Rotation**: `ScreenEdge.onScreenAt` gives the screen edge to lay out along for a device edge,
+  under the current rotation.
 
 [displayCutout]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).displayCutout()>
 [waterfall]: <https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/package-summary#(androidx.compose.foundation.layout.WindowInsets.Companion).waterfall()>
@@ -96,7 +97,12 @@ width, which would drop a corner button a centimetre to avoid a camera it is now
 the rectangles and count only the ones the control overlaps:
 
 ```kotlin
-val cutout by someSiblingView.cutoutShape()          // live state, not a reading
+// Once, outside composition, as the sample does in onCreate: each call takes the
+// view's only listener slot and starts a fresh, empty state.
+val cutoutState = someSiblingView.cutoutShape()
+
+// In the composable
+val cutout by cutoutState                            // live state, not a reading
 val clearance = cornerClearance(cutout.bounds, ScreenEdge.TOP, isAtTheEnd = true)
 
 Box(Modifier.offset { clearance(buttonWidthPx) }) { CloseButton() }
