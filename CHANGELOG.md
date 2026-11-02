@@ -9,9 +9,7 @@ may change in any 0.x release.
 
 ### Changed
 
-- The build moves to AGP 9.5.0, Gradle 9.8.2 and Kotlin 2.4.21. Nothing a consumer needs moves with
-  it: the aar's contents and its pom are identical to an AGP 9.4.1 build, and Kotlin 2.4.21 writes
-  the same 2.4 metadata as 2.4.20, so Kotlin 2.3.0 remains the floor.
+- Built with AGP 9.5.0, Gradle 9.8.2 and Kotlin 2.4.21. Nothing changes for consumers.
 
 ## [0.2.0] - 2026-10-08
 
