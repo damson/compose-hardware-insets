@@ -23,6 +23,8 @@ pre-commit hook and its traps: [`docs/kotlin-style.md`](docs/kotlin-style.md).
 
 ## What each file answers
 
+Paths are under `hardware-insets/src/main/kotlin/com/devddagnet/hardwareinsets/lib/`.
+
 | File | Question it answers |
 |---|---|
 | `HardwareInsets.kt` | How far off each edge content must sit, and how far one corner control must move |
