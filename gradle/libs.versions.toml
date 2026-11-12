@@ -6,7 +6,7 @@ agp = "9.5.0"
 kotlin = "2.4.21"
 binaryCompatibility = "0.18.2"
 kover = "0.9.11"
-dokka = "2.2.0"
+dokka = "2.3.0"
 kotlinter = "5.7.0"
 detekt = "2.0.0-alpha.6"
 
